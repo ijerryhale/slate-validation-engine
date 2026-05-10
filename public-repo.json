@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "slateValidationPublicRepoPackage.v1",
+  "repositoryName": "slate-validation-engine",
+  "status": "runtime-and-public-adapter-package",
+  "createdForSlice": "Second Public Repo Track",
+  "licensePosture": "public evaluation; not open source; commercial use requires written permission",
+  "runtimePackagePending": false,
+  "privateInternalsAllowed": false,
+  "noPrivateHistoryRule": "Initialize this directory as a fresh public Git repository. Do not push private Slate repository history.",
+  "pushPolicy": "Do not push to any Git repository, public or private, without explicit consensus first.",
+  "privateInternalsPolicy": "Do not publish private validation engine internals to any public Git repository.",
+  "directories": {
+    "slateApplication": "slate-application",
+    "runtime": "Runtime",
+    "docs": "docs",
+    "schemas": "schemas",
+    "examples": "examples",
+    "fixtures": "fixtures",
+    "tools": "tools"
+  },
+  "entryPointsAfterRuntimePackage": [
+    "Runtime/slate",
+    "Runtime/manifest.json",
+    "slate-application"
+  ],
+  "includedNow": [
+    "README.md",
+    "LICENSE.md",
+    ".gitignore",
+    ".gitattributes",
+    "slate-application",
+    "slate-application/README.md",
+    "slate-application/Slate.xcodeproj",
+    "slate-application/Slate",
+    "slate-application/Runtime",
+    "slate-application/_tools/harnessapp",
+    "docs",
+    "Runtime/slate",
+    "Runtime/manifest.json",
+    "schemas",
+    "schemas/runtime-manifest.schema.json",
+    "examples",
+    "fixtures",
+    "Runtime",
+    "tools",
+    "tools/verify_public_package.sh",
+    "tools/verify_runtime_manifest.sh"
+  ],
+  "excluded": [
+    "private runtime implementation source",
+    "private package normalization logic",
+    "private track classification logic",
+    "private chapter/timecode reasoning",
+    "private review/navigation intelligence",
+    "private validation engine internals",
+    "private media",
+    "built application bundles",
+    "DerivedData and local Xcode user state",
+    "private Git history"
+  ]
+}

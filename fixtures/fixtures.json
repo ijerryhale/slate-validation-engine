@@ -1,0 +1,211 @@
+{
+  "schemaVersion": "validationPublicFixtures.v1",
+  "fixtureSet": "slate-validation-engine-minimal",
+  "purpose": "Public fixture set for CLI, report-schema, validation-engine examples, and public app adapter smoke tests.",
+  "root": "fixtures",
+  "sizeBudget": {
+    "maxBytes": 31457280,
+    "currentBytes": 21887574,
+    "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for public app adapter smoke tests."
+  },
+  "exampleManifest": "examples/examples.json",
+  "goldenRoot": "golden",
+  "goldenPolicy": "Golden stdout files normalize the absolute checkout path to <repo>.",
+  "excluded": [
+    "private movie files",
+    "sound files",
+    "pane dumps",
+    "private absolute paths",
+    "private production media"
+  ],
+  "fixtures": [
+    {
+      "id": "xml-source-basic",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/source-basic.itmsp/metadata.xml",
+      "commands": [
+        "report",
+        "analyze",
+        "readiness"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 1,
+        "warnings": 10,
+        "total": 11
+      },
+      "notes": "Minimal XML package fixture. The referenced movie is intentionally omitted from the public set."
+    },
+    {
+      "id": "json-source-basic",
+      "kind": "packageJSON",
+      "classification": "valid",
+      "path": "media_json/valid/source-basic.json",
+      "commands": [
+        "report",
+        "analyze",
+        "readiness"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 2,
+        "warnings": 5,
+        "total": 7
+      },
+      "notes": "Minimal JSON package fixture. The referenced movie is intentionally omitted from the public set."
+    },
+    {
+      "id": "xml-chapter-basic",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/chapter-basic.itmsp/metadata.xml",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 1,
+        "warnings": 10,
+        "total": 11
+      },
+      "notes": "Chapter XML fixture with tiny generated chapter images."
+    },
+    {
+      "id": "xml-source-chapters-crop",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/source-chapters-crop.itmsp/metadata.xml",
+      "commands": [
+        "app-adapter"
+      ],
+      "expected": {
+        "moviePath": "media_mov/valid/source-chapters-crop.mov",
+        "chapterImages": 3,
+        "frameRate": "29.970"
+      },
+      "notes": "Public movie/package/chapter-image triplet for Slate.app chapter crop projection, QuadrantView jumps, and computed timeline timecode smoke tests."
+    },
+    {
+      "id": "json-chapter-basic",
+      "kind": "packageJSON",
+      "classification": "valid",
+      "path": "media_json/valid/chapter-basic.json",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 2,
+        "warnings": 5,
+        "total": 7
+      },
+      "notes": "Chapter JSON fixture with tiny generated chapter images."
+    },
+    {
+      "id": "xml-asset-role-text",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/asset-role-text.itmsp/metadata.xml",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 1,
+        "warnings": 11,
+        "total": 12
+      },
+      "notes": "Text-role fixture with tiny subtitle and caption sidecars."
+    },
+    {
+      "id": "xml-source-missing-path",
+      "kind": "appleManifestXML",
+      "classification": "invalid",
+      "path": "media_pkg/invalid/source-missing-path.itmsp/metadata.xml",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 1,
+        "warnings": 10,
+        "total": 11
+      },
+      "notes": "Invalid XML fixture with no declared source path."
+    },
+    {
+      "id": "json-source-missing-path",
+      "kind": "packageJSON",
+      "classification": "invalid",
+      "path": "media_json/invalid/source-missing-path.json",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 2,
+        "warnings": 4,
+        "total": 6
+      },
+      "notes": "Invalid JSON fixture with no declared source path."
+    },
+    {
+      "id": "xml-source-nonlocal-url",
+      "kind": "appleManifestXML",
+      "classification": "invalid",
+      "path": "media_pkg/invalid/source-nonlocal-url.itmsp/metadata.xml",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 1,
+        "status": "warning",
+        "blockers": 0,
+        "warnings": 11,
+        "total": 11
+      },
+      "notes": "Invalid XML fixture with a URL-like source path."
+    },
+    {
+      "id": "json-source-nonlocal-url",
+      "kind": "packageJSON",
+      "classification": "invalid",
+      "path": "media_json/invalid/source-nonlocal-url.json",
+      "commands": [
+        "report"
+      ],
+      "expected": {
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 1,
+        "warnings": 6,
+        "total": 7
+      },
+      "notes": "Invalid JSON fixture with a URL-like source path."
+    }
+  ],
+  "supportFiles": [
+    "media_img/valid/chapter_probe_a.png",
+    "media_img/valid/chapter_probe_b.png",
+    "media_img/valid/chapter_probe_c.png",
+    "media_mov/valid/source-chapters-crop.mov",
+    "media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-01.png",
+    "media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-02.png",
+    "media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-03.png",
+    "media_sub/valid/itt/dialogue-basic.itt",
+    "media_sub/valid/itt/dialogue-regions.itt",
+    "media_sub/valid/itt/sidecar-derived.itt",
+    "media_sub/valid/scc/caption-basic.scc",
+    "media_sub/valid/srt/subtitle-basic.srt",
+    "media_sub/valid/ttml/source-basic-01-dialogue.ttml",
+    "media_sub/valid/ttml/source-basic-01-sdh.ttml"
+  ]
+}

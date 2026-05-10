@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/slate-validation-engine/schemas/runtime-manifest.schema.json",
+  "title": "Slate Runtime Artifact Manifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "runtime",
+    "contracts",
+    "artifact",
+    "policy"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "slateRuntimeArtifactManifest.v1"
+    },
+    "runtime": {
+      "type": "object",
+      "required": [
+        "name",
+        "kind",
+        "version",
+        "platform",
+        "architectures"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "const": "cli"
+        },
+        "description": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "architectures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "contracts": {
+      "type": "object",
+      "required": [
+        "cliContract",
+        "reportSchemaVersion",
+        "reportSchema",
+        "goldenVerifier"
+      ],
+      "properties": {
+        "cliContract": {
+          "type": "string"
+        },
+        "reportSchemaVersion": {
+          "type": "string"
+        },
+        "reportSchema": {
+          "type": "string"
+        },
+        "goldenVerifier": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "artifact": {
+      "type": "object",
+      "required": [
+        "status",
+        "delivery",
+        "path",
+        "committedToGit",
+        "sha256"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "available"
+          ]
+        },
+        "delivery": {
+          "type": "string",
+          "enum": [
+            "release-asset",
+            "installer",
+            "local-file"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "committedToGit": {
+          "type": "boolean"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sizeBytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "releaseAssetName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "requiresConsensusBeforePush",
+        "privateInternalsAllowed",
+        "validationEngineSourceIncluded",
+        "runtimeBinaryCommittedByConsensus"
+      ],
+      "properties": {
+        "requiresConsensusBeforePush": {
+          "type": "boolean",
+          "const": true
+        },
+        "privateInternalsAllowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "validationEngineSourceIncluded": {
+          "type": "boolean",
+          "const": false
+        },
+        "runtimeBinaryCommittedByConsensus": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

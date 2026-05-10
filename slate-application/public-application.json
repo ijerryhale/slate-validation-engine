@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "slatePublicApplicationPackage.v1",
+  "generatedAt": "2026-05-09T21:00:47Z",
+  "source": {
+    "repository": "Slate",
+    "branch": "main",
+    "commit": "cd1ce46bb8ef8409209095fd3bbb9824ee42a58a",
+    "trackedChangesPresent": true
+  },
+  "publicProject": "Slate.xcodeproj",
+  "validationEngineRuntime": {
+    "path": "../Runtime/slate",
+    "publicRepoPath": "Runtime/slate",
+    "kind": "tool",
+    "configuration": "Release",
+    "manifest": {
+      "path": "../Runtime/manifest.json",
+      "publicRepoPath": "Runtime/manifest.json",
+      "sha256": "e43451d8b65ee0b3c075fb099d7746a3e436b72546fdf5510a610b8988bc5e93",
+      "sizeBytes": 987
+    },
+    "sha256": "074fda900c6aa0ecba13123360e3a83a39dc1ff8afe2acbf1af3c37e2a921948",
+    "sizeBytes": 717184,
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
+  },
+  "runtimeLibrary": {
+    "path": "Runtime/libSlateRuntime.a",
+    "kind": "static-archive",
+    "configuration": "Release",
+    "sourceBuildProductPath": "build/Release/libSlateRuntime.a",
+    "sha256": "8b9d3dac8c12cc82077808c64f1cbc69bd21b62c277039adf30b112e4a7a434c",
+    "sizeBytes": 843944,
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
+  },
+  "runtimeTools": [
+    {
+      "name": "SlateValidationRuntime",
+      "path": "Runtime/SlateValidationRuntime",
+      "kind": "tool",
+      "configuration": "Release",
+      "sourceBuildProductPath": "build/Release/SlateValidationRuntime",
+      "xcodeCopyPhase": "Copy Slate Runtime Tools",
+      "buildOutputPathByConfiguration": {
+        "Release": "build/Release/SlateValidationRuntime"
+      },
+      "sha256": "42633f6c15e2727c7d76a8db15e106dfed8219cf0f2ada0f1ddf23baeae132f4",
+      "sizeBytes": 717232,
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "name": "SlatePackageRuntime",
+      "path": "Runtime/SlatePackageRuntime",
+      "kind": "tool",
+      "configuration": "Release",
+      "sourceBuildProductPath": "build/Release/SlatePackageRuntime",
+      "xcodeCopyPhase": "Copy Slate Runtime Tools",
+      "buildOutputPathByConfiguration": {
+        "Release": "build/Release/SlatePackageRuntime"
+      },
+      "sha256": "b142ce227ef236e8db56251eb2c59cd97c7c17d76d99def73017882a996dbf22",
+      "sizeBytes": 308832,
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "name": "SlateTrackRuntime",
+      "path": "Runtime/SlateTrackRuntime",
+      "kind": "tool",
+      "configuration": "Release",
+      "sourceBuildProductPath": "build/Release/SlateTrackRuntime",
+      "xcodeCopyPhase": "Copy Slate Runtime Tools",
+      "buildOutputPathByConfiguration": {
+        "Release": "build/Release/SlateTrackRuntime"
+      },
+      "sha256": "2c078866e9ce70c02ac262af1e833202692d0c5bf5b167b3501188cb1ab96288",
+      "sizeBytes": 466368,
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "name": "SlateChapterRuntime",
+      "path": "Runtime/SlateChapterRuntime",
+      "kind": "tool",
+      "configuration": "Release",
+      "sourceBuildProductPath": "build/Release/SlateChapterRuntime",
+      "xcodeCopyPhase": "Copy Slate Runtime Tools",
+      "buildOutputPathByConfiguration": {
+        "Release": "build/Release/SlateChapterRuntime"
+      },
+      "sha256": "d212ea62dcae13ae1e43096969ae37aad0e0bd02a1525e3dcac6ef309af27263",
+      "sizeBytes": 602320,
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "name": "SlateReviewRuntime",
+      "path": "Runtime/SlateReviewRuntime",
+      "kind": "tool",
+      "configuration": "Release",
+      "sourceBuildProductPath": "build/Release/SlateReviewRuntime",
+      "xcodeCopyPhase": "Copy Slate Runtime Tools",
+      "buildOutputPathByConfiguration": {
+        "Release": "build/Release/SlateReviewRuntime"
+      },
+      "sha256": "9776bc6e32b42901326275ad33ec9b4e1a8e7d720a5b7f43b1dd3a610b9820aa",
+      "sizeBytes": 137872,
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ]
+    },
+    {
+      "name": "SlateTimelineRuntime",
+      "path": "Runtime/SlateTimelineRuntime",
+      "kind": "tool",
+      "configuration": "Release",
+      "sourceBuildProductPath": "build/Release/SlateTimelineRuntime",
+      "xcodeCopyPhase": "Copy Slate Runtime Tools",
+      "buildOutputPathByConfiguration": {
+        "Release": "build/Release/SlateTimelineRuntime"
+      },
+      "sha256": "54cafbe20cabd2584cdac3b90183a397c7f69f10bf434b33d852a56b907d365d",
+      "sizeBytes": 153920,
+      "architectures": [
+        "x86_64",
+        "arm64"
+      ]
+    }
+  ],
+  "expectedBuildProducts": [
+    {
+      "scheme": "Slate",
+      "product": "Slate.app",
+      "configurations": [
+        "Release"
+      ],
+      "pathByConfiguration": {
+        "Release": "build/Release/Slate.app"
+      }
+    },
+    {
+      "scheme": "paneharness",
+      "product": "paneharness.app",
+      "configurations": [
+        "Release"
+      ],
+      "pathByConfiguration": {
+        "Release": "build/Release/paneharness.app"
+      }
+    }
+  ]
+}

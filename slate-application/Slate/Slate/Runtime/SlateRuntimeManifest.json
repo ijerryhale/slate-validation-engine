@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "slateRuntimeManifest.v1",
+  "runtimeInstallDirectory": "Same directory as Slate.app",
+  "runtimes": [
+    {
+      "name": "SlateValidationRuntime",
+      "kind": "tool",
+      "status": "available",
+      "version": "0.1.0-adapter-wave10",
+      "configuration": "Debug",
+      "platform": "macOS",
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "contracts": [
+        "validationObservedState.v1",
+        "validationReport.v1"
+      ],
+      "required": false,
+      "artifact": {
+        "delivery": "sibling-tool",
+        "buildProductPath": "build/Debug/SlateValidationRuntime",
+        "installPath": "SlateValidationRuntime",
+        "committedToGit": false,
+        "sha256": "3d0a0cf95cf29150a2970986b6a6bfb5f8d73cbcdc817342e403d50362d5f3b5",
+        "sizeBytes": 839024
+      }
+    },
+    {
+      "name": "SlatePackageRuntime",
+      "kind": "tool",
+      "status": "available",
+      "version": "0.1.0-adapter-wave11",
+      "configuration": "Debug",
+      "platform": "macOS",
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "contracts": [
+        "packageContext.v1",
+        "packageSnapshot.v1"
+      ],
+      "required": false,
+      "artifact": {
+        "delivery": "sibling-tool",
+        "buildProductPath": "build/Debug/SlatePackageRuntime",
+        "installPath": "SlatePackageRuntime",
+        "committedToGit": false,
+        "sha256": "34bde953abf50863b27eba98a6ee361ab148df15bb059ccea849b21814ec7fba",
+        "sizeBytes": 342752
+      }
+    },
+    {
+      "name": "SlateTrackRuntime",
+      "kind": "tool",
+      "status": "available",
+      "version": "0.1.0-adapter-audiotoolbox-prune",
+      "configuration": "Debug",
+      "platform": "macOS",
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "contracts": [
+        "trackSnapshot.v1"
+      ],
+      "required": false,
+      "artifact": {
+        "delivery": "sibling-tool",
+        "buildProductPath": "build/Debug/SlateTrackRuntime",
+        "installPath": "SlateTrackRuntime",
+        "committedToGit": false,
+        "sha256": "464e131e01cdfb8f54e283f11eb062933ef93a2d78c6222b15de2a86e1131847",
+        "sizeBytes": 563808
+      }
+    },
+    {
+      "name": "SlateChapterRuntime",
+      "kind": "tool",
+      "status": "available",
+      "version": "0.1.0-adapter-wave7",
+      "configuration": "Debug",
+      "platform": "macOS",
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "contracts": [
+        "chapterSnapshot.v1"
+      ],
+      "required": false,
+      "artifact": {
+        "delivery": "sibling-tool",
+        "buildProductPath": "build/Debug/SlateChapterRuntime",
+        "installPath": "SlateChapterRuntime",
+        "committedToGit": false,
+        "sha256": "0f95696d13a43f3df7c78978ff2b7fa325996712a6b94dfcb3a1adaa57298fd8",
+        "sizeBytes": 746880
+      }
+    },
+    {
+      "name": "SlateReviewRuntime",
+      "kind": "tool",
+      "status": "available",
+      "version": "0.1.0-adapter-wave8",
+      "configuration": "Debug",
+      "platform": "macOS",
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "contracts": [
+        "reviewSnapshot.v1"
+      ],
+      "required": false,
+      "artifact": {
+        "delivery": "sibling-tool",
+        "buildProductPath": "build/Debug/SlateReviewRuntime",
+        "installPath": "SlateReviewRuntime",
+        "committedToGit": false,
+        "sha256": "d92648a8b594e838d13d5f61e33fe0829129316404e9f83bd04d593f4d548cef",
+        "sizeBytes": 157504
+      }
+    },
+    {
+      "name": "SlateTimelineRuntime",
+      "kind": "tool",
+      "status": "available",
+      "version": "0.1.0-adapter-wave9",
+      "configuration": "Debug",
+      "platform": "macOS",
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "contracts": [
+        "timelineSnapshot.v1"
+      ],
+      "required": false,
+      "artifact": {
+        "delivery": "sibling-tool",
+        "buildProductPath": "build/Debug/SlateTimelineRuntime",
+        "installPath": "SlateTimelineRuntime",
+        "committedToGit": false,
+        "sha256": "8cc692d8de9e1d1a9978d46c6c1e349244984e4fc088efac912a740babf9631b",
+        "sizeBytes": 198368
+      }
+    }
+  ],
+  "policy": {
+    "requiresConsensusBeforePush": true,
+    "privateInternalsAllowed": false,
+    "runtimeBinariesCommittedToSourceHistory": false
+  }
+}

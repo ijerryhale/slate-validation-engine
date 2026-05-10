@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="eng">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:fontFamily="Helvetica" tts:fontSize="100%" tts:textAlign="center" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </styling>
+    <layout>
+      <region xml:id="bottomCenter" tts:origin="10% 78%" tts:extent="80% 18%" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </layout>
+  </head>
+  <body region="bottomCenter" style="s1">
+    <div>
+      <p begin="00:00:03.000" end="00:00:08.000">EN: Mara: Camera one is holding steady at the gate.<br/>Clock reads 00:00:03.000.</p>
+      <p begin="00:00:11.000" end="00:00:16.000">EN: Jules: Copy that. Audio check is still clean.<br/>Clock reads 00:00:11.000.</p>
+      <p begin="00:00:19.000" end="00:00:24.000">EN: Mara: Keep the slate open for this QC pass.<br/>Clock reads 00:00:19.000.</p>
+      <p begin="00:00:27.000" end="00:00:32.000">EN: Jules: Lower third holds through the handoff.<br/>Clock reads 00:00:27.000.</p>
+      <p begin="00:00:35.000" end="00:00:40.000">EN: Mara: Mark this take as the reference path.<br/>Clock reads 00:00:35.000.</p>
+    </div>
+  </body>
+</tt>

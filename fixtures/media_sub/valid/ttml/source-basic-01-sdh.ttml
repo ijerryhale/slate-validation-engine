@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml"
+    xmlns:ttp="http://www.w3.org/ns/ttml#parameter"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling"
+    xmlns:xml="http://www.w3.org/XML/1998/namespace"
+    ttp:timeBase="media"
+    ttp:frameRate="24"
+    xml:lang="en-US">
+  <head>
+    <styling>
+      <style xml:id="caption" tts:fontFamily="sansSerif" tts:fontSize="5%" tts:lineHeight="120%" tts:color="white" tts:backgroundColor="black" tts:textAlign="center"/>
+      <style xml:id="sound" tts:fontStyle="italic" tts:color="#F2F2F2"/>
+    </styling>
+    <layout>
+      <region xml:id="upper" tts:origin="12% 8%" tts:extent="76% 18%" tts:displayAlign="before"/>
+      <region xml:id="lower" tts:origin="10% 74%" tts:extent="80% 20%" tts:displayAlign="after"/>
+    </layout>
+  </head>
+  <body>
+    <div xml:lang="en-US" style="caption">
+      <p region="upper" begin="00:00:00.500" end="00:00:02.500"><span style="sound">[room tone]</span></p>
+      <p region="lower" begin="00:00:03.000" end="00:00:06.000">We will start on your cue.</p>
+      <p region="lower" begin="00:00:06.500" end="00:00:10.000"><span style="sound">[camera motor starts]</span><br/>Camera is rolling.</p>
+      <p region="lower" begin="00:00:11.000" end="00:00:15.000">Slate, source basic zero one, take two.</p>
+      <p region="lower" begin="00:00:16.250" end="00:00:20.250">Hold the frame. Let the reference settle.</p>
+      <p region="lower" begin="00:00:21.000" end="00:00:25.000"><span style="sound">[soft confirmation beep]</span><br/>Signal confirmed.</p>
+      <p region="lower" begin="00:00:26.000" end="00:00:29.500">End of sequence.</p>
+    </div>
+  </body>
+</tt>

@@ -1,0 +1,95 @@
+{
+  "package": [
+    {
+      "id": "chapter-basic_pkg",
+      "type": "apple-package-manifest",
+      "client": "Slate Fixtures",
+      "vendorID": "CHAPTER-VEND-1",
+      "isan": "0000-0000-CHAP-0001-X-0000-0000-2",
+      "productionCompany": "Slate Fixtures",
+      "copyright": "2026 Slate Fixtures",
+      "country": "US",
+      "originalSpokenLanguage": "en",
+      "clientGenres": [],
+      "platformData": [],
+      "locales": [
+        {
+          "id": "en-US",
+          "name": "English (US)",
+          "shortSynopsis": "Chapter probe JSON fixture.",
+          "longSynopsis": "Chapter probe JSON fixture for package-session chapter projection and image-status display.",
+          "theatricalReleaseDate": "2026-04-03",
+          "ratingSystem": "TVPG",
+          "rating": "TV-PG",
+          "posterArt": "",
+          "posterArtTerritory": "",
+          "cast": [],
+          "crew": [],
+          "chapterTitles": [
+            {
+              "chapterTitle": "Signal"
+            },
+            {
+              "chapterTitle": "Drift"
+            },
+            {
+              "chapterTitle": "Landing"
+            }
+          ]
+        }
+      ],
+      "avAssets": [
+        {
+          "id": "av_chapter-basic",
+          "fileName": "../../media_mov/omitted/chapter-source.mov",
+          "filePath": "../../media_mov/omitted/chapter-source.mov",
+          "cropTop": "0",
+          "cropLeft": "0",
+          "cropBtm": "0",
+          "cropRght": "0",
+          "assetTypeID": "1",
+          "assetTerritory": "US",
+          "videoWidth": "1920",
+          "videoHeight": "1080",
+          "frameRate": "29.970",
+          "audioTracks": []
+        }
+      ],
+      "chapterAssets": [
+        {
+          "mediaChapSMPTE": "00:00:10:00",
+          "mediaImgSMPTE": "00:00:10:12",
+          "chapTime": "00:00:10:00",
+          "imageTime": "00:00:10:12",
+          "cropTop": "2",
+          "cropLeft": "4",
+          "cropBtm": "6",
+          "cropRght": "8",
+          "imageFilePath": "../../media_img/valid/chapter_probe_a.png"
+        },
+        {
+          "mediaChapSMPTE": "00:02:00:00",
+          "mediaImgSMPTE": "00:02:00:12",
+          "chapTime": "00:02:00:00",
+          "imageTime": "00:02:00:12",
+          "cropTop": "10",
+          "cropLeft": "12",
+          "cropBtm": "14",
+          "cropRght": "16",
+          "imageFilePath": "../../media_img/valid/chapter_probe_b.png"
+        },
+        {
+          "mediaChapSMPTE": "00:05:00:00",
+          "mediaImgSMPTE": "00:05:00:12",
+          "chapTime": "00:05:00:00",
+          "imageTime": "00:05:00:12",
+          "cropTop": "18",
+          "cropLeft": "20",
+          "cropBtm": "22",
+          "cropRght": "24",
+          "imageFilePath": "../../media_img/valid/chapter_probe_c.png"
+        }
+      ]
+    }
+  ]
+}

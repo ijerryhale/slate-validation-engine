@@ -1,0 +1,72 @@
+[
+  {
+    "category" : "metadata",
+    "evidence" : "The open package session does not declare Package.vendorID.",
+    "fallbackUsed" : false,
+    "code" : "metadata.declared_vendor_id_is_missing",
+    "scope" : "package-metadata",
+    "title" : "Declared vendor ID is missing",
+    "identitySource" : "rule-contract",
+    "severity" : "blocker"
+  },
+  {
+    "category" : "package",
+    "evidence" : "Package declares ..\/..\/media_mov\/omitted\/source-basic.mov, but that file does not exist relative to <repo>\/fixtures\/media_json\/valid\/source-basic.json.",
+    "fallbackUsed" : false,
+    "code" : "package.declared_primary_asset_is_missing_on_disk",
+    "scope" : "package-session",
+    "title" : "Declared primary asset is missing on disk",
+    "identitySource" : "rule-contract",
+    "severity" : "blocker"
+  },
+  {
+    "category" : "metadata",
+    "evidence" : "The open package session does not expose cast rows for the primary locale.",
+    "fallbackUsed" : false,
+    "code" : "metadata.primary_locale_cast_is_missing",
+    "scope" : "package-metadata",
+    "title" : "Primary locale cast is missing",
+    "identitySource" : "rule-contract",
+    "severity" : "warning"
+  },
+  {
+    "category" : "metadata",
+    "evidence" : "The open package session does not expose crew rows for the primary locale.",
+    "fallbackUsed" : false,
+    "code" : "metadata.primary_locale_crew_is_missing",
+    "scope" : "package-metadata",
+    "title" : "Primary locale crew is missing",
+    "identitySource" : "rule-contract",
+    "severity" : "warning"
+  },
+  {
+    "category" : "metadata",
+    "evidence" : "The open package session does not expose Locale.posterArt for the primary locale.",
+    "fallbackUsed" : false,
+    "code" : "metadata.primary_locale_poster_art_is_missing",
+    "scope" : "package-metadata",
+    "title" : "Primary locale poster art is missing",
+    "identitySource" : "rule-contract",
+    "severity" : "warning"
+  },
+  {
+    "category" : "roles",
+    "evidence" : "Found 1 declared video asset, but none classify as Primary Video, Preview\/Trailer Video, or Supplemental Video. source-basic currently resolves as Generic Video (..\/..\/media_mov\/omitted\/source-basic.mov).",
+    "fallbackUsed" : false,
+    "code" : "roles.declared_video_roles_are_not_classified",
+    "scope" : "track-state",
+    "title" : "Declared video roles are not classified",
+    "identitySource" : "rule-contract",
+    "severity" : "warning"
+  },
+  {
+    "category" : "package",
+    "evidence" : "A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.",
+    "fallbackUsed" : false,
+    "code" : "package.movie_comparison_unavailable",
+    "scope" : "package-session",
+    "title" : "Movie comparison unavailable",
+    "identitySource" : "rule-contract",
+    "severity" : "warning"
+  }
+]

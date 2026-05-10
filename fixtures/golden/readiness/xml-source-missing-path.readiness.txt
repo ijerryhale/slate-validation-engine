@@ -1,0 +1,35 @@
+Readiness: 1 blocker
+Summary:
+- Blockers: 1
+- Warnings: 10
+
+Next:
+- Package / Declared primary asset is missing
+
+Blockers:
+- Package: Declared primary asset is missing
+  The open package session does not declare a primary AV asset filename.
+
+Warnings:
+- Metadata: Declared ISAN is missing
+  The open package session does not declare Package.isan.
+- Metadata: Declared original spoken language is missing
+  The open package session does not declare Package.originalSpokenLanguage.
+- Metadata: Declared package copyright is missing
+  The open package session does not declare Package.copyright.
+- Metadata: Declared package country is missing
+  The open package session does not declare Package.country.
+- Metadata: Declared platform data is missing
+  The open package session does not declare any platform-data rows.
+- Metadata: Declared production company is missing
+  The open package session does not declare Package.productionCompany.
+- Metadata: Primary locale cast is missing
+  The open package session does not expose cast rows for the primary locale.
+- Metadata: Primary locale crew is missing
+  The open package session does not expose crew rows for the primary locale.
+- Metadata: Primary locale poster art is missing
+  The open package session does not expose Locale.posterArt for the primary locale.
+
+Deferred Comparisons:
+- Package: Movie comparison unavailable
+  A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.

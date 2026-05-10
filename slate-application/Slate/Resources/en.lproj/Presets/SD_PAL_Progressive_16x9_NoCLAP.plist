@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Creation Date</key>
+	<real>361833483.08993</real>
+	<key>Settings</key>
+	<dict>
+		<key>Apply Aspect Ratio</key>
+		<true/>
+		<key>Apply Color</key>
+		<true/>
+		<key>Apply Fiel</key>
+		<true/>
+		<key>Don't Change Clap</key>
+		<false/>
+		<key>Don't Change Colr</key>
+		<false/>
+		<key>Don't Change Gama</key>
+		<false/>
+		<key>Don't Change Pasp</key>
+		<false/>
+		<key>Don't Change Tapt</key>
+		<false/>
+		<key>Gamma</key>
+		<real>2.2000000476837158</real>
+		<key>Remove Clap</key>
+		<true/>
+		<key>Remove Clipping</key>
+		<true/>
+		<key>Remove Colr</key>
+		<false/>
+		<key>Remove Fiel</key>
+		<false/>
+		<key>Remove Gama</key>
+		<true/>
+		<key>Remove Pasp</key>
+		<false/>
+		<key>Remove Scaling</key>
+		<true/>
+		<key>Remove Tapt</key>
+		<false/>
+		<key>Trim Rect</key>
+		<array>
+			<integer>0</integer>
+			<integer>0</integer>
+			<integer>0</integer>
+			<integer>0</integer>
+		</array>
+		<key>fiel</key>
+		<dict>
+			<key>Detail</key>
+			<integer>0</integer>
+			<key>Fields</key>
+			<integer>1</integer>
+		</dict>
+		<key>nclc</key>
+		<dict>
+			<key>Matrix</key>
+			<integer>6</integer>
+			<key>Primaries</key>
+			<integer>5</integer>
+			<key>Transfer Function</key>
+			<integer>1</integer>
+		</dict>
+		<key>pasp</key>
+		<dict>
+			<key>Horizontal Spacing</key>
+			<integer>64</integer>
+			<key>Vertical Spacing</key>
+			<integer>45</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>

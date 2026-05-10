@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<string>ACTION-ADVENTURE-00</string>
+	<string>AFRICAN-00</string>
+	<string>ANIME-00</string>
+	<string>BOLLYWOOD-00</string>
+	<string>CLASSICS-00</string>
+	<string>COMEDY-00</string>
+	<string>CONCERT-FILMS-00</string>
+	<string>DOCUMENTARY-00</string>
+	<string>DRAMA-00</string>
+	<string>FOREIGN-00</string>
+	<string>HOLIDAY-00</string>
+	<string>HORROR-00</string>
+	<string>INDEPENDENT-00</string>
+	<string>KIDS-FAMILY-00</string>
+	<string>MADE-FOR-TV-00</string>
+	<string>MIDDLE-EASTERN-00</string>
+	<string>MUSIC-DOCUMENTARIES-00</string>
+	<string>MUSIC-FEATURE-FILMS-00</string>
+	<string>MUSICALS-00</string>
+	<string>REGIONAL-INDIAN-00</string>
+	<string>ROMANCE-00</string>
+	<string>RUSSIAN-00</string>
+	<string>SCIFI-FANTASY-00</string>
+	<string>SHORT-FILMS-00</string>
+	<string>SPECIAL-INTEREST-00</string>
+	<string>SPORTS-00</string>
+	<string>THRILLER-00</string>
+	<string>TURKISH-00</string>
+	<string>URBAN-00</string>
+	<string>WESTERN-00</string>
+</array>
+</plist>

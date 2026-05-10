@@ -1,0 +1,219 @@
+{
+  "status" : "blocker",
+  "schemaVersion" : "1",
+  "summary" : {
+    "blockers" : 1,
+    "total" : 12,
+    "warnings" : 11
+  },
+  "operatorText" : "Summary:\n- Blockers: 1\n- Warnings: 11\n\nNext:\n- Metadata \/ Declared vendor ID is missing\n\nBlockers:\n- Metadata: Declared vendor ID is missing\n  The open package session does not declare Package.vendorID.\n\nWarnings:\n- Metadata: Declared ISAN is missing\n  The open package session does not declare Package.isan.\n- Metadata: Declared original spoken language is missing\n  The open package session does not declare Package.originalSpokenLanguage.\n- Metadata: Declared package copyright is missing\n  The open package session does not declare Package.copyright.\n- Metadata: Declared package country is missing\n  The open package session does not declare Package.country.\n- Metadata: Declared platform data is missing\n  The open package session does not declare any platform-data rows.\n- Metadata: Declared production company is missing\n  The open package session does not declare Package.productionCompany.\n- Metadata: Primary locale cast is missing\n  The open package session does not expose cast rows for the primary locale.\n- Metadata: Primary locale crew is missing\n  The open package session does not expose crew rows for the primary locale.\n- Metadata: Primary locale poster art is missing\n  The open package session does not expose Locale.posterArt for the primary locale.\n- Package: Declared primary asset does not classify as a video asset\n  Package selected ..\/..\/..\/media_sub\/valid\/srt\/subtitle-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.\n\nDeferred Comparisons:\n- Package: Movie comparison unavailable\n  A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.",
+  "nextFinding" : {
+    "category" : "metadata",
+    "evidence" : "The open package session does not declare Package.vendorID.",
+    "fallbackUsed" : false,
+    "code" : "metadata.declared_vendor_id_is_missing",
+    "scope" : "package-metadata",
+    "title" : "Declared vendor ID is missing",
+    "identitySource" : "rule-contract",
+    "severity" : "blocker"
+  },
+  "findings" : [
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare Package.vendorID.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_vendor_id_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared vendor ID is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "blocker"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare Package.isan.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_isan_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared ISAN is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare Package.originalSpokenLanguage.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_original_spoken_language_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared original spoken language is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare Package.copyright.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_package_copyright_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared package copyright is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare Package.country.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_package_country_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared package country is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare any platform-data rows.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_platform_data_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared platform data is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not declare Package.productionCompany.",
+      "fallbackUsed" : false,
+      "code" : "metadata.declared_production_company_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Declared production company is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not expose cast rows for the primary locale.",
+      "fallbackUsed" : false,
+      "code" : "metadata.primary_locale_cast_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Primary locale cast is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not expose crew rows for the primary locale.",
+      "fallbackUsed" : false,
+      "code" : "metadata.primary_locale_crew_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Primary locale crew is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "metadata",
+      "evidence" : "The open package session does not expose Locale.posterArt for the primary locale.",
+      "fallbackUsed" : false,
+      "code" : "metadata.primary_locale_poster_art_is_missing",
+      "scope" : "package-metadata",
+      "title" : "Primary locale poster art is missing",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "package",
+      "evidence" : "Package selected ..\/..\/..\/media_sub\/valid\/srt\/subtitle-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.",
+      "fallbackUsed" : false,
+      "code" : "package.declared_primary_asset_does_not_classify_as_a_video_asset",
+      "scope" : "package-session",
+      "title" : "Declared primary asset does not classify as a video asset",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    },
+    {
+      "category" : "package",
+      "evidence" : "A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.",
+      "fallbackUsed" : false,
+      "code" : "package.movie_comparison_unavailable",
+      "scope" : "package-session",
+      "title" : "Movie comparison unavailable",
+      "identitySource" : "rule-contract",
+      "severity" : "warning"
+    }
+  ],
+  "validationResultPayload" : {
+    "findings" : [
+      {
+        "code" : "metadata.declared_vendor_id_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare Package.vendorID.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.declared_isan_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare Package.isan.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.declared_original_spoken_language_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare Package.originalSpokenLanguage.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.declared_package_copyright_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare Package.copyright.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.declared_package_country_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare Package.country.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.declared_platform_data_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare any platform-data rows.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.declared_production_company_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not declare Package.productionCompany.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.primary_locale_cast_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not expose cast rows for the primary locale.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.primary_locale_crew_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not expose crew rows for the primary locale.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "metadata.primary_locale_poster_art_is_missing",
+        "scope" : "package-metadata",
+        "evidence" : "The open package session does not expose Locale.posterArt for the primary locale.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "package.declared_primary_asset_does_not_classify_as_a_video_asset",
+        "scope" : "package-session",
+        "evidence" : "Package selected ..\/..\/..\/media_sub\/valid\/srt\/subtitle-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.",
+        "fallbackUsed" : false
+      },
+      {
+        "code" : "package.movie_comparison_unavailable",
+        "scope" : "package-session",
+        "evidence" : "A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.",
+        "fallbackUsed" : false
+      }
+    ],
+    "schemaVersion" : "1"
+  }
+}

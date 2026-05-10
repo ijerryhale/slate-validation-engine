@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "validationExamples.v1",
+  "fixtureSet": "slate-validation-engine-minimal",
+  "root": "fixtures",
+  "cli": "slate",
+  "examples": [
+    {
+      "id": "report-xml-source-basic",
+      "fixtureId": "xml-source-basic",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_pkg/valid/source-basic.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/xml-source-basic.report.json",
+      "stderr": "",
+      "description": "Emit the full canonical validation report JSON for an Apple manifest XML fixture."
+    },
+    {
+      "id": "analyze-json-source-basic",
+      "fixtureId": "json-source-basic",
+      "command": [
+        "slate",
+        "analyze",
+        "fixtures/media_json/valid/source-basic.json"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/analyze/json-source-basic.analyze.json",
+      "stderr": "",
+      "description": "Emit only the canonical finding array for a package JSON fixture."
+    },
+    {
+      "id": "readiness-xml-source-missing-path",
+      "fixtureId": "xml-source-missing-path",
+      "command": [
+        "slate",
+        "readiness",
+        "-p",
+        "fixtures/media_pkg/invalid/source-missing-path.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/readiness/xml-source-missing-path.readiness.txt",
+      "stderr": "",
+      "description": "Emit operator-readable readiness text for an invalid manifest."
+    }
+  ],
+  "goldenReports": [
+    {
+      "fixtureId": "xml-source-basic",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_pkg/valid/source-basic.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/xml-source-basic.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "json-source-basic",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_json/valid/source-basic.json"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/json-source-basic.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "xml-chapter-basic",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_pkg/valid/chapter-basic.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/xml-chapter-basic.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "json-chapter-basic",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_json/valid/chapter-basic.json"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/json-chapter-basic.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "xml-asset-role-text",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_pkg/valid/asset-role-text.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/xml-asset-role-text.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "xml-source-missing-path",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_pkg/invalid/source-missing-path.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/xml-source-missing-path.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "json-source-missing-path",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_json/invalid/source-missing-path.json"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/json-source-missing-path.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "xml-source-nonlocal-url",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_pkg/invalid/source-nonlocal-url.itmsp/metadata.xml"
+      ],
+      "expectedExitCode": 1,
+      "stdout": "golden/report/xml-source-nonlocal-url.report.json",
+      "stderr": ""
+    },
+    {
+      "fixtureId": "json-source-nonlocal-url",
+      "command": [
+        "slate",
+        "report",
+        "--package",
+        "fixtures/media_json/invalid/source-nonlocal-url.json"
+      ],
+      "expectedExitCode": 2,
+      "stdout": "golden/report/json-source-nonlocal-url.report.json",
+      "stderr": ""
+    }
+  ]
+}

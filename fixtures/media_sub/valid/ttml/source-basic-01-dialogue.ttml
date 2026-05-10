@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml"
+    xmlns:ttp="http://www.w3.org/ns/ttml#parameter"
+    xmlns:tts="http://www.w3.org/ns/ttml#styling"
+    xmlns:xml="http://www.w3.org/XML/1998/namespace"
+    ttp:timeBase="media"
+    ttp:frameRate="24"
+    xml:lang="en-US">
+  <head>
+    <styling>
+      <style xml:id="base" tts:fontFamily="sansSerif" tts:fontSize="5.2%" tts:lineHeight="125%" tts:color="white" tts:backgroundColor="black" tts:textAlign="center"/>
+      <style xml:id="speaker" tts:fontStyle="italic"/>
+    </styling>
+    <layout>
+      <region xml:id="bottom" tts:origin="10% 76%" tts:extent="80% 18%" tts:displayAlign="after"/>
+    </layout>
+  </head>
+  <body>
+    <div xml:lang="en-US" style="base" region="bottom">
+      <p begin="00:00:01.000" end="00:00:04.000">Mara, are we set?</p>
+      <p begin="00:00:04.500" end="00:00:08.000">Almost. Give me a clean count from the top.</p>
+      <p begin="00:00:08.500" end="00:00:12.000"><span style="speaker">Jules:</span> Picture is stable, audio slate is armed.</p>
+      <p begin="00:00:13.250" end="00:00:17.500">Good. Hold on the marker until the light changes.</p>
+      <p begin="00:00:18.250" end="00:00:22.250">Copy that. Rolling through the reference window.</p>
+      <p begin="00:00:24.000" end="00:00:28.500">And cut. Save that take for review.</p>
+    </div>
+  </body>
+</tt>

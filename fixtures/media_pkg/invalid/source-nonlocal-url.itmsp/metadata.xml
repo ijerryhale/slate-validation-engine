@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="1.0" identifier="public_source_nonlocal_url" xmlns="http://apple.com/itunes/importer">
+    <provider>Slate Fixtures</provider>
+
+    <locale name="en-US" display_name="English (US)" />
+
+    <metadata locale="en-US">
+        <short_synopsis>Known-bad Apple package fixture with a URL-like movie path.</short_synopsis>
+        <long_synopsis>This package uses a file URL for the source asset, which Slate classifies as non-local during declared path inspection.</long_synopsis>
+        <release_date>2026-03-26</release_date>
+        <rating system="TVPG">TV-PG</rating>
+    </metadata>
+
+    <assets media_type="video" vendor_id="VEND-TEST-6-BAD-URL">
+        <asset type="full" width="1920" height="1080" frame_rate="29.970">
+            <data_file role="source">
+                <file_name>https://example.invalid/slate-fixtures/source.mov</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+    </assets>
+</package>

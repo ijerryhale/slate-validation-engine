@@ -1,0 +1,66 @@
+{
+  "package": [
+    {
+      "id": "public-source-missing-path",
+      "type": "apple-package-manifest",
+      "client": "Apple",
+      "vendorID": "VEND-TEST-1-BAD-1",
+      "isan": "0000-0000-TEST-0001-X-0000-0000-2",
+      "productionCompany": "Slate Fixtures",
+      "copyright": "2026 Slate Fixtures",
+      "country": "US",
+      "originalSpokenLanguage": "en",
+      "clientGenres": [
+        {
+          "genre": "Drama"
+        }
+      ],
+      "platformData": [
+        {
+          "platformID": "apple_tv",
+          "platformProjectNumber": "APT-TEST-1-BAD-1",
+          "chapterTimecodeFormat": "24",
+          "genres": [
+            {
+              "genre": "Drama"
+            }
+          ]
+        }
+      ],
+      "locales": [
+        {
+          "id": "en-US",
+          "name": "English (US)",
+          "shortSynopsis": "Known-bad manifest missing the declared movie path.",
+          "longSynopsis": "This fixture omits the mov URL entirely.",
+          "theatricalReleaseDate": "2026-03-26",
+          "ratingSystem": "MPAA",
+          "rating": "PG",
+          "posterArt": "",
+          "posterArtTerritory": "",
+          "cast": [],
+          "crew": [],
+          "chapterTitles": []
+        }
+      ],
+      "avAssets": [
+        {
+          "id": "av_public_source_missing_path",
+          "fileName": "",
+          "filePath": "",
+          "cropTop": "0",
+          "cropLeft": "0",
+          "cropBtm": "0",
+          "cropRght": "0",
+          "assetTypeID": "0",
+          "assetTerritory": "US",
+          "videoWidth": "1920",
+          "videoHeight": "1080",
+          "frameRate": "24.000",
+          "audioTracks": []
+        }
+      ],
+      "chapterAssets": []
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "slateRuntimeArtifactManifest.v1",
+  "runtime": {
+    "name": "slate",
+    "kind": "cli",
+    "description": "Public command-line runtime for Slate validation reports.",
+    "version": "0.1.0-preview.1",
+    "platform": "macOS",
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ]
+  },
+  "contracts": {
+    "cliContract": "validationCLIContract.v1",
+    "reportSchemaVersion": "1",
+    "reportSchema": "schemas/validation-report.schema.json",
+    "goldenVerifier": "fixtures/verify_golden.sh"
+  },
+  "artifact": {
+    "status": "available",
+    "delivery": "local-file",
+    "path": "Runtime/slate",
+    "committedToGit": true,
+    "sha256": "074fda900c6aa0ecba13123360e3a83a39dc1ff8afe2acbf1af3c37e2a921948",
+    "sizeBytes": 717184,
+    "releaseAssetName": null
+  },
+  "policy": {
+    "requiresConsensusBeforePush": true,
+    "privateInternalsAllowed": false,
+    "validationEngineSourceIncluded": false,
+    "runtimeBinaryCommittedByConsensus": true
+  }
+}

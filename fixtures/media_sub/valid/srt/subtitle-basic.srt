@@ -1,0 +1,24 @@
+1
+00:00:03,000 --> 00:00:08,000
+[EN] Mara: Camera one is holding steady at the gate.
+Clock reads 00:00:03.000.
+
+2
+00:00:11,000 --> 00:00:16,000
+[EN] Jules: Copy that. Audio check is still clean.
+Clock reads 00:00:11.000.
+
+3
+00:00:19,000 --> 00:00:24,000
+[EN] Mara: Keep the slate open for this QC pass.
+Clock reads 00:00:19.000.
+
+4
+00:00:27,000 --> 00:00:32,000
+[EN] Jules: Lower third holds through the handoff.
+Clock reads 00:00:27.000.
+
+5
+00:00:35,000 --> 00:00:40,000
+[EN] Mara: Mark this take as the reference path.
+Clock reads 00:00:35.000.

@@ -1,0 +1,21 @@
+* text=auto eol=lf
+
+*.png binary
+*.icns binary
+*.mov binary
+*.mp4 binary
+*.m4v binary
+*.wav binary
+*.aiff binary
+/Runtime/slate binary
+
+*.json text eol=lf
+*.md text eol=lf
+*.m text eol=lf
+*.h text eol=lf
+*.sh text eol=lf
+*.itt text eol=lf
+*.scc text eol=lf
+*.srt text eol=lf
+*.ttml text eol=lf
+*.xml text eol=lf
