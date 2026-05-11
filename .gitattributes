@@ -5,6 +5,7 @@
 *.mov binary
 *.mp4 binary
 *.m4v binary
+*.pdf binary
 *.wav binary
 *.aiff binary
 /Runtime/slate binary

@@ -88,7 +88,7 @@ EOF
 
 cat >"$REQUIRED_APP" <<'EOF'
 slate-application/.gitignore
-slate-application/README.md
+slate-application/SlateUserManual.pdf
 slate-application/build_public_apps.sh
 slate-application/Runtime/SlateChapterRuntime
 slate-application/Runtime/SlatePackageRuntime
@@ -304,6 +304,13 @@ if [ -e slate-application/_tools/harnessapp/ae_eventids.txt ]; then
     failures=$((failures + 1))
 fi
 
+if [ -e slate-application/README.md ]; then
+    echo "Error: stale public Slate application README is present:" >&2
+    echo "  slate-application/README.md" >&2
+    echo "  The public application manual is slate-application/SlateUserManual.pdf." >&2
+    failures=$((failures + 1))
+fi
+
 if public_app_source_allowlist "slate-application/Slate.xcodeproj/project.pbxproj" "slate-application" >"$EXPECTED_APP_SOURCE"; then
     {
         if [ -d slate-application/Slate ]; then
@@ -413,6 +420,7 @@ fi
 find . -type f ! -path './.git/*' ! -path './Runtime/slate' ! -path './slate-application/Runtime/*' ! -path './slate-application/build/*' ! -path './tools/verify_public_package.sh' \( \
     -name '*.md' -o \
     -name '*.json' -o \
+    -name '*.pdf' -o \
     -name '*.sh' -o \
     -name '*.xml' -o \
     -name '*.itt' -o \
@@ -439,6 +447,7 @@ fi
 find . -type f ! -path './.git/*' ! -path './slate-application/*' ! -path './Runtime/slate' ! -path './tools/verify_public_package.sh' \( \
     -name '*.md' -o \
     -name '*.json' -o \
+    -name '*.pdf' -o \
     -name '*.sh' -o \
     -name '*.xml' -o \
     -name '*.itt' -o \

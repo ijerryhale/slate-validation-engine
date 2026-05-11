@@ -29,7 +29,7 @@
     ".gitignore",
     ".gitattributes",
     "slate-application",
-    "slate-application/README.md",
+    "slate-application/SlateUserManual.pdf",
     "slate-application/Slate.xcodeproj",
     "slate-application/Slate",
     "slate-application/Runtime",
