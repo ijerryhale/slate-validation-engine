@@ -25,53 +25,15 @@ static NSDictionary *TimelineLayerDisabledActions(void)
     return actions;
 }
 
-static NSString *TimelineRulerLabelString(NSTimeInterval time)
-{
-    NSInteger roundedTime = (NSInteger)llround(MAX(time, 0.0));
-    return [NSString stringWithFormat:@"%ld", (long)roundedTime];
-}
-
 #if SMTimelineDebug
-static NSColor *TimelineDebugOuterBoundsColor(void) { return [NSColor magentaColor]; }
-static NSColor *TimelineDebugLaneBoundsColor(void) { return [NSColor cyanColor]; }
-static NSColor *TimelineDebugFullHeightLaneColor(void) { return [NSColor greenColor]; }
-static NSColor *TimelineDebugRulerBandColor(void) { return [NSColor redColor]; }
-static NSColor *TimelineDebugRulerTickColor(void) { return [NSColor yellowColor]; }
-static NSColor *TimelineDebugRulerLabelSafeColor(void) { return [NSColor purpleColor]; }
-static NSColor *TimelineDebugBottomRangeBandColor(void) { return [NSColor systemPinkColor]; }
-static NSColor *TimelineDebugLaneCoreColor(void) { return [NSColor blueColor]; }
-
-static void TimelineConfigureDebugBackdropLayer(CALayer *layer, NSRect rect)
+static void ConfigureDBUGBandLayer(CALayer *layer, NSRect rect, NSColor *borderColor)
 {
-    if (layer == nil) {
-        return;
-    }
+    if (layer == nil) return;
 
     BOOL shouldHide = NSIsEmptyRect(rect);
     [layer setHidden:shouldHide];
-    if (shouldHide) {
-        return;
-    }
-
-    [layer setFrame:NSRectToCGRect(rect)];
-    [layer setBackgroundColor:[[NSColor blackColor] CGColor]];
-    [layer setBorderWidth:0.0];
-    [layer setBorderColor:nil];
-}
-
-static void TimelineConfigureDebugBandLayer(CALayer *layer,
-                                            NSRect rect,
-                                            NSColor *borderColor)
-{
-    if (layer == nil) {
-        return;
-    }
-
-    BOOL shouldHide = NSIsEmptyRect(rect);
-    [layer setHidden:shouldHide];
-    if (shouldHide) {
-        return;
-    }
+   
+    if (shouldHide) return;
 
     [layer setFrame:NSRectToCGRect(rect)];
     [layer setBackgroundColor:nil];
@@ -83,7 +45,7 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
 @interface TimelineRenderer ()
 {
     CALayer *_hostLayer;
-    CALayer *_backdropLayer;
+    CALayer *_backgroundLayer;
     CALayer *_trackLayer;
     CALayer *_rulerLayer;
     CALayer *_rulerDividerLayer;
@@ -94,22 +56,21 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     CAShapeLayer *_gridMinorLineLayer;
     NSMutableArray *_rulerLabelLayers;
     CALayer *_selectionLayer;
-    CALayer *_inactiveOverlayLayer;
     CALayer *_playheadLayer;
     CALayer *_playheadStemLayer;
     CAShapeLayer *_playheadCapLayer;
 
 #if SMTimelineDebug
-    CALayer *_debugOuterBoundsLayer;
-    CALayer *_debugLaneBoundsLayer;
-    CALayer *_debugLaneCoreLayer;
-    CALayer *_debugFullHeightLaneLayer;
-    CALayer *_debugRulerBandLayer;
-    CALayer *_debugRulerTickLayer;
-    CALayer *_debugRulerLabelSafeLayer;
-    CALayer *_debugBottomRangeBandLayer;
-    CALayer *_debugBackdropLayer;
-#endif
+    CALayer *_dbugloOuterBoundsLayer;
+    CALayer *_dbugloLaneBoundsLayer;
+    CALayer *_dbugloLaneRectLayer;
+    CALayer *_dbugloFullHeightLaneLayer;
+    CALayer *_dbugloRulerBandLayer;
+    CALayer *_dbugloRulerTickLayer;
+    CALayer *_dbugloRulerLabelSafeLayer;
+    CALayer *_dbugloRegionBandLayer;
+    CALayer *_dbugloBackgroundLayer;
+ #endif
 }
 @end
 
@@ -117,7 +78,7 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
 
 - (void)dealloc
 {
-    [_backdropLayer removeFromSuperlayer];
+    [_backgroundLayer removeFromSuperlayer];
     [_trackLayer removeFromSuperlayer];
     [_rulerLayer removeFromSuperlayer];
     [_rulerDividerLayer removeFromSuperlayer];
@@ -127,24 +88,23 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     [_gridMajorLineLayer removeFromSuperlayer];
     [_gridMinorLineLayer removeFromSuperlayer];
     [_selectionLayer removeFromSuperlayer];
-    [_inactiveOverlayLayer removeFromSuperlayer];
     [_playheadStemLayer removeFromSuperlayer];
     [_playheadCapLayer removeFromSuperlayer];
     [_playheadLayer removeFromSuperlayer];
 
 #if SMTimelineDebug
-    [_debugBackdropLayer removeFromSuperlayer];
-    [_debugOuterBoundsLayer removeFromSuperlayer];
-    [_debugLaneBoundsLayer removeFromSuperlayer];
-    [_debugLaneCoreLayer removeFromSuperlayer];
-    [_debugFullHeightLaneLayer removeFromSuperlayer];
-    [_debugRulerBandLayer removeFromSuperlayer];
-    [_debugRulerTickLayer removeFromSuperlayer];
-    [_debugRulerLabelSafeLayer removeFromSuperlayer];
-    [_debugBottomRangeBandLayer removeFromSuperlayer];
+    [_dbugloBackgroundLayer removeFromSuperlayer];
+    [_dbugloOuterBoundsLayer removeFromSuperlayer];
+    [_dbugloLaneBoundsLayer removeFromSuperlayer];
+    [_dbugloLaneRectLayer removeFromSuperlayer];
+    [_dbugloFullHeightLaneLayer removeFromSuperlayer];
+    [_dbugloRulerBandLayer removeFromSuperlayer];
+    [_dbugloRulerTickLayer removeFromSuperlayer];
+    [_dbugloRulerLabelSafeLayer removeFromSuperlayer];
+    [_dbugloRegionBandLayer removeFromSuperlayer];
 #endif
 
-    [_backdropLayer release];
+    [_backgroundLayer release];
     [_trackLayer release];
     [_rulerLayer release];
     [_rulerDividerLayer release];
@@ -155,36 +115,29 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     [_gridMinorLineLayer release];
     [_rulerLabelLayers release];
     [_selectionLayer release];
-    [_inactiveOverlayLayer release];
     [_playheadStemLayer release];
     [_playheadCapLayer release];
     [_playheadLayer release];
 
 #if SMTimelineDebug
-    [_debugBackdropLayer release];
-    [_debugOuterBoundsLayer release];
-    [_debugLaneBoundsLayer release];
-    [_debugLaneCoreLayer release];
-    [_debugFullHeightLaneLayer release];
-    [_debugRulerBandLayer release];
-    [_debugRulerTickLayer release];
-    [_debugRulerLabelSafeLayer release];
-    [_debugBottomRangeBandLayer release];
+    [_dbugloBackgroundLayer release];
+    [_dbugloOuterBoundsLayer release];
+    [_dbugloLaneBoundsLayer release];
+    [_dbugloLaneRectLayer release];
+    [_dbugloFullHeightLaneLayer release];
+    [_dbugloRulerBandLayer release];
+    [_dbugloRulerTickLayer release];
+    [_dbugloRulerLabelSafeLayer release];
+    [_dbugloRegionBandLayer release];
 #endif
 
     [super dealloc];
 }
 
-- (void)attachToHostLayer:(CALayer *)hostLayer
-{
-    _hostLayer = hostLayer;
-}
-
+- (void)attachToHostLayer:(CALayer *)hostLayer { _hostLayer = hostLayer; }
 - (void)ensureLayerAttached:(CALayer *)layer
 {
-    if (layer == nil || _hostLayer == nil) {
-        return;
-    }
+    if (layer == nil || _hostLayer == nil) return;
 
     if (layer.superlayer != _hostLayer) {
         [layer removeFromSuperlayer];
@@ -194,186 +147,194 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
 
 - (void)ensurePassiveLayersIfNeeded
 {
-    if (_hostLayer == nil) {
-        return;
-    }
+    if (_hostLayer == nil) return;
 
-    if (_backdropLayer == nil) {
-        _backdropLayer = [[CALayer alloc] init];
-        _backdropLayer.opacity = 1.0f;
-        _backdropLayer.zPosition = -0.1f;
-        _backdropLayer.actions = TimelineLayerDisabledActions();
+    if (_backgroundLayer == nil)
+    {
+        _backgroundLayer = [[CALayer alloc] init];
+        _backgroundLayer.opacity = 1.0f;
+        _backgroundLayer.zPosition = -0.1f;
+        _backgroundLayer.actions = TimelineLayerDisabledActions();
     }
-    [self ensureLayerAttached:_backdropLayer];
+    
+    [self ensureLayerAttached:_backgroundLayer];
 
-    if (_trackLayer == nil) {
+    if (_trackLayer == nil)
+    {
         _trackLayer = [[CAGradientLayer alloc] init];
         _trackLayer.opacity = 1.0f;
         _trackLayer.zPosition = 0.0f;
         _trackLayer.actions = TimelineLayerDisabledActions();
     }
+    
     [self ensureLayerAttached:_trackLayer];
 
-    if (_rulerLayer == nil) {
+    if (_rulerLayer == nil)
+    {
         _rulerLayer = [[CALayer alloc] init];
         _rulerLayer.opacity = 1.0f;
         _rulerLayer.zPosition = 0.5f;
         _rulerLayer.actions = TimelineLayerDisabledActions();
     }
+    
     [self ensureLayerAttached:_rulerLayer];
 
-    if (_rulerDividerLayer == nil) {
+    if (_rulerDividerLayer == nil)
+    {
         _rulerDividerLayer = [[CALayer alloc] init];
         _rulerDividerLayer.opacity = 1.0f;
         _rulerDividerLayer.zPosition = 0.75f;
         _rulerDividerLayer.actions = TimelineLayerDisabledActions();
     }
+    
     [self ensureLayerAttached:_rulerDividerLayer];
 
-    if (_rulerMajorTickLayer == nil) {
+    if (_rulerMajorTickLayer == nil)
+    {
         _rulerMajorTickLayer = [[CAShapeLayer alloc] init];
         _rulerMajorTickLayer.zPosition = 0.8f;
         _rulerMajorTickLayer.actions = TimelineLayerDisabledActions();
         _rulerMajorTickLayer.fillColor = nil;
     }
+    
     [self ensureLayerAttached:_rulerMajorTickLayer];
 
-    if (_rulerMinorTickLayer == nil) {
+    if (_rulerMinorTickLayer == nil)
+    {
         _rulerMinorTickLayer = [[CAShapeLayer alloc] init];
         _rulerMinorTickLayer.zPosition = 0.79f;
         _rulerMinorTickLayer.actions = TimelineLayerDisabledActions();
         _rulerMinorTickLayer.fillColor = nil;
     }
+    
     [self ensureLayerAttached:_rulerMinorTickLayer];
 
-    if (_rulerStripeLayer == nil) {
+    if (_rulerStripeLayer == nil)
+    {
         _rulerStripeLayer = [[CAShapeLayer alloc] init];
         _rulerStripeLayer.zPosition = 0.795f;
         _rulerStripeLayer.actions = TimelineLayerDisabledActions();
         _rulerStripeLayer.fillColor = nil;
     }
+    
     [self ensureLayerAttached:_rulerStripeLayer];
 
-    if (_gridMajorLineLayer == nil) {
+    if (_gridMajorLineLayer == nil)
+    {
         _gridMajorLineLayer = [[CAShapeLayer alloc] init];
         _gridMajorLineLayer.zPosition = 0.35f;
         _gridMajorLineLayer.actions = TimelineLayerDisabledActions();
         _gridMajorLineLayer.fillColor = nil;
     }
+
     [self ensureLayerAttached:_gridMajorLineLayer];
 
-    if (_gridMinorLineLayer == nil) {
+    if (_gridMinorLineLayer == nil)
+    {
         _gridMinorLineLayer = [[CAShapeLayer alloc] init];
         _gridMinorLineLayer.zPosition = 0.34f;
         _gridMinorLineLayer.actions = TimelineLayerDisabledActions();
         _gridMinorLineLayer.fillColor = nil;
     }
+
     [self ensureLayerAttached:_gridMinorLineLayer];
 
-    if (_rulerLabelLayers == nil) {
+    if (_rulerLabelLayers == nil)
         _rulerLabelLayers = [[NSMutableArray alloc] init];
+
+    while ([_rulerLabelLayers count] < TimelineRulerMaximumMajorTickCount())
+    {
+        CATextLayer *majorTickLabel = [[CATextLayer alloc] init];
+        majorTickLabel.zPosition = 0.85f;
+        majorTickLabel.actions = TimelineLayerDisabledActions();
+        majorTickLabel.alignmentMode = kCAAlignmentLeft;
+        majorTickLabel.fontSize = 14.0f;
+        majorTickLabel. foregroundColor = [[NSColor colorWithWhite:1.0 alpha:0.6 ]CGColor];
+        majorTickLabel.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
+        [_rulerLabelLayers addObject:majorTickLabel];
+        [self ensureLayerAttached:majorTickLabel];
+        [majorTickLabel release];
     }
 
-    while ([_rulerLabelLayers count] < TimelineRulerMaximumMajorTickCount()) {
-        CATextLayer *labelLayer = [[CATextLayer alloc] init];
-        labelLayer.zPosition = 0.85f;
-        labelLayer.actions = TimelineLayerDisabledActions();
-        labelLayer.alignmentMode = kCAAlignmentLeft;
-        labelLayer.truncationMode = kCATruncationEnd;
-        labelLayer.fontSize = 13.0f;
-        labelLayer.contentsScale = [[NSScreen mainScreen] backingScaleFactor];
-        [_rulerLabelLayers addObject:labelLayer];
-        [self ensureLayerAttached:labelLayer];
-        [labelLayer release];
-    }
-
-    if (_selectionLayer == nil) {
+    if (_selectionLayer == nil)
+    {
         _selectionLayer = [[CALayer alloc] init];
         _selectionLayer.opacity = 1.0f;
         _selectionLayer.zPosition = 1.0f;
         _selectionLayer.actions = TimelineLayerDisabledActions();
     }
+    
     [self ensureLayerAttached:_selectionLayer];
 
-    if (_inactiveOverlayLayer == nil) {
-        _inactiveOverlayLayer = [[CALayer alloc] init];
-        _inactiveOverlayLayer.opacity = 1.0f;
-        _inactiveOverlayLayer.zPosition = 1.6f;
-        _inactiveOverlayLayer.actions = TimelineLayerDisabledActions();
-    }
-    [self ensureLayerAttached:_inactiveOverlayLayer];
-
 #if SMTimelineDebug
-    if (_debugBackdropLayer == nil) {
-        _debugBackdropLayer = [[CALayer alloc] init];
-        _debugBackdropLayer.actions = TimelineLayerDisabledActions();
-        _debugBackdropLayer.zPosition = 5.9f;
+    if (_dbugloBackgroundLayer == nil) {
+        _dbugloBackgroundLayer = [[CALayer alloc] init];
+        _dbugloBackgroundLayer.actions = TimelineLayerDisabledActions();
+        _dbugloBackgroundLayer.zPosition = 5.9f;
     }
-    [self ensureLayerAttached:_debugBackdropLayer];
+    [self ensureLayerAttached:_dbugloBackgroundLayer];
 
-    if (_debugOuterBoundsLayer == nil) {
-        _debugOuterBoundsLayer = [[CALayer alloc] init];
-        _debugOuterBoundsLayer.actions = TimelineLayerDisabledActions();
-        _debugOuterBoundsLayer.zPosition = 6.0f;
+    if (_dbugloOuterBoundsLayer == nil) {
+        _dbugloOuterBoundsLayer = [[CALayer alloc] init];
+        _dbugloOuterBoundsLayer.actions = TimelineLayerDisabledActions();
+        _dbugloOuterBoundsLayer.zPosition = 6.0f;
     }
-    [self ensureLayerAttached:_debugOuterBoundsLayer];
+    [self ensureLayerAttached:_dbugloOuterBoundsLayer];
 
-    if (_debugLaneBoundsLayer == nil) {
-        _debugLaneBoundsLayer = [[CALayer alloc] init];
-        _debugLaneBoundsLayer.actions = TimelineLayerDisabledActions();
-        _debugLaneBoundsLayer.zPosition = 6.1f;
+    if (_dbugloLaneBoundsLayer == nil) {
+        _dbugloLaneBoundsLayer = [[CALayer alloc] init];
+        _dbugloLaneBoundsLayer.actions = TimelineLayerDisabledActions();
+        _dbugloLaneBoundsLayer.zPosition = 6.1f;
     }
-    [self ensureLayerAttached:_debugLaneBoundsLayer];
+    [self ensureLayerAttached:_dbugloLaneBoundsLayer];
 
-    if (_debugLaneCoreLayer == nil) {
-        _debugLaneCoreLayer = [[CALayer alloc] init];
-        _debugLaneCoreLayer.actions = TimelineLayerDisabledActions();
-        _debugLaneCoreLayer.zPosition = 6.8f;
+    if (_dbugloLaneRectLayer == nil) {
+        _dbugloLaneRectLayer = [[CALayer alloc] init];
+        _dbugloLaneRectLayer.actions = TimelineLayerDisabledActions();
+        _dbugloLaneRectLayer.zPosition = 6.8f;
     }
-    [self ensureLayerAttached:_debugLaneCoreLayer];
+    [self ensureLayerAttached:_dbugloLaneRectLayer];
 
-    if (_debugFullHeightLaneLayer == nil) {
-        _debugFullHeightLaneLayer = [[CALayer alloc] init];
-        _debugFullHeightLaneLayer.actions = TimelineLayerDisabledActions();
-        _debugFullHeightLaneLayer.zPosition = 6.2f;
+    if (_dbugloFullHeightLaneLayer == nil) {
+        _dbugloFullHeightLaneLayer = [[CALayer alloc] init];
+        _dbugloFullHeightLaneLayer.actions = TimelineLayerDisabledActions();
+        _dbugloFullHeightLaneLayer.zPosition = 6.2f;
     }
-    [self ensureLayerAttached:_debugFullHeightLaneLayer];
+    [self ensureLayerAttached:_dbugloFullHeightLaneLayer];
 
-    if (_debugRulerBandLayer == nil) {
-        _debugRulerBandLayer = [[CALayer alloc] init];
-        _debugRulerBandLayer.actions = TimelineLayerDisabledActions();
-        _debugRulerBandLayer.zPosition = 6.3f;
+    if (_dbugloRulerBandLayer == nil) {
+        _dbugloRulerBandLayer = [[CALayer alloc] init];
+        _dbugloRulerBandLayer.actions = TimelineLayerDisabledActions();
+        _dbugloRulerBandLayer.zPosition = 6.3f;
     }
-    [self ensureLayerAttached:_debugRulerBandLayer];
+    [self ensureLayerAttached:_dbugloRulerBandLayer];
 
-    if (_debugRulerTickLayer == nil) {
-        _debugRulerTickLayer = [[CALayer alloc] init];
-        _debugRulerTickLayer.actions = TimelineLayerDisabledActions();
-        _debugRulerTickLayer.zPosition = 6.4f;
+    if (_dbugloRulerTickLayer == nil) {
+        _dbugloRulerTickLayer = [[CALayer alloc] init];
+        _dbugloRulerTickLayer.actions = TimelineLayerDisabledActions();
+        _dbugloRulerTickLayer.zPosition = 6.4f;
     }
-    [self ensureLayerAttached:_debugRulerTickLayer];
+    [self ensureLayerAttached:_dbugloRulerTickLayer];
 
-    if (_debugRulerLabelSafeLayer == nil) {
-        _debugRulerLabelSafeLayer = [[CALayer alloc] init];
-        _debugRulerLabelSafeLayer.actions = TimelineLayerDisabledActions();
-        _debugRulerLabelSafeLayer.zPosition = 6.5f;
+    if (_dbugloRulerLabelSafeLayer == nil) {
+        _dbugloRulerLabelSafeLayer = [[CALayer alloc] init];
+        _dbugloRulerLabelSafeLayer.actions = TimelineLayerDisabledActions();
+        _dbugloRulerLabelSafeLayer.zPosition = 6.5f;
     }
-    [self ensureLayerAttached:_debugRulerLabelSafeLayer];
+    [self ensureLayerAttached:_dbugloRulerLabelSafeLayer];
 
-    if (_debugBottomRangeBandLayer == nil) {
-        _debugBottomRangeBandLayer = [[CALayer alloc] init];
-        _debugBottomRangeBandLayer.actions = TimelineLayerDisabledActions();
-        _debugBottomRangeBandLayer.zPosition = 6.6f;
+    if (_dbugloRegionBandLayer == nil) {
+        _dbugloRegionBandLayer = [[CALayer alloc] init];
+        _dbugloRegionBandLayer.actions = TimelineLayerDisabledActions();
+        _dbugloRegionBandLayer.zPosition = 6.6f;
     }
-    [self ensureLayerAttached:_debugBottomRangeBandLayer];
+    [self ensureLayerAttached:_dbugloRegionBandLayer];
 #endif
 }
 
 - (void)ensureActiveLayersIfNeeded
 {
-    if (_hostLayer == nil) {
-        return;
-    }
+    if (_hostLayer == nil) return;
 
     if (_playheadLayer == nil) {
         _playheadLayer = [[CALayer alloc] init];
@@ -404,7 +365,7 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     [self ensurePassiveLayersIfNeeded];
 
     if (_hostLayer == nil
-        || _backdropLayer == nil
+        || _backgroundLayer == nil
         || _trackLayer == nil
         || _rulerLayer == nil
         || _rulerDividerLayer == nil
@@ -414,10 +375,8 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
         || _gridMajorLineLayer == nil
         || _gridMinorLineLayer == nil
         || _rulerLabelLayers == nil
-        || _selectionLayer == nil
-        || _inactiveOverlayLayer == nil) {
-        return;
-    }
+        || _selectionLayer == nil)
+            return;
 
     NSRect fullHeightLaneRect = layout.fullHeightLaneRect;
     NSRect rulerBandRect = layout.rulerBandRect;
@@ -425,8 +384,9 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     NSRect labelSafeRect = layout.rulerLabelSafeRect;
     NSRect stripeRect = NSInsetRect(labelSafeRect, -2.0, 0.0);
     NSRect gridRect = layout.laneRect;
-    NSRect selectionRect = TimelineBottomRangeSelectionRectForLayout(layout);
-    NSColor *backdropColor = usableMovie
+    NSRect selectionRect = TimelineRegionRectForLayout(layout);
+    
+    NSColor *backgroundColor = usableMovie
         ? [NSColor colorWithCalibratedWhite:0.14 alpha:1.0]
         : [NSColor colorWithCalibratedWhite:0.12 alpha:1.0];
     NSColor *laneTopColor = usableMovie
@@ -444,25 +404,20 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     NSColor *dividerColor = usableMovie
         ? [NSColor colorWithCalibratedWhite:0.0 alpha:0.58]
         : [NSColor colorWithCalibratedWhite:0.0 alpha:0.36];
-    NSColor *majorTickColor = [[NSColor colorWithCalibratedWhite:0.86 alpha:(usableMovie ? 0.82 : 0.50)] retain];
-    NSColor *minorTickColor = [[NSColor colorWithCalibratedWhite:0.84 alpha:(usableMovie ? 0.36 : 0.20)] retain];
-    NSColor *stripeColor = [[NSColor colorWithCalibratedWhite:0.10 alpha:(usableMovie ? 0.36 : 0.20)] retain];
-    NSColor *gridMajorColor = [[NSColor colorWithCalibratedWhite:0.58 alpha:(usableMovie ? 0.44 : 0.24)] retain];
-    NSColor *gridMinorColor = [[NSColor colorWithCalibratedWhite:0.90 alpha:(usableMovie ? 0.08 : 0.04)] retain];
-    NSColor *labelColor = [[NSColor colorWithCalibratedWhite:0.96 alpha:0.96] retain];
-    NSColor *bottomSelectionColor = [[NSColor colorWithCalibratedRed:0.88 green:0.74 blue:0.25 alpha:0.35] retain];
+ 
     NSUInteger majorTickCount = TimelineRulerAdaptiveMajorTickCount(layout);
     NSUInteger minorTicksPerMajorInterval = TimelineRulerAdaptiveMinorTickCount(layout, majorTickCount);
     NSRect dividerRect = NSMakeRect(NSMinX(rulerBandRect),
                                     NSMinY(rulerBandRect),
                                     NSWidth(rulerBandRect),
                                     1.0);
+    
     CGMutablePathRef majorTickPath = CGPathCreateMutable();
     CGMutablePathRef minorTickPath = CGPathCreateMutable();
     CGMutablePathRef stripePath = CGPathCreateMutable();
     CGMutablePathRef gridMajorPath = CGPathCreateMutable();
     CGMutablePathRef gridMinorPath = CGPathCreateMutable();
-    BOOL drawMinorGridToBottom = NO;
+
     CGFloat majorTickTop = NSMaxY(rulerBandRect) - 0.5;
     CGFloat majorTickBottom = NSMinY(rulerBandRect) + 0.5;
     CGFloat majorContinuationTop = majorTickBottom;
@@ -473,17 +428,21 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     CGFloat minorTickHeight = MIN(minorTickRangeHeight - 1.0, MAX(6.0, floor(minorTickRangeHeight * 0.58)));
     CGFloat minorTickTop = minorTickBottom + minorTickHeight;
 
-    for (NSUInteger tickIndex = 0; tickIndex < majorTickCount; tickIndex++) {
+    for (NSUInteger tickIndex = 0; tickIndex < majorTickCount; tickIndex++)
+    {
         NSTimeInterval tickTime = TimelineRulerMajorTickTime(layout, tickIndex, majorTickCount);
         CGFloat tickX = TimelineXPositionForTime(tickTime, layout);
         CGPathMoveToPoint(majorTickPath, NULL, tickX, majorTickTop);
         CGPathAddLineToPoint(majorTickPath, NULL, tickX, majorTickBottom);
-        if (drawMajorContinuation) {
+      
+        if (drawMajorContinuation)
+        {
             CGPathMoveToPoint(gridMajorPath, NULL, tickX, majorContinuationTop);
             CGPathAddLineToPoint(gridMajorPath, NULL, tickX, majorContinuationBottom);
         }
 
-        if (tickIndex + 1 < majorTickCount) {
+        if (tickIndex + 1 < majorTickCount)
+        {
             NSTimeInterval nextTickTime = TimelineRulerMajorTickTime(layout, tickIndex + 1, majorTickCount);
             for (NSUInteger minorIndex = 1; minorIndex <= minorTicksPerMajorInterval; minorIndex++) {
                 CGFloat fraction = (CGFloat)minorIndex / (CGFloat)(minorTicksPerMajorInterval + 1);
@@ -491,18 +450,17 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
                 CGFloat minorTickX = TimelineXPositionForTime(minorTickTime, layout);
                 CGPathMoveToPoint(minorTickPath, NULL, minorTickX, minorTickTop);
                 CGPathAddLineToPoint(minorTickPath, NULL, minorTickX, minorTickBottom);
-                if (drawMinorGridToBottom) {
-                    CGPathMoveToPoint(gridMinorPath, NULL, minorTickX, NSMinY(gridRect));
-                    CGPathAddLineToPoint(gridMinorPath, NULL, minorTickX, NSMaxY(gridRect));
-                }
             }
         }
     }
 
-    if (!NSIsEmptyRect(stripeRect)) {
+    if (!NSIsEmptyRect(stripeRect))
+    {
         CGFloat stripeSpacing = 11.0;
         CGFloat stripeRun = NSHeight(stripeRect);
-        for (CGFloat stripeX = NSMinX(stripeRect) - stripeRun; stripeX <= NSMaxX(stripeRect) + stripeRun; stripeX += stripeSpacing) {
+        
+        for (CGFloat stripeX = NSMinX(stripeRect) - stripeRun; stripeX <= NSMaxX(stripeRect) + stripeRun; stripeX += stripeSpacing)
+        {
             CGPathMoveToPoint(stripePath, NULL, stripeX, NSMinY(stripeRect));
             CGPathAddLineToPoint(stripePath, NULL, stripeX + stripeRun, NSMaxY(stripeRect));
         }
@@ -511,22 +469,19 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
 
-    _backdropLayer.hidden = NO;
-    _backdropLayer.frame = NSRectToCGRect(bounds);
-    _backdropLayer.backgroundColor = [backdropColor CGColor];
+    _backgroundLayer.hidden = NO;
+    _backgroundLayer.frame = NSRectToCGRect(bounds);
+    _backgroundLayer.backgroundColor = [backgroundColor CGColor];
 
     _trackLayer.frame = NSRectToCGRect(fullHeightLaneRect);
     _trackLayer.cornerRadius = TimelineLaneCornerRadius();
     _trackLayer.borderWidth = 1.0;
     _trackLayer.borderColor = [trackBorderColor CGColor];
-    if ([_trackLayer isKindOfClass:[CAGradientLayer class]]) {
-        CAGradientLayer *gradientLayer = (CAGradientLayer *)_trackLayer;
-        gradientLayer.startPoint = CGPointMake(0.5, 1.0);
-        gradientLayer.endPoint = CGPointMake(0.5, 0.0);
-        gradientLayer.colors = [NSArray arrayWithObjects:(id)[laneTopColor CGColor], (id)[laneBottomColor CGColor], nil];
-    } else {
-        _trackLayer.backgroundColor = [laneBottomColor CGColor];
-    }
+    
+    CAGradientLayer *gradientLayer = (CAGradientLayer *)_trackLayer;
+    gradientLayer.startPoint = CGPointMake(0.5, 1.0);
+    gradientLayer.endPoint = CGPointMake(0.5, 0.0);
+    gradientLayer.colors = [NSArray arrayWithObjects:(id)[laneTopColor CGColor], (id)[laneBottomColor CGColor], nil];
 
     _rulerLayer.hidden = NSIsEmptyRect(rulerBandRect);
     _rulerLayer.frame = NSRectToCGRect(rulerBandRect);
@@ -539,44 +494,45 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     _rulerMajorTickLayer.hidden = NSIsEmptyRect(rulerBandRect);
     _rulerMajorTickLayer.frame = NSRectToCGRect(bounds);
     _rulerMajorTickLayer.path = majorTickPath;
-    _rulerMajorTickLayer.strokeColor = [majorTickColor CGColor];
+    _rulerMajorTickLayer.strokeColor = [[NSColor colorWithCalibratedWhite:0.86 alpha:(usableMovie ? 0.82 : 0.50)] CGColor];
     _rulerMajorTickLayer.lineWidth = 1.1;
 
     _rulerMinorTickLayer.hidden = NSIsEmptyRect(rulerBandRect);
     _rulerMinorTickLayer.frame = NSRectToCGRect(bounds);
     _rulerMinorTickLayer.path = minorTickPath;
-    _rulerMinorTickLayer.strokeColor = [minorTickColor CGColor];
+    _rulerMinorTickLayer.strokeColor = [[NSColor colorWithCalibratedWhite:0.84 alpha:(usableMovie ? 0.36 : 0.20)]  CGColor];
     _rulerMinorTickLayer.lineWidth = 1.0;
 
     _rulerStripeLayer.hidden = NSIsEmptyRect(stripeRect);
     _rulerStripeLayer.frame = NSRectToCGRect(bounds);
     _rulerStripeLayer.path = stripePath;
-    _rulerStripeLayer.strokeColor = [stripeColor CGColor];
+    _rulerStripeLayer.strokeColor = [[NSColor colorWithCalibratedWhite:0.10 alpha:(usableMovie ? 0.36 : 0.20)]  CGColor];
     _rulerStripeLayer.lineWidth = 1.0;
 
     _gridMajorLineLayer.hidden = (NSIsEmptyRect(fullHeightLaneRect) || !drawMajorContinuation);
     _gridMajorLineLayer.frame = NSRectToCGRect(bounds);
     _gridMajorLineLayer.path = gridMajorPath;
-    _gridMajorLineLayer.strokeColor = [gridMajorColor CGColor];
+    _gridMajorLineLayer.strokeColor = [[NSColor colorWithCalibratedWhite:0.58 alpha:(usableMovie ? 0.44 : 0.24)] CGColor];
     _gridMajorLineLayer.lineWidth = 1.0;
 
-    _gridMinorLineLayer.hidden = (NSIsEmptyRect(gridRect) || !drawMinorGridToBottom);
+    _gridMinorLineLayer.hidden = NSIsEmptyRect(gridRect);
     _gridMinorLineLayer.frame = NSRectToCGRect(bounds);
     _gridMinorLineLayer.path = gridMinorPath;
-    _gridMinorLineLayer.strokeColor = [gridMinorColor CGColor];
+    _gridMinorLineLayer.strokeColor = [[NSColor colorWithCalibratedWhite:0.90 alpha:(usableMovie ? 0.08 : 0.04)]  CGColor];
     _gridMinorLineLayer.lineWidth = 1.0;
 
-    for (NSUInteger tickIndex = 0; tickIndex < [_rulerLabelLayers count]; tickIndex++) {
-        CATextLayer *labelLayer = [_rulerLabelLayers objectAtIndex:tickIndex];
-        [self ensureLayerAttached:labelLayer];
+    for (NSUInteger tickIndex = 0;tickIndex < [_rulerLabelLayers count];tickIndex++)
+    {
+        CATextLayer *majorTickLabel = [_rulerLabelLayers objectAtIndex:tickIndex];
+        [self ensureLayerAttached:majorTickLabel];
         BOOL shouldHideLabel = (!usableMovie
                                 || tickIndex >= majorTickCount
                                 || tickIndex + 1 >= majorTickCount
                                 || NSIsEmptyRect(rulerBandRect));
-        [labelLayer setHidden:shouldHideLabel];
-        if (shouldHideLabel) {
+        [majorTickLabel setHidden:shouldHideLabel];
+       
+        if (shouldHideLabel)
             continue;
-        }
 
         NSTimeInterval tickTime = TimelineRulerMajorTickTime(layout, tickIndex, majorTickCount);
         CGFloat tickX = TimelineXPositionForTime(tickTime, layout);
@@ -588,33 +544,37 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
                                       NSMidY(labelSafeRect) - (TimelineRulerLabelHeight() / 2.0),
                                       TimelineRulerLabelWidth(),
                                       TimelineRulerLabelHeight());
-        [labelLayer setFrame:NSRectToCGRect(labelRect)];
-        [labelLayer setForegroundColor:[labelColor CGColor]];
-        [labelLayer setShadowOpacity:0.35f];
-        [labelLayer setShadowRadius:1.0f];
-        [labelLayer setShadowOffset:CGSizeMake(0.0, -1.0)];
-        [labelLayer setString:TimelineRulerLabelString(tickTime)];
+        [majorTickLabel setFrame:NSRectToCGRect(labelRect)];
+        [majorTickLabel setForegroundColor:[[NSColor colorWithCalibratedWhite:0.96 alpha:0.96]  CGColor]];
+        [majorTickLabel setShadowOpacity:0.35f];
+        [majorTickLabel setShadowRadius:1.0f];
+        [majorTickLabel setShadowOffset:CGSizeMake(0.0, -1.0)];
+
+        NSInteger hours = (NSInteger)(tickTime / 3600.0);
+        NSInteger minutes = (NSInteger)((tickTime / 60.0)) % 60;
+        NSInteger seconds = (NSInteger)tickTime % 60;
+
+        [majorTickLabel setString:[NSString stringWithFormat:@"%02ld:%02ld:%02ld",
+                                    (long)hours, (long)minutes, (long)seconds]];
     }
 
     _selectionLayer.hidden = (!usableMovie || NSWidth(selectionRect) <= 0.0);
     _selectionLayer.frame = NSRectToCGRect(selectionRect);
     _selectionLayer.cornerRadius = 0.0;
-    _selectionLayer.backgroundColor = [bottomSelectionColor CGColor];
-
-    _inactiveOverlayLayer.hidden = usableMovie;
-    _inactiveOverlayLayer.frame = NSRectToCGRect(bounds);
-    _inactiveOverlayLayer.backgroundColor = [[NSColor colorWithCalibratedWhite:0.0 alpha:0.24] CGColor];
+    _selectionLayer.backgroundColor = [[NSColor colorWithCalibratedRed:0.88 green:0.74 blue:0.25 alpha:0.35] CGColor];
 
 #if SMTimelineDebug
-//    TimelineConfigureDebugBackdropLayer(_debugBackdropLayer, bounds);
-//    TimelineConfigureDebugBandLayer(_debugOuterBoundsLayer, layout.outerBounds, TimelineDebugOuterBoundsColor());
-//    TimelineConfigureDebugBandLayer(_debugLaneBoundsLayer, layout.laneBounds, TimelineDebugLaneBoundsColor());
-//    TimelineConfigureDebugBandLayer(_debugLaneCoreLayer, layout.laneRect, TimelineDebugLaneCoreColor());
-//    TimelineConfigureDebugBandLayer(_debugFullHeightLaneLayer, layout.fullHeightLaneRect, TimelineDebugFullHeightLaneColor());
-//    TimelineConfigureDebugBandLayer(_debugRulerLabelSafeLayer, labelSafeRect, TimelineDebugRulerLabelSafeColor());
-    TimelineConfigureDebugBandLayer(_debugRulerBandLayer, rulerBandRect, TimelineDebugRulerBandColor());
-//    TimelineConfigureDebugBandLayer(_debugRulerTickLayer, tickRect, TimelineDebugRulerTickColor());
-//    TimelineConfigureDebugBandLayer(_debugBottomRangeBandLayer, layout.bottomRangeBandRect, TimelineDebugBottomRangeBandColor());
+    [_dbugloBackgroundLayer setFrame:NSRectToCGRect(bounds)];
+    [_dbugloBackgroundLayer setBackgroundColor:[[NSColor blackColor] CGColor]];
+    
+    ConfigureDBUGBandLayer(_dbugloOuterBoundsLayer, layout.outerBounds, [NSColor magentaColor]);
+    ConfigureDBUGBandLayer(_dbugloLaneBoundsLayer, layout.laneBounds, [NSColor cyanColor]);
+    ConfigureDBUGBandLayer(_dbugloLaneRectLayer, layout.laneRect, [NSColor blueColor]);
+    ConfigureDBUGBandLayer(_dbugloFullHeightLaneLayer, layout.fullHeightLaneRect, [NSColor greenColor]);
+    ConfigureDBUGBandLayer(_dbugloRulerLabelSafeLayer, labelSafeRect, [NSColor purpleColor]);
+    ConfigureDBUGBandLayer(_dbugloRulerBandLayer, rulerBandRect, [NSColor redColor]);
+    ConfigureDBUGBandLayer(_dbugloRulerTickLayer, tickRect, [NSColor yellowColor]);
+    ConfigureDBUGBandLayer(_dbugloRegionBandLayer, layout.regionBandRect, [NSColor systemPinkColor]);
 #endif
 
     [CATransaction commit];
@@ -624,13 +584,6 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
     CGPathRelease(stripePath);
     CGPathRelease(gridMajorPath);
     CGPathRelease(gridMinorPath);
-    [majorTickColor release];
-    [minorTickColor release];
-    [stripeColor release];
-    [gridMajorColor release];
-    [gridMinorColor release];
-    [labelColor release];
-    [bottomSelectionColor release];
 }
 
 - (void)updatePlayheadLayersForLayout:(TimelineLayoutSnapshot)layout
@@ -639,9 +592,8 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
 {
     [self ensureActiveLayersIfNeeded];
 
-    if (_playheadLayer == nil || _playheadStemLayer == nil || _playheadCapLayer == nil) {
+    if (_playheadLayer == nil || _playheadStemLayer == nil || _playheadCapLayer == nil)
         return;
-    }
 
     NSRect visualRect = TimelinePlayheadVisualRect(layout);
     BOOL shouldHide = (!usableMovie || NSIsEmptyRect(visualRect));
@@ -702,3 +654,4 @@ static void TimelineConfigureDebugBandLayer(CALayer *layer,
 }
 
 @end
+

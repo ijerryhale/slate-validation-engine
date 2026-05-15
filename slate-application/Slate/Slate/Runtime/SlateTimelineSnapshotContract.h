@@ -47,7 +47,7 @@ static NSString * const SlateTimelineSnapshotLayoutKeyFullHeightLaneRect = @"ful
 static NSString * const SlateTimelineSnapshotLayoutKeyRulerBandRect = @"rulerBandRect";
 static NSString * const SlateTimelineSnapshotLayoutKeyRulerTickRect = @"rulerTickRect";
 static NSString * const SlateTimelineSnapshotLayoutKeyRulerLabelSafeRect = @"rulerLabelSafeRect";
-static NSString * const SlateTimelineSnapshotLayoutKeyBottomRangeBandRect = @"bottomRangeBandRect";
+static NSString * const SlateTimelineSnapshotLayoutKeyRegionBandRect = @"regionBandRect";
 static NSString * const SlateTimelineSnapshotLayoutKeyLaneRect = @"laneRect";
 static NSString * const SlateTimelineSnapshotLayoutKeyLaneHitRect = @"laneHitRect";
 
@@ -57,7 +57,7 @@ static NSString * const SlateTimelineSnapshotPlayheadKeyStemRect = @"stemRect";
 static NSString * const SlateTimelineSnapshotPlayheadKeyVisualRect = @"visualRect";
 static NSString * const SlateTimelineSnapshotPlayheadKeyHitRect = @"hitRect";
 
-static NSString * const SlateTimelineSnapshotSelectionKeyBottomRangeRect = @"bottomRangeRect";
+static NSString * const SlateTimelineSnapshotSelectionKeyRegionRect = @"regionRect";
 
 static NSString * const SlateTimelineSnapshotReadoutKeyRemaining = @"remaining";
 static NSString * const SlateTimelineSnapshotReadoutKeyDuration = @"duration";

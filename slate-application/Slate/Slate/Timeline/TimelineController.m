@@ -108,7 +108,7 @@ static NSString *TimelineControllerDragModeName(NSInteger dragMode)
     NSTimeInterval pointTime = TimelineTimeForXPosition(point.x, layout);
 
     if (_dragMode == TimelineControllerDragModePlayhead) {
-        _playheadGrabOffsetX = point.x - (TimelinePlayheadCenterX(layout) + TimelinePlayheadCenterXOffset());
+        _playheadGrabOffsetX = point.x - TimelinePlayheadCenterX(layout);
         if (_delegate != nil) {
             [_delegate timelineControllerBeginScrubSession:self];
         }

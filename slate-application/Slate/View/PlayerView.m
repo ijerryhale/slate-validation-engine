@@ -339,9 +339,7 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
 
 - (void)ensureTimecodeOverlayView
 {
-    if (_timecodeOverlayView != nil) {
-        return;
-    }
+    if (_timecodeOverlayView != nil) return;
 
     NSView *containerView = self.contentOverlayView ?: self;
 
@@ -357,13 +355,9 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     [_timecodeLabel setSelectable:NO];
     [_timecodeLabel setDrawsBackground:NO];
     [_timecodeLabel setAlignment:NSTextAlignmentCenter];
-    [_timecodeLabel setTextColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
-    
-    
+    [_timecodeLabel setTextColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
     [_timecodeLabel setFont:[NSFont monospacedSystemFontOfSize:48.0 weight:NSFontWeightThin]];
-    [_timecodeLabel setUsesSingleLineMode:YES];
-    [_timecodeLabel setLineBreakMode:NSLineBreakByClipping];
-    [_timecodeOverlayView addSubview:_timecodeLabel];
+     [_timecodeOverlayView addSubview:_timecodeLabel];
     [containerView addSubview:_timecodeOverlayView];
 }
 

@@ -65,10 +65,7 @@
     [self commonInit];
 }
 
-- (BOOL)isOpaque
-{
-    return NO;
-}
+- (BOOL)isOpaque { return NO; }
 
 - (void)setTimelineState:(TimelineState *)timelineState
 {
@@ -81,9 +78,7 @@
 
 - (void)setUsableMovie:(BOOL)usableMovie
 {
-    if (_usableMovie == usableMovie) {
-        return;
-    }
+    if (_usableMovie == usableMovie) return;
 
     _usableMovie = usableMovie;
     [self updatePassiveTimelineLayers];
@@ -116,7 +111,7 @@
 - (void)updateScrubberHeadReadoutPosition
 {
     [self ensureTimelineReadoutsIfNeeded];
-    [_readouts updateHeadReadoutPositionForBounds:[self bounds]
+    [_readouts updateCurrentTimePositionForBounds:[self bounds]
                                            layout:[self currentLayoutSnapshot]
                                     playheadCenterX:[self playheadCenterX]];
 }
@@ -156,7 +151,7 @@
     double frameRate = (_timelineState != nil) ? [_timelineState frameRate] : 0.0;
     NSTimeInterval selectionStart = (_timelineState != nil) ? [_timelineState selectionStart] : 0.0;
     NSTimeInterval selectionEnd = (_timelineState != nil) ? [_timelineState selectionEnd] : 0.0;
-    CGFloat sideReadoutWidth = [_readouts sideReadoutLabelWidth];
+    CGFloat sideReadoutWidth = [_readouts gutterLabelWidth];
     CGFloat contentTopInset = [_readouts contentTopInset];
     return TimelineMakeLayoutSnapshot(self.bounds,
                                       duration,
@@ -218,7 +213,7 @@
 - (CGFloat)playheadCenterX
 {
     TimelineLayoutSnapshot layout = [self currentLayoutSnapshot];
-    return TimelinePlayheadCenterX(layout) + TimelinePlayheadCenterXOffset();
+    return TimelinePlayheadCenterX(layout);
 }
 
 - (void)syncAppControllerTransport

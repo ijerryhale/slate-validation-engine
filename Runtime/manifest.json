@@ -22,8 +22,8 @@
     "delivery": "local-file",
     "path": "Runtime/slate",
     "committedToGit": true,
-    "sha256": "074fda900c6aa0ecba13123360e3a83a39dc1ff8afe2acbf1af3c37e2a921948",
-    "sizeBytes": 717184,
+    "sha256": "8f60cd427b0a90dc4344cb54f632100f9737556286b32343af0ec5248dbd2761",
+    "sizeBytes": 717136,
     "releaseAssetName": null
   },
   "policy": {

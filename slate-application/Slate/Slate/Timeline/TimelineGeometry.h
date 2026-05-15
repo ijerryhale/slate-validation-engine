@@ -23,7 +23,7 @@ typedef struct TimelineLayoutSnapshot {
     NSRect rulerBandRect;
     NSRect rulerTickRect;
     NSRect rulerLabelSafeRect;
-    NSRect bottomRangeBandRect;
+    NSRect regionBandRect;
     NSRect laneRect;
     NSRect laneHitRect;
     NSTimeInterval duration;
@@ -34,7 +34,6 @@ typedef struct TimelineLayoutSnapshot {
     BOOL collapsedSelection;
 } TimelineLayoutSnapshot;
 
-CGFloat TimelinePlayheadCenterXOffset(void);
 CGFloat TimelineTrackSeekDragThreshold(void);
 CGFloat TimelineLaneCornerRadius(void);
 CGFloat TimelineRulerLabelWidth(void);
@@ -65,7 +64,7 @@ NSRect TimelinePlayheadStemRect(TimelineLayoutSnapshot layout);
 NSRect TimelinePlayheadVisualRect(TimelineLayoutSnapshot layout);
 NSRect TimelinePlayheadHitRect(TimelineLayoutSnapshot layout);
 CGPathRef TimelineCreatePlayheadCapPath(NSRect capRect);
-NSRect TimelineBottomRangeSelectionRectForLayout(TimelineLayoutSnapshot layout);
+NSRect TimelineRegionRectForLayout(TimelineLayoutSnapshot layout);
 
 void TimelineAssertLayoutIntegrity(TimelineLayoutSnapshot layout);
 NSString *TimelineRectString(NSRect rect);

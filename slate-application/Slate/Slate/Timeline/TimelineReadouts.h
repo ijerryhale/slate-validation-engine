@@ -24,8 +24,8 @@
 - (void)ensureReadoutLayersIfNeeded;
 - (void)layoutReadoutLayersForBounds:(NSRect)bounds layout:(TimelineLayoutSnapshot)layout;
 - (void)updateReadoutValuesForLayout:(TimelineLayoutSnapshot)layout bounds:(NSRect)bounds usableMovie:(BOOL)usableMovie currentTimecodeString:(NSString *)currentTimecodeString;
-- (void)updateHeadReadoutPositionForBounds:(NSRect)bounds layout:(TimelineLayoutSnapshot)layout playheadCenterX:(CGFloat)playheadCenterX;
-- (CGFloat)sideReadoutLabelWidth;
+- (void)updateCurrentTimePositionForBounds:(NSRect)bounds layout:(TimelineLayoutSnapshot)layout playheadCenterX:(CGFloat)playheadCenterX;
+- (CGFloat)gutterLabelWidth;
 - (CGFloat)contentTopInset;
 
 @end

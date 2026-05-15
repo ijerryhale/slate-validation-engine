@@ -1400,7 +1400,7 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
 
 #pragma mark - Readiness Rail
 
-- (NSTextField *)newChapterOverlayLabelWithString:(NSString *)stringValue
+- (NSTextField *)newChapterOverlayLaNSTextAlignmentbelWithString:(NSString *)stringValue
                                               font:(NSFont *)font
                                          textColor:(NSColor *)textColor
                                          alignment:(NSTextAlignment)alignment
@@ -1479,6 +1479,19 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
         [view removeFromSuperview];
         [containerView addSubview:view];
     }
+}
+
+- (NSTextField *)newChapterOverlayLabelWithString:(NSString *)stringValue
+                                              font:(NSFont *)font
+                                         textColor:(NSColor *)textColor
+                                         alignment:(NSTextAlignment)alignment
+                                         multiLine:(BOOL)multiLine
+{
+    return SlateInspectorRailCreateLabel(stringValue,
+                                           font,
+                                           textColor,
+                                           alignment,
+                                           multiLine);
 }
 
 - (void)ensureChapterLayoutSupplementaryViews

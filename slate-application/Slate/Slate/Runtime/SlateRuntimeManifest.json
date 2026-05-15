@@ -6,12 +6,12 @@
       "name": "SlateValidationRuntime",
       "kind": "tool",
       "status": "available",
-      "version": "0.1.0-adapter-wave10",
-      "configuration": "Debug",
+      "version": "0.1.0-public-preview",
+      "configuration": "Release",
       "platform": "macOS",
       "architectures": [
-        "arm64",
-        "x86_64"
+        "x86_64",
+        "arm64"
       ],
       "contracts": [
         "validationObservedState.v1",
@@ -20,23 +20,24 @@
       "required": false,
       "artifact": {
         "delivery": "sibling-tool",
-        "buildProductPath": "build/Debug/SlateValidationRuntime",
+        "buildProductPath": "build/Release/SlateValidationRuntime",
         "installPath": "SlateValidationRuntime",
-        "committedToGit": false,
-        "sha256": "3d0a0cf95cf29150a2970986b6a6bfb5f8d73cbcdc817342e403d50362d5f3b5",
-        "sizeBytes": 839024
+        "packagePath": "Runtime/SlateValidationRuntime",
+        "committedToGit": true,
+        "sha256": "c330f4cdd57216e45880e36853a3ba5a63f224fe6767659ab1dce6c8780c8c6d",
+        "sizeBytes": 717184
       }
     },
     {
       "name": "SlatePackageRuntime",
       "kind": "tool",
       "status": "available",
-      "version": "0.1.0-adapter-wave11",
-      "configuration": "Debug",
+      "version": "0.1.0-public-preview",
+      "configuration": "Release",
       "platform": "macOS",
       "architectures": [
-        "arm64",
-        "x86_64"
+        "x86_64",
+        "arm64"
       ],
       "contracts": [
         "packageContext.v1",
@@ -45,23 +46,24 @@
       "required": false,
       "artifact": {
         "delivery": "sibling-tool",
-        "buildProductPath": "build/Debug/SlatePackageRuntime",
+        "buildProductPath": "build/Release/SlatePackageRuntime",
         "installPath": "SlatePackageRuntime",
-        "committedToGit": false,
-        "sha256": "34bde953abf50863b27eba98a6ee361ab148df15bb059ccea849b21814ec7fba",
-        "sizeBytes": 342752
+        "packagePath": "Runtime/SlatePackageRuntime",
+        "committedToGit": true,
+        "sha256": "cb93e3c849ed1cfe04737f5361257be4ad727073141dec1b9ab902eac6ee4df9",
+        "sizeBytes": 308832
       }
     },
     {
       "name": "SlateTrackRuntime",
       "kind": "tool",
       "status": "available",
-      "version": "0.1.0-adapter-audiotoolbox-prune",
-      "configuration": "Debug",
+      "version": "0.1.0-public-preview",
+      "configuration": "Release",
       "platform": "macOS",
       "architectures": [
-        "arm64",
-        "x86_64"
+        "x86_64",
+        "arm64"
       ],
       "contracts": [
         "trackSnapshot.v1"
@@ -69,23 +71,24 @@
       "required": false,
       "artifact": {
         "delivery": "sibling-tool",
-        "buildProductPath": "build/Debug/SlateTrackRuntime",
+        "buildProductPath": "build/Release/SlateTrackRuntime",
         "installPath": "SlateTrackRuntime",
-        "committedToGit": false,
-        "sha256": "464e131e01cdfb8f54e283f11eb062933ef93a2d78c6222b15de2a86e1131847",
-        "sizeBytes": 563808
+        "packagePath": "Runtime/SlateTrackRuntime",
+        "committedToGit": true,
+        "sha256": "64aa74ce341a4e6414896298af256e67f5cc7d04f2e836193e7e3f718ed87ee0",
+        "sizeBytes": 466368
       }
     },
     {
       "name": "SlateChapterRuntime",
       "kind": "tool",
       "status": "available",
-      "version": "0.1.0-adapter-wave7",
-      "configuration": "Debug",
+      "version": "0.1.0-public-preview",
+      "configuration": "Release",
       "platform": "macOS",
       "architectures": [
-        "arm64",
-        "x86_64"
+        "x86_64",
+        "arm64"
       ],
       "contracts": [
         "chapterSnapshot.v1"
@@ -93,23 +96,24 @@
       "required": false,
       "artifact": {
         "delivery": "sibling-tool",
-        "buildProductPath": "build/Debug/SlateChapterRuntime",
+        "buildProductPath": "build/Release/SlateChapterRuntime",
         "installPath": "SlateChapterRuntime",
-        "committedToGit": false,
-        "sha256": "0f95696d13a43f3df7c78978ff2b7fa325996712a6b94dfcb3a1adaa57298fd8",
-        "sizeBytes": 746880
+        "packagePath": "Runtime/SlateChapterRuntime",
+        "committedToGit": true,
+        "sha256": "a0ebb0fdb06b50d6c667de5cc37ba36ba990e1aa092adcca4af6c0cc9fefd9d0",
+        "sizeBytes": 602320
       }
     },
     {
       "name": "SlateReviewRuntime",
       "kind": "tool",
       "status": "available",
-      "version": "0.1.0-adapter-wave8",
-      "configuration": "Debug",
+      "version": "0.1.0-public-preview",
+      "configuration": "Release",
       "platform": "macOS",
       "architectures": [
-        "arm64",
-        "x86_64"
+        "x86_64",
+        "arm64"
       ],
       "contracts": [
         "reviewSnapshot.v1"
@@ -117,23 +121,24 @@
       "required": false,
       "artifact": {
         "delivery": "sibling-tool",
-        "buildProductPath": "build/Debug/SlateReviewRuntime",
+        "buildProductPath": "build/Release/SlateReviewRuntime",
         "installPath": "SlateReviewRuntime",
-        "committedToGit": false,
-        "sha256": "d92648a8b594e838d13d5f61e33fe0829129316404e9f83bd04d593f4d548cef",
-        "sizeBytes": 157504
+        "packagePath": "Runtime/SlateReviewRuntime",
+        "committedToGit": true,
+        "sha256": "929dc8b3a28049b59d5665fe3aa115561610e79669379e66ed643123af95dbef",
+        "sizeBytes": 137872
       }
     },
     {
       "name": "SlateTimelineRuntime",
       "kind": "tool",
       "status": "available",
-      "version": "0.1.0-adapter-wave9",
-      "configuration": "Debug",
+      "version": "0.1.0-public-preview",
+      "configuration": "Release",
       "platform": "macOS",
       "architectures": [
-        "arm64",
-        "x86_64"
+        "x86_64",
+        "arm64"
       ],
       "contracts": [
         "timelineSnapshot.v1"
@@ -141,17 +146,18 @@
       "required": false,
       "artifact": {
         "delivery": "sibling-tool",
-        "buildProductPath": "build/Debug/SlateTimelineRuntime",
+        "buildProductPath": "build/Release/SlateTimelineRuntime",
         "installPath": "SlateTimelineRuntime",
-        "committedToGit": false,
-        "sha256": "8cc692d8de9e1d1a9978d46c6c1e349244984e4fc088efac912a740babf9631b",
-        "sizeBytes": 198368
+        "packagePath": "Runtime/SlateTimelineRuntime",
+        "committedToGit": true,
+        "sha256": "895a246cbb646b9e92b273f2465d4aff77d9b52d7ce8c945810332c8493d10e8",
+        "sizeBytes": 153920
       }
     }
   ],
   "policy": {
     "requiresConsensusBeforePush": true,
     "privateInternalsAllowed": false,
-    "runtimeBinariesCommittedToSourceHistory": false
+    "runtimeBinariesCommittedToSourceHistory": true
   }
 }
