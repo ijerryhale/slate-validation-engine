@@ -25,7 +25,6 @@ private enum HarnessConfig {
     static let toolbarCurrentSizeGapAfterReadout: CGFloat = 12.0
     static let toolbarStatusRightInset: CGFloat = 14.0
 
-    static let envRepoRootPath = "SLATE_HARNESS_REPO_ROOT"
     static let slateAdapterExecutableName = "Slate"
     static let slatePackageRuntimeExecutableName = "SlatePackageRuntime"
     static let slateChapterRuntimeExecutableName = "SlateChapterRuntime"
@@ -33,6 +32,14 @@ private enum HarnessConfig {
     static let slateValidationRuntimeExecutableName = "SlateValidationRuntime"
     static let slateReviewRuntimeExecutableName = "SlateReviewRuntime"
     static let slateTimelineRuntimeExecutableName = "SlateTimelineRuntime"
+    static let siblingRuntimeExecutableNames = [
+        slatePackageRuntimeExecutableName,
+        slateChapterRuntimeExecutableName,
+        slateTrackRuntimeExecutableName,
+        slateValidationRuntimeExecutableName,
+        slateReviewRuntimeExecutableName,
+        slateTimelineRuntimeExecutableName
+    ]
     static let movieFixtureRelativeDirectory = "media_mov/valid"
 
     static let smallFixtureRelativePathCandidates = [
@@ -94,73 +101,6 @@ private enum HarnessAppleEvent {
     static let chapterDetails = fourCharCode("CDET")
     static let snapshot = fourCharCode("SNAP")
     static let handledEventIDs: [OSType] = [ping, setMode, setWindow, loadFixture, trackMovieDetails, chapterDetails, snapshot]
-}
-
-private func isSlateRepositoryRoot(_ url: URL) -> Bool {
-    let fm = FileManager.default
-    return fm.fileExists(atPath: url.appendingPathComponent("Slate.xcodeproj").path)
-}
-
-private func findRepositoryRootByWalkingUp(from start: URL, maxDepth: Int = 12) -> URL? {
-    var current = start.standardizedFileURL
-    var isDir: ObjCBool = false
-    if !FileManager.default.fileExists(atPath: current.path, isDirectory: &isDir) || !isDir.boolValue {
-        current = current.deletingLastPathComponent()
-    }
-
-    for _ in 0...maxDepth {
-        if isSlateRepositoryRoot(current) {
-            return current
-        }
-        let parent = current.deletingLastPathComponent()
-        if parent.path == current.path {
-            break
-        }
-        current = parent
-    }
-
-    return nil
-}
-
-private func resolveRepositoryRoot() -> URL {
-    let env = ProcessInfo.processInfo.environment
-    if let overridePath = env[HarnessConfig.envRepoRootPath], !overridePath.isEmpty {
-        let url = URL(fileURLWithPath: overridePath)
-        if isSlateRepositoryRoot(url) {
-            return url
-        }
-        fatalError("Invalid \(HarnessConfig.envRepoRootPath): \(overridePath)")
-    }
-
-    let cwd = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
-    if let found = findRepositoryRootByWalkingUp(from: cwd) {
-        return found
-    }
-
-    let executableRoot = Bundle.main.bundleURL
-    if let found = findRepositoryRootByWalkingUp(from: executableRoot) {
-        return found
-    }
-
-    fatalError("Unable to locate Slate repository root. Set \(HarnessConfig.envRepoRootPath).")
-}
-
-private func resolveFixtureRootURL(repoRootURL: URL) -> URL {
-    let fm = FileManager.default
-    let candidates = [
-        repoRootURL.appendingPathComponent("fixtures", isDirectory: true),
-        repoRootURL.appendingPathComponent("slate-validation-engine/fixtures", isDirectory: true),
-        repoRootURL.deletingLastPathComponent().appendingPathComponent("fixtures", isDirectory: true)
-    ]
-
-    for candidate in candidates {
-        var isDirectory: ObjCBool = false
-        if fm.fileExists(atPath: candidate.path, isDirectory: &isDirectory), isDirectory.boolValue {
-            return candidate
-        }
-    }
-
-    return candidates[0]
 }
 
 private func executableExists(_ executableURL: URL) -> Bool {
@@ -338,8 +278,12 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var trackController: NSViewController?
     private var packageController: NSViewController?
 
-    private var repoRootURL: URL!
-    private var fixtureRootURL: URL!
+    private var applicationDirectoryURL: URL {
+        Bundle.main.bundleURL.deletingLastPathComponent()
+    }
+    private var fixtureRootURL: URL {
+        applicationDirectoryURL.appendingPathComponent("fixtures", isDirectory: true)
+    }
     private var currentFixtureURL: URL?
     private var currentPackageContext: [String: Any]?
     private var currentMovieURL: URL?
@@ -371,8 +315,21 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
             return
         }
 
-        repoRootURL = resolveRepositoryRoot()
-        fixtureRootURL = resolveFixtureRootURL(repoRootURL: repoRootURL)
+        let missingRuntimePaths = HarnessConfig.siblingRuntimeExecutableNames.compactMap { name -> String? in
+            let runtimeURL = siblingRuntimeExecutableURL(named: name)
+            return executableExists(runtimeURL) ? nil : runtimeURL.path
+        }
+        guard missingRuntimePaths.isEmpty else {
+            presentStartupErrorAndTerminate(
+                """
+                Required Slate runtime executables must be in the same directory as paneharness.app.
+
+                Missing:
+                \(missingRuntimePaths.joined(separator: "\n"))
+                """
+            )
+            return
+        }
 
         guard loadSlateAdapter(fromExecutableURL: adapterExecutable) else {
             presentStartupErrorAndTerminate(
@@ -865,7 +822,9 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         panel.allowedContentTypes = [.xml, .json]
-        panel.directoryURL = fixtureRootURL
+        panel.directoryURL = FileManager.default.fileExists(atPath: fixtureRootURL.path)
+            ? fixtureRootURL
+            : applicationDirectoryURL
 
         guard panel.runModal() == .OK,
               let url = panel.url else {
@@ -881,8 +840,11 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         panel.allowedContentTypes = [.quickTimeMovie, .mpeg4Movie]
-        panel.directoryURL = fixtureRootURL.appendingPathComponent(HarnessConfig.movieFixtureRelativeDirectory,
-                                                                    isDirectory: true)
+        let movieFixtureDirectoryURL = fixtureRootURL.appendingPathComponent(HarnessConfig.movieFixtureRelativeDirectory,
+                                                                             isDirectory: true)
+        panel.directoryURL = FileManager.default.fileExists(atPath: movieFixtureDirectoryURL.path)
+            ? movieFixtureDirectoryURL
+            : applicationDirectoryURL
 
         guard panel.runModal() == .OK,
               let url = panel.url else {
@@ -1124,15 +1086,7 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let missingAdapterClasses = requiredAdapterClasses.filter { !runtimeClassExists($0) }
         let adapterLoaded = !gHarnessRuntimeExecutablePath.isEmpty
         let adapterExecutableOK = adapterLoaded && executableExists(URL(fileURLWithPath: gHarnessRuntimeExecutablePath))
-        let runtimeExecutableNames = [
-            HarnessConfig.slatePackageRuntimeExecutableName,
-            HarnessConfig.slateChapterRuntimeExecutableName,
-            HarnessConfig.slateTrackRuntimeExecutableName,
-            HarnessConfig.slateValidationRuntimeExecutableName,
-            HarnessConfig.slateReviewRuntimeExecutableName,
-            HarnessConfig.slateTimelineRuntimeExecutableName
-        ]
-        let runtimeExecutables = runtimeExecutableNames.map { name -> [String: Any] in
+        let runtimeExecutables = HarnessConfig.siblingRuntimeExecutableNames.map { name -> [String: Any] in
             let url = siblingRuntimeExecutableURL(named: name)
             let available = executableExists(url)
             return [
@@ -1160,11 +1114,6 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 "name": "siblingRuntimeExecutables",
                 "ok": runtimeExecutablesOK,
                 "message": runtimeExecutablesOK ? "Sibling runtime executables are available." : "One or more sibling runtime executables are missing."
-            ],
-            [
-                "name": "repositoryRoot",
-                "ok": repoRootURL != nil,
-                "message": repoRootURL == nil ? "Repository root is not resolved." : "Repository root is resolved."
             ],
             [
                 "name": "window",

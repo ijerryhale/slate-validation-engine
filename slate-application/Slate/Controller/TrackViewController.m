@@ -535,6 +535,23 @@ static NSString *SlateTrackSnapshotRowString(NSDictionary *row, NSString *key)
     return SlateTrackSnapshotRawString([row objectForKey:key]);
 }
 
+static NSString *SlateTrackSnapshotDetailValue(NSDictionary *row, NSString *detailKey)
+{
+    id detailsValue = [row objectForKey:SlateTrackSnapshotRowKeyDetails];
+    NSArray *details = [detailsValue isKindOfClass:[NSArray class]] ? detailsValue : nil;
+    for (NSDictionary *pair in details) {
+        if (![pair isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        NSString *key = SlateTrackSnapshotRawString([pair objectForKey:SlateTrackSnapshotDetailKeyKey]);
+        if ([key isEqualToString:detailKey]) {
+            NSString *value = SlateTrackSnapshotRawString([pair objectForKey:SlateTrackSnapshotDetailKeyValue]);
+            return (value.length > 0) ? value : nil;
+        }
+    }
+    return nil;
+}
+
 static BOOL SlateTrackSnapshotRowBool(NSDictionary *row, NSString *key)
 {
     id value = [row objectForKey:key];
@@ -1275,8 +1292,10 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 - (void)updateInspectorGainControlsForSnapshot:(SMTrackRowSnapshot *)snapshot;
 - (void)updateTrackInspectorDetailsText;
 - (IBAction)copyTrackInspectorDetails:(id)sender;
-- (NSArray *)trackInspectorDetailPairsForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot;
-- (NSString *)trackInspectorDetailsStringForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot;
+- (NSArray *)trackInspectorDetailPairsForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot
+                                               runtimeRow:(NSDictionary *)runtimeRow;
+- (NSString *)trackInspectorDetailsStringForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot
+                                                  runtimeRow:(NSDictionary *)runtimeRow;
 - (void)restorePersistedTrackColumnWidthsForTableView:(NSTableView *)tableView;
 - (void)persistResizableTrackColumnWidths;
 - (void)applyPrimaryTrackTableColumnWidths;
@@ -2995,8 +3014,10 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
     [row setObject:[NSNumber numberWithShort:[rowSnapshot encodedHeight]] forKey:SlateTrackSnapshotRowKeyEncodedHeight];
     [row setObject:[NSNumber numberWithFloat:[rowSnapshot displayWidth]] forKey:SlateTrackSnapshotRowKeyDisplayWidth];
     [row setObject:[NSNumber numberWithFloat:[rowSnapshot displayHeight]] forKey:SlateTrackSnapshotRowKeyDisplayHeight];
-    [row setObject:[self trackInspectorDetailPairsForTrackRowSnapshot:rowSnapshot] forKey:SlateTrackSnapshotRowKeyDetails];
-    [row setObject:[self trackInspectorDetailsStringForTrackRowSnapshot:rowSnapshot] forKey:SlateTrackSnapshotRowKeyDetailsText];
+    NSArray *detailPairs = [self trackInspectorDetailPairsForTrackRowSnapshot:rowSnapshot runtimeRow:runtimeRow];
+    [row setObject:detailPairs forKey:SlateTrackSnapshotRowKeyDetails];
+    [row setObject:[self trackInspectorDetailsStringForTrackRowSnapshot:rowSnapshot runtimeRow:runtimeRow]
+            forKey:SlateTrackSnapshotRowKeyDetailsText];
 
     NSURL *sourceURL = [rowSnapshot sourceURL];
     if ([sourceURL isFileURL] && [[sourceURL path] length] > 0) {
@@ -3094,6 +3115,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 }
 
 - (NSArray *)trackInspectorDetailPairsForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot
+                                               runtimeRow:(NSDictionary *)runtimeRow
 {
     if (snapshot == nil) {
         return [NSArray array];
@@ -3121,7 +3143,10 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
         SMTrackAppendDetailsPairToArray(pairs, @"Display Name", displayName);
         SMTrackAppendDetailsPairToArray(pairs, @"Format Summary", formatSummary);
         SMTrackAppendDetailsPairToArray(pairs, @"Audio Gain", [NSString stringWithFormat:@"%.2f", [snapshot audioGain]]);
-        SMTrackAppendDetailsPairToArray(pairs, @"Channel Layout", @"Runtime unavailable");
+        NSString *channelLayout = SlateTrackSnapshotDetailValue(runtimeRow, @"Channel Layout");
+        SMTrackAppendDetailsPairToArray(pairs,
+                                        @"Channel Layout",
+                                        channelLayout ?: @"Runtime unavailable");
     }
     else if (isTimecodeTrack) {
         SMTrackAppendDetailsPairToArray(pairs, @"Enabled", enabledString);
@@ -3187,6 +3212,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 }
 
 - (NSString *)trackInspectorDetailsStringForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot
+                                                  runtimeRow:(NSDictionary *)runtimeRow
 {
     if (snapshot == nil) {
         return SMTrackInspectorDetailsEmptyMessage;
@@ -3199,7 +3225,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
                                 [snapshot ident],
                                 SMTrackDetailsSafeString(trackType)];
 
-    for (NSDictionary *pair in [self trackInspectorDetailPairsForTrackRowSnapshot:snapshot]) {
+    for (NSDictionary *pair in [self trackInspectorDetailPairsForTrackRowSnapshot:snapshot runtimeRow:runtimeRow]) {
         if (![pair isKindOfClass:[NSDictionary class]]) {
             continue;
         }
