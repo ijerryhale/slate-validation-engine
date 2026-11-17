@@ -4,78 +4,16 @@
 //
 
 #import "AppController+Timeline.h"
+#import "AppController+Focus.h"
 
 #import "PlayerView.h"
 #import "TimelineState.h"
 #import "TimelineView.h"
 #import "SMMovie.h"
 
-static BOOL TimelineTransportVerboseRefreshLoggingEnabled(void)
+static BOOL TimelineVerboseRefreshLoggingEnabled(void)
 {
     return NO;
-}
-
-static CGFloat TransportGroupInsetForWidth(CGFloat width)
-{
-    if (width >= 1280.0) {
-        return 20.0;
-    }
-    if (width >= 1100.0) {
-        return 14.0;
-    }
-    return 10.0;
-}
-
-static NSButton *TransportButtonForAction(NSView *containerView, SEL action)
-{
-    if (containerView == nil || action == NULL) {
-        return nil;
-    }
-
-    for (NSView *subview in [containerView subviews]) {
-        if (![subview isKindOfClass:[NSButton class]]) {
-            continue;
-        }
-
-        NSButton *button = (NSButton *)subview;
-        if ([button action] == action) {
-            return button;
-        }
-    }
-
-    return nil;
-}
-
-static NSTextField *TransportLabelWithTitle(NSView *containerView, NSString *title)
-{
-    if (containerView == nil || [title length] == 0) {
-        return nil;
-    }
-
-    for (NSView *subview in [containerView subviews]) {
-        if (![subview isKindOfClass:[NSTextField class]]) {
-            continue;
-        }
-
-        NSTextField *field = (NSTextField *)subview;
-        if ([[field stringValue] isEqualToString:title]) {
-            return field;
-        }
-    }
-
-    return nil;
-}
-
-static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
-{
-    if (view == nil) {
-        return;
-    }
-
-    NSRect integralFrame = NSIntegralRect(frame);
-    if (!NSEqualRects([view frame], integralFrame)) {
-        [view setFrame:integralFrame];
-    }
 }
 
 @interface AppController (TimelinePrivate)
@@ -84,247 +22,9 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
 
 @implementation AppController (Timeline)
 
-- (NSView *)transportContainerView
-{
-    NSView *timelineContainer = [_timelineView superview];
-    if (timelineContainer != nil) {
-        return timelineContainer;
-    }
-
-    return [_playerView superview];
-}
-
-- (NSButton *)transportButtonForAction:(SEL)action
-{
-    return TransportButtonForAction([self transportContainerView], action);
-}
-
-- (NSArray *)transportTimelineFocusOrderViews
-{
-    NSMutableArray *focusViews = [NSMutableArray array];
-    NSView *timelineView = _timelineView;
-    NSView *volumeSlider = _volume;
-    NSButton *fastBackward = [self transportButtonForAction:@selector(fastBackward:)];
-    NSButton *stepBackward = [self transportButtonForAction:@selector(stepBackward:)];
-    NSButton *playPause = [self transportButtonForAction:@selector(togglePlayPause:)];
-    NSButton *stepForward = [self transportButtonForAction:@selector(stepForward:)];
-    NSButton *fastForward = [self transportButtonForAction:@selector(fastForward:)];
-    NSButton *timecodeToggle = _timecodeOverlayButton;
-    NSView *colorWell = _colorWell;
-    NSButton *cropToggle = [self transportButtonForAction:@selector(toggleCropRect:)];
-
-    NSArray *candidates = [NSArray arrayWithObjects:
-                           timelineView ?: [NSNull null],
-                           volumeSlider ?: [NSNull null],
-                           fastBackward ?: [NSNull null],
-                           stepBackward ?: [NSNull null],
-                           playPause ?: [NSNull null],
-                           stepForward ?: [NSNull null],
-                           fastForward ?: [NSNull null],
-                           timecodeToggle ?: [NSNull null],
-                           colorWell ?: [NSNull null],
-                           cropToggle ?: [NSNull null],
-                           _rawCropLeft ?: [NSNull null],
-                           _rawCropTop ?: [NSNull null],
-                           _rawCropRght ?: [NSNull null],
-                           _rawCropBtm ?: [NSNull null],
-                           _views ?: [NSNull null],
-                           nil];
-
-    for (id candidate in candidates) {
-        if (![candidate isKindOfClass:[NSView class]]) {
-            continue;
-        }
-
-        NSView *view = (NSView *)candidate;
-        if ([view isHidden] || [view window] != _window) {
-            continue;
-        }
-        if ([view isKindOfClass:[NSControl class]] && ![(NSControl *)view isEnabled]) {
-            continue;
-        }
-
-        [focusViews addObject:view];
-    }
-
-    return focusViews;
-}
-
-- (void)rebuildTransportTimelineKeyViewLoop
-{
-    NSArray *focusViews = [self transportTimelineFocusOrderViews];
-    if ([focusViews count] < 2) {
-        return;
-    }
-
-    for (NSUInteger index = 0; index < [focusViews count]; index++) {
-        NSView *currentView = [focusViews objectAtIndex:index];
-        NSUInteger nextIndex = (index + 1) % [focusViews count];
-        NSView *nextView = [focusViews objectAtIndex:nextIndex];
-        [currentView setNextKeyView:nextView];
-    }
-}
-
-- (void)layoutCompactTransportStripInView:(NSView *)transportView timelineFrame:(NSRect)timelineFrame
-{
-    if (transportView == nil) {
-        return;
-    }
-
-    NSRect bounds = [transportView bounds];
-    CGFloat stripTop = NSMinY(timelineFrame) - 3.0;
-    CGFloat stripBottom = NSMinY(bounds) + 4.0;
-
-    if (stripTop <= stripBottom) {
-        return;
-    }
-
-    NSRect stripRect = NSMakeRect(NSMinX(bounds),
-                                  stripBottom,
-                                  NSWidth(bounds),
-                                  stripTop - stripBottom);
-    CGFloat controlCenterY = NSMidY(stripRect);
-    CGFloat upperRowCenterY = NSMaxY(stripRect) - 15.0;
-    CGFloat lowerRowCenterY = NSMinY(stripRect) + 12.0;
-    CGFloat groupInset = TransportGroupInsetForWidth(NSWidth(bounds));
-
-    NSSlider *volume = _volume;
-    NSButton *fastBackward = TransportButtonForAction(transportView, @selector(fastBackward:));
-    NSButton *stepBackward = TransportButtonForAction(transportView, @selector(stepBackward:));
-    NSButton *playPause = TransportButtonForAction(transportView, @selector(togglePlayPause:));
-    NSButton *stepForward = TransportButtonForAction(transportView, @selector(stepForward:));
-    NSButton *fastForward = TransportButtonForAction(transportView, @selector(fastForward:));
-
-    NSArray *navigationButtons = [NSArray arrayWithObjects:
-                                  fastBackward ?: [NSNull null],
-                                  stepBackward ?: [NSNull null],
-                                  playPause ?: [NSNull null],
-                                  stepForward ?: [NSNull null],
-                                  fastForward ?: [NSNull null],
-                                  nil];
-
-    CGFloat leftGroupCursor = NSMinX(bounds) + groupInset;
-    if (volume != nil) {
-        NSRect volumeFrame = [volume frame];
-        CGFloat preferredHeight = MAX(34.0, MIN(NSHeight(stripRect) - 4.0, NSHeight(volumeFrame)));
-        volumeFrame.origin.x = leftGroupCursor;
-        volumeFrame.origin.y = floor(controlCenterY - (preferredHeight / 2.0));
-        volumeFrame.size.height = preferredHeight;
-        SetTransportSubviewFrameIfNeeded(volume, volumeFrame);
-        leftGroupCursor = NSMaxX(volumeFrame) + 16.0;
-    }
-
-    CGFloat navSpacing = (NSWidth(bounds) >= 1220.0) ? 8.0 : 6.0;
-    for (id candidate in navigationButtons) {
-        if (![candidate isKindOfClass:[NSButton class]]) {
-            continue;
-        }
-        NSButton *button = (NSButton *)candidate;
-        NSRect buttonFrame = [button frame];
-        buttonFrame.origin.x = leftGroupCursor;
-        buttonFrame.origin.y = floor(controlCenterY - (NSHeight(buttonFrame) / 2.0));
-        SetTransportSubviewFrameIfNeeded(button, buttonFrame);
-        leftGroupCursor = NSMaxX(buttonFrame) + navSpacing;
-    }
-
-    NSTextField *cropLeftLabel = TransportLabelWithTitle(transportView, @"Crop Left:");
-    NSTextField *cropTopLabel = TransportLabelWithTitle(transportView, @"Crop Top:");
-    NSTextField *cropRightLabel = TransportLabelWithTitle(transportView, @"Crop Right:");
-    NSTextField *cropBottomLabel = TransportLabelWithTitle(transportView, @"Crop Bottom:");
-    NSButton *cropToggleButton = TransportButtonForAction(transportView, @selector(toggleCropRect:));
-    NSColorWell *colorWell = _colorWell;
-    NSButton *timecodeToggle = _timecodeOverlayButton;
-
-    CGFloat rightInset = groupInset;
-    CGFloat cropValueWidth = MAX(MAX(NSWidth([_rawCropLeft frame]), NSWidth([_rawCropRght frame])),
-                                 MAX(NSWidth([_rawCropTop frame]), NSWidth([_rawCropBtm frame])));
-    cropValueWidth = MAX(36.0, cropValueWidth);
-    CGFloat cropLeftLabelWidth = MAX(NSWidth([cropLeftLabel frame]), NSWidth([cropTopLabel frame]));
-    CGFloat cropRightLabelWidth = MAX(NSWidth([cropRightLabel frame]), NSWidth([cropBottomLabel frame]));
-    CGFloat pairSpacing = (NSWidth(bounds) >= 1220.0) ? 10.0 : 6.0;
-    CGFloat labelSpacing = 4.0;
-
-    CGFloat rightValueX = NSMaxX(bounds) - rightInset - cropValueWidth;
-    CGFloat rightLabelX = rightValueX - labelSpacing - cropRightLabelWidth;
-    CGFloat leftValueX = rightLabelX - pairSpacing - cropValueWidth;
-    CGFloat leftLabelX = leftValueX - labelSpacing - cropLeftLabelWidth;
-
-    NSRect cropLeftLabelFrame = [cropLeftLabel frame];
-    cropLeftLabelFrame.origin.x = leftLabelX;
-    cropLeftLabelFrame.origin.y = floor(upperRowCenterY - (NSHeight(cropLeftLabelFrame) / 2.0));
-    SetTransportSubviewFrameIfNeeded(cropLeftLabel, cropLeftLabelFrame);
-
-    NSRect cropTopLabelFrame = [cropTopLabel frame];
-    cropTopLabelFrame.origin.x = leftLabelX;
-    cropTopLabelFrame.origin.y = floor(lowerRowCenterY - (NSHeight(cropTopLabelFrame) / 2.0));
-    SetTransportSubviewFrameIfNeeded(cropTopLabel, cropTopLabelFrame);
-
-    NSRect cropRightLabelFrame = [cropRightLabel frame];
-    cropRightLabelFrame.origin.x = rightLabelX;
-    cropRightLabelFrame.origin.y = floor(upperRowCenterY - (NSHeight(cropRightLabelFrame) / 2.0));
-    SetTransportSubviewFrameIfNeeded(cropRightLabel, cropRightLabelFrame);
-
-    NSRect cropBottomLabelFrame = [cropBottomLabel frame];
-    cropBottomLabelFrame.origin.x = rightLabelX;
-    cropBottomLabelFrame.origin.y = floor(lowerRowCenterY - (NSHeight(cropBottomLabelFrame) / 2.0));
-    SetTransportSubviewFrameIfNeeded(cropBottomLabel, cropBottomLabelFrame);
-
-    NSRect rawCropLeftFrame = [_rawCropLeft frame];
-    rawCropLeftFrame.origin.x = leftValueX;
-    rawCropLeftFrame.origin.y = floor(upperRowCenterY - (NSHeight(rawCropLeftFrame) / 2.0));
-    rawCropLeftFrame.size.width = cropValueWidth;
-    SetTransportSubviewFrameIfNeeded(_rawCropLeft, rawCropLeftFrame);
-
-    NSRect rawCropTopFrame = [_rawCropTop frame];
-    rawCropTopFrame.origin.x = leftValueX;
-    rawCropTopFrame.origin.y = floor(lowerRowCenterY - (NSHeight(rawCropTopFrame) / 2.0));
-    rawCropTopFrame.size.width = cropValueWidth;
-    SetTransportSubviewFrameIfNeeded(_rawCropTop, rawCropTopFrame);
-
-    NSRect rawCropRightFrame = [_rawCropRght frame];
-    rawCropRightFrame.origin.x = rightValueX;
-    rawCropRightFrame.origin.y = floor(upperRowCenterY - (NSHeight(rawCropRightFrame) / 2.0));
-    rawCropRightFrame.size.width = cropValueWidth;
-    SetTransportSubviewFrameIfNeeded(_rawCropRght, rawCropRightFrame);
-
-    NSRect rawCropBottomFrame = [_rawCropBtm frame];
-    rawCropBottomFrame.origin.x = rightValueX;
-    rawCropBottomFrame.origin.y = floor(lowerRowCenterY - (NSHeight(rawCropBottomFrame) / 2.0));
-    rawCropBottomFrame.size.width = cropValueWidth;
-    SetTransportSubviewFrameIfNeeded(_rawCropBtm, rawCropBottomFrame);
-
-    CGFloat iconGap = 6.0;
-    CGFloat iconClusterRight = leftLabelX - 10.0;
-    if (timecodeToggle != nil) {
-        NSRect timecodeFrame = [timecodeToggle frame];
-        timecodeFrame.origin.x = floor(iconClusterRight - NSWidth(timecodeFrame));
-        timecodeFrame.origin.y = floor(upperRowCenterY - (NSHeight(timecodeFrame) / 2.0));
-        SetTransportSubviewFrameIfNeeded(timecodeToggle, timecodeFrame);
-        iconClusterRight = NSMinX(timecodeFrame) - iconGap;
-    }
-
-    if (cropToggleButton != nil) {
-        NSRect cropToggleFrame = [cropToggleButton frame];
-        cropToggleFrame.origin.x = floor((timecodeToggle != nil) ? NSMinX([timecodeToggle frame]) : iconClusterRight - NSWidth(cropToggleFrame));
-        cropToggleFrame.origin.y = floor(lowerRowCenterY - (NSHeight(cropToggleFrame) / 2.0));
-        SetTransportSubviewFrameIfNeeded(cropToggleButton, cropToggleFrame);
-        iconClusterRight = MIN(iconClusterRight, NSMinX(cropToggleFrame) - iconGap);
-    }
-
-    if (colorWell != nil) {
-        NSRect colorWellFrame = [colorWell frame];
-        colorWellFrame.origin.x = floor(iconClusterRight - NSWidth(colorWellFrame));
-        colorWellFrame.origin.y = floor(upperRowCenterY - (NSHeight(colorWellFrame) / 2.0));
-        SetTransportSubviewFrameIfNeeded(colorWell, colorWellFrame);
-        iconClusterRight = NSMinX(colorWellFrame) - iconGap;
-    }
-
-    // Frame Rate / Current Size / Format label + value geometry is nib-owned.
-}
-
 - (void)createScrubberTimeLabelsIfNeeded
 {
-    SMTimelineLog(@"Timeline transport createScrubberTimeLabelsIfNeeded begin slider=%@ sliderFrame=%@ transportView=%@",
+    SMTimelineLog(@"Timeline createScrubberTimeLabelsIfNeeded begin slider=%@ sliderFrame=%@ containerView=%@",
                   _timelineView,
           NSStringFromRect([_timelineView frame]),
           [_timelineView superview]);
@@ -333,14 +33,14 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     }
 
     [_timelineView ensureReadoutLabelsIfNeeded];
-    SMTimelineLog(@"Timeline transport createScrubberTimeLabelsIfNeeded end sliderSuperview=%@",
+    SMTimelineLog(@"Timeline createScrubberTimeLabelsIfNeeded end sliderSuperview=%@",
           [_timelineView superview]);
 }
 
 - (void)createTimelineViewIfNeeded
 {
     if (_timelineView == nil) {
-        SMTimelineLog(@"Timeline transport createTimelineViewIfNeeded skipped slider=nil");
+        SMTimelineLog(@"Timeline createTimelineViewIfNeeded skipped slider=nil");
         return;
     }
 
@@ -352,7 +52,7 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     [_timelineView setTimelineState:_timelineState];
     [[_timelineView superview] addSubview:_timelineView positioned:NSWindowAbove relativeTo:nil];
     [self enforcePlayerViewFrameLockedToTimeline];
-    SMTimelineLog(@"Timeline transport createTimelineViewIfNeeded end sliderFrame=%@ sliderHidden=%d sliderSuperview=%@ timelineState=%@",
+    SMTimelineLog(@"Timeline createTimelineViewIfNeeded end sliderFrame=%@ sliderHidden=%d sliderSuperview=%@ timelineState=%@",
           NSStringFromRect([_timelineView frame]),
           [_timelineView isHidden],
           [_timelineView superview],
@@ -365,38 +65,27 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
         return;
     }
 
-    NSView *transportView = [_playerView superview];
-    if (transportView == nil) {
+    NSView *playerContainerView = [_playerView superview];
+    if (playerContainerView == nil) {
         return;
     }
 
-    // Keep the transport/player container filling the top split pane so no stale
-    // dead band remains above the player area.
-    if (_topView != nil && [transportView superview] == _topView) {
-        NSRect desiredTransportFrame = [_topView bounds];
-        if (!NSEqualRects([transportView frame], desiredTransportFrame)) {
-            [transportView setFrame:desiredTransportFrame];
+    // Keep the player container filling the top split pane so no stale dead band
+    // remains above the player area.
+    if (_topView != nil && [playerContainerView superview] == _topView) {
+        NSRect desiredContainerFrame = [_topView bounds];
+        if (!NSEqualRects([playerContainerView frame], desiredContainerFrame)) {
+            [playerContainerView setFrame:desiredContainerFrame];
         }
     }
 
     NSView *timelineSuperview = [_timelineView superview];
-    if (timelineSuperview == nil || timelineSuperview != transportView) {
+    if (timelineSuperview == nil || timelineSuperview != playerContainerView) {
         return;
     }
 
-    NSRect superBounds = [transportView bounds];
+    NSRect superBounds = [playerContainerView bounds];
     NSRect timelineFrame = [_timelineView frame];
-    NSRect desiredTimelineFrame = timelineFrame;
-    desiredTimelineFrame.origin.x = NSMinX(superBounds);
-    desiredTimelineFrame.size.width = NSWidth(superBounds);
-    desiredTimelineFrame = NSIntegralRect(desiredTimelineFrame);
-
-    if (!NSEqualRects(timelineFrame, desiredTimelineFrame)) {
-        [_timelineView setFrame:desiredTimelineFrame];
-        timelineFrame = desiredTimelineFrame;
-    }
-
-    [self layoutCompactTransportStripInView:transportView timelineFrame:timelineFrame];
 
     CGFloat playerTop = NSMaxY(superBounds);
     CGFloat playerBottom = MIN(MAX(NSMaxY(timelineFrame), NSMinY(superBounds)), playerTop);
@@ -439,7 +128,7 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
 
 - (void)refreshTimelineDurationFromPlaybackState
 {
-    SMTimelineLog(@"Timeline transport refreshDuration begin duration(before)=%.3f effectiveDuration=%.3f movie=%@ playerMovie=%@",
+    SMTimelineLog(@"Timeline refreshDuration begin duration(before)=%.3f effectiveDuration=%.3f movie=%@ playerMovie=%@",
           [_timelineState duration],
           [self effectivePlaybackDuration],
           _movie,
@@ -447,19 +136,18 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     [_timelineState setDuration:[self effectivePlaybackDuration]];
     [_timelineView syncFromTimelineState];
     [self updateScrubberTimeLabels];
-    SMTimelineLog(@"Timeline transport refreshDuration end duration(after)=%.3f currentTime=%.3f sliderFrame=%@",
+    SMTimelineLog(@"Timeline refreshDuration end duration(after)=%.3f currentTime=%.3f sliderFrame=%@",
           [_timelineState duration],
           [_timelineState currentTime],
           NSStringFromRect([_timelineView frame]));
 }
 
-- (void)syncTransportViewsFromTimelineState
+- (void)syncTimelinePresentationFromState
 {
     [self enforcePlayerViewFrameLockedToTimeline];
-    [self rebuildTransportTimelineKeyViewLoop];
     [self updateTimelineTimecodeReadoutString];
-    if (TimelineTransportVerboseRefreshLoggingEnabled()) {
-        SMTimelineLog(@"Timeline transport syncViews begin slider=%@ sliderHidden=%d sliderFrame=%@ duration=%.3f currentTime=%.3f selectionStart=%.3f selectionEnd=%.3f",
+    if (TimelineVerboseRefreshLoggingEnabled()) {
+        SMTimelineLog(@"Timeline syncViews begin slider=%@ sliderHidden=%d sliderFrame=%@ duration=%.3f currentTime=%.3f selectionStart=%.3f selectionEnd=%.3f",
                       _timelineView,
               [_timelineView isHidden],
               NSStringFromRect([_timelineView frame]),
@@ -470,8 +158,8 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     }
     [_timelineView setUsableMovie:(_hasMovie && _movie != nil)];
     [_timelineView syncFromTimelineState];
-    if (TimelineTransportVerboseRefreshLoggingEnabled()) {
-        SMTimelineLog(@"Timeline transport syncViews end sliderFrame=%@",
+    if (TimelineVerboseRefreshLoggingEnabled()) {
+        SMTimelineLog(@"Timeline syncViews end sliderFrame=%@",
               NSStringFromRect([_timelineView frame]));
     }
 }
@@ -485,8 +173,8 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     [self updateTimelineTimecodeReadoutString];
 
     BOOL hasUsableMovie = (_hasMovie && _movie != nil);
-    if (TimelineTransportVerboseRefreshLoggingEnabled()) {
-        SMTimelineLog(@"Timeline transport updateLabels begin hasUsableMovie=%d sliderFrame=%@ duration=%.3f currentTime=%.3f",
+    if (TimelineVerboseRefreshLoggingEnabled()) {
+        SMTimelineLog(@"Timeline updateLabels begin hasUsableMovie=%d sliderFrame=%@ duration=%.3f currentTime=%.3f",
               hasUsableMovie,
               NSStringFromRect([_timelineView frame]),
               [_timelineState duration],
@@ -498,15 +186,15 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     } else {
         [_timelineView updateReadoutLabels];
     }
-    if (TimelineTransportVerboseRefreshLoggingEnabled()) {
-        SMTimelineLog(@"Timeline transport updateLabels end sliderFrame=%@",
+    if (TimelineVerboseRefreshLoggingEnabled()) {
+        SMTimelineLog(@"Timeline updateLabels end sliderFrame=%@",
               NSStringFromRect([_timelineView frame]));
     }
 }
 
 - (void)layoutScrubberTimeLabels
 {
-    SMTimelineLog(@"Timeline transport layoutLabels begin slider=%@ sliderFrame=%@ sliderSuperview=%@ rawCropTop=%@ rawCropLeft=%@ fps=%@ format=%@",
+    SMTimelineLog(@"Timeline layoutLabels begin slider=%@ sliderFrame=%@ sliderSuperview=%@ rawCropTop=%@ rawCropLeft=%@ fps=%@ format=%@",
                   _timelineView,
           NSStringFromRect([_timelineView frame]),
           [_timelineView superview],
@@ -525,7 +213,7 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     [_timelineView layoutReadoutLabels];
     [self rebuildTransportTimelineKeyViewLoop];
     [self updateScrubberTimeLabels];
-    SMTimelineLog(@"Timeline transport layoutLabels end sliderFrame=%@",
+    SMTimelineLog(@"Timeline layoutLabels end sliderFrame=%@",
           NSStringFromRect([_timelineView frame]));
 }
 
@@ -698,7 +386,7 @@ static void SetTransportSubviewFrameIfNeeded(NSView *view, NSRect frame)
     _updatingTimelineFromPlayback = YES;
     _currentTime = currentTime;
     [_timelineState setCurrentTime:_currentTime];
-    [self syncTransportViewsFromTimelineState];
+    [self syncTimelinePresentationFromState];
     _updatingTimelineFromPlayback = NO;
     [_playerView refreshSubtitleOverlay];
 }

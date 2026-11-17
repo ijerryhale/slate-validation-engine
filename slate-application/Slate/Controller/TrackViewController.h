@@ -82,6 +82,7 @@
 
 #pragma mark - Layout and Probe
 -(void)refreshTrackData;
+-(void)refreshSessionTrackRows;
 -(void)applyWorkspaceLayoutForWidth:(CGFloat)workspaceWidth;
 - (NSArray *)trackMovieInspectorDetailRows;
 - (NSDictionary *)modeSwitchContextSnapshot;

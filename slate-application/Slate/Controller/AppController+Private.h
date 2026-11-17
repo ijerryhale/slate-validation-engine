@@ -15,6 +15,7 @@
 
 #import "AppController.h"
 #import "AppController+Timeline.h"
+#import "AppController+Focus.h"
 #import "AppController+AE.h"
 #import "AppController+TrailerExport.h"
 #import "AppController+Crop.h"

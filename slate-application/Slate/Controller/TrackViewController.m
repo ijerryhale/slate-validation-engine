@@ -29,6 +29,8 @@
 #import "CheckBoxTableColumn.h"
 #import "VertCenterTextFieldCell.h"
 
+#include <stdint.h>
+
 extern NSString * const SMTrackLanguageAttribute;
 
 #pragma mark - Audio and Validation Helpers
@@ -827,6 +829,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 
     uint32_t    _ident;
     NSString    *_language;
+    NSString    *_sessionIdentity;
 
     uint32_t    _timescale;
     uint32_t    _duration;
@@ -835,6 +838,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 @property (retain) SMTrack *track;
 @property(readwrite) uint32_t ident;
 @property(readwrite, retain) NSString *language;
+@property(copy) NSString *sessionIdentity;
 @property(readwrite) BOOL isreftrack;
 @property(readwrite) uint32_t duration;
 
@@ -872,6 +876,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 @synthesize track = _track;
 @synthesize ident = _ident;
 @synthesize duration = _duration;
+@synthesize sessionIdentity = _sessionIdentity;
 
 //  [NSException raise:NSInvalidArgumentException format:@"Unknown table view"];
 
@@ -882,6 +887,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
     if (self)
     {
         _isreftrack = NO;
+        _sessionIdentity = [[[NSUUID UUID] UUIDString] copy];
     }
 
     return (self);
@@ -890,6 +896,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 -(void) dealloc
 {
     [_language release];
+    [_sessionIdentity release];
 
     [super dealloc];
 }
@@ -1015,6 +1022,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
     NSString *_displayName;
     NSString *_formatSummary;
     NSString *_trackTypeLabel;
+    NSString *_sessionIdentity;
     NSURL *_sourceURL;
     signed short _encodedWidth;
     signed short _encodedHeight;
@@ -1040,6 +1048,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 @property(nonatomic, readonly, copy) NSString *displayName;
 @property(nonatomic, readonly, copy) NSString *formatSummary;
 @property(nonatomic, readonly, copy) NSString *trackTypeLabel;
+@property(nonatomic, readonly, copy) NSString *sessionIdentity;
 @property(nonatomic, readonly, retain) NSURL *sourceURL;
 @property(nonatomic, readonly) signed short encodedWidth;
 @property(nonatomic, readonly) signed short encodedHeight;
@@ -1080,6 +1089,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 @synthesize displayName = _displayName;
 @synthesize formatSummary = _formatSummary;
 @synthesize trackTypeLabel = _trackTypeLabel;
+@synthesize sessionIdentity = _sessionIdentity;
 @synthesize sourceURL = _sourceURL;
 @synthesize encodedWidth = _encodedWidth;
 @synthesize encodedHeight = _encodedHeight;
@@ -1108,6 +1118,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
         _displayName = [[_track attributeForKey:SMTrackDisplayNameAttribute] copy];
         _formatSummary = [[_track attributeForKey:SMTrackFormatSummaryAttribute] copy];
         _trackTypeLabel = [SMTrackTypeLabelForTrack(_track) copy];
+        _sessionIdentity = [[trackItem sessionIdentity] copy];
         _language = [[trackItem language] copy];
         _durationString = [[trackItem timeString] copy];
 
@@ -1141,6 +1152,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
     [_displayName release];
     [_formatSummary release];
     [_trackTypeLabel release];
+    [_sessionIdentity release];
     [_sourceURL release];
 
     [super dealloc];
@@ -1252,6 +1264,11 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 - (void)rebuildTrackSnapshot;
 - (NSDictionary *)trackSnapshot;
 - (NSDictionary *)trackSnapshotRowAtIndex:(NSInteger)rowIndex;
+- (NSDictionary *)trackSnapshotRowForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot
+                                            runtimeRow:(NSDictionary *)runtimeRow;
+- (NSDictionary *)fileObservationRowForTrackRowSnapshot:(SMTrackRowSnapshot *)snapshot
+                                                    rows:(NSArray *)rows
+                                             usedIndexes:(NSMutableIndexSet *)usedIndexes;
 - (NSArray *)sortedTrackSnapshotRows;
 - (SMTrackRowSnapshot *)selectedTrackRowSnapshot;
 - (NSAttributedString *)grayString:(NSString *)string rightAlign:(BOOL)rightAlign;
@@ -1264,18 +1281,19 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 - (void)persistResizableTrackColumnWidths;
 - (void)applyPrimaryTrackTableColumnWidths;
 - (TrackItem *)trackCommandItemAtIndex:(NSInteger)rowIndex;
-- (TrackItem *)trackCommandItemWithIdentifier:(uint32_t)trackID;
+- (TrackItem *)trackCommandItemWithSessionIdentity:(NSString *)sessionIdentity;
 - (void)performTrackCommandRestoreMovieStateRebuildingTracks:(BOOL)rebuildTracks;
 - (void)performTrackCommandRemoveMovieReference;
 - (void)performTrackCommandSetMovieGain:(float)value;
 - (void)performTrackCommandSetTrackGainForItem:(TrackItem *)trackItem value:(float)value;
-- (void)performTrackCommandSetTrackGainForTrackID:(uint32_t)trackID value:(float)value;
+- (void)performTrackCommandSetTrackGainForSessionIdentity:(NSString *)sessionIdentity value:(float)value;
 - (void)performTrackCommandApplyLanguageMenuItem:(NSMenuItem *)item target:(SMTrackCommandLanguageTarget)target;
 - (void)performTrackCommandToggleEnabledAtRow:(NSInteger)rowIndex;
 - (BOOL)performTrackCommandCanDeleteRow:(NSInteger)rowIndex;
 - (void)performTrackCommandDeleteRow:(NSInteger)rowIndex;
+- (void)renumberReferenceTrackDisplayIDs;
 - (void)performTrackCommandFinishReferenceImport;
-- (void)setTrackGainForTrackID:(uint32_t)trackID value:(float)value;
+- (void)setTrackGainForSessionIdentity:(NSString *)sessionIdentity value:(float)value;
 @end
 
 #pragma mark - Track Table Data Sources
@@ -2789,12 +2807,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 
 - (NSInteger)trackRowCount
 {
-    NSArray *rows = [[self trackSnapshot] objectForKey:SlateTrackSnapshotKeyRows];
-    NSInteger modelRowCount = [_track count];
-    if ([rows isKindOfClass:[NSArray class]]) {
-        return MAX((NSInteger)[rows count], modelRowCount);
-    }
-    return modelRowCount;
+    return (NSInteger)[_track count];
 }
 
 - (NSView *)preferredModeFirstResponderView
@@ -2836,8 +2849,36 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
 - (void)rebuildTrackSnapshot
 {
     SMMovie *movie = SMTrackCurrentMovieFromAppController();
-    NSDictionary *snapshot = [SlateRuntimeBridge trackSnapshotForMovie:movie
-                                                               hasMovie:(movie != nil)];
+    NSDictionary *fileObservation = [SlateRuntimeBridge trackSnapshotForMovie:movie
+                                                                       hasMovie:(movie != nil)];
+    NSArray *fileRows = [[fileObservation objectForKey:SlateTrackSnapshotKeyRows] isKindOfClass:[NSArray class]]
+        ? [fileObservation objectForKey:SlateTrackSnapshotKeyRows]
+        : [NSArray array];
+    NSMutableIndexSet *usedFileRowIndexes = [NSMutableIndexSet indexSet];
+    NSMutableArray *sessionRows = [NSMutableArray arrayWithCapacity:[_track count]];
+
+    for (SMTrackRowSnapshot *rowSnapshot in [self trackRowSnapshots]) {
+        NSDictionary *fileRow = [self fileObservationRowForTrackRowSnapshot:rowSnapshot
+                                                                       rows:fileRows
+                                                                usedIndexes:usedFileRowIndexes];
+        NSDictionary *sessionRow = [self trackSnapshotRowForTrackRowSnapshot:rowSnapshot
+                                                                  runtimeRow:fileRow];
+        if (sessionRow != nil) {
+            [sessionRows addObject:sessionRow];
+        }
+    }
+
+    NSMutableDictionary *snapshot = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                     SlateTrackSnapshotSchemaVersion1, SlateTrackSnapshotKeySchemaVersion,
+                                     [NSNumber numberWithBool:(movie != nil)], SlateTrackSnapshotKeyHasMovie,
+                                     sessionRows, SlateTrackSnapshotKeyRows,
+                                     [NSNumber numberWithUnsignedInteger:[sessionRows count]], SlateTrackSnapshotKeyTrackCount,
+                                     nil];
+    NSDictionary *error = [fileObservation objectForKey:SlateTrackSnapshotKeyError];
+    if ([error isKindOfClass:[NSDictionary class]]) {
+        [snapshot setObject:error forKey:SlateTrackSnapshotKeyError];
+    }
+
     [_trackSnapshot release];
     _trackSnapshot = [snapshot retain];
 }
@@ -2877,6 +2918,100 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
     return [row isKindOfClass:[NSDictionary class]] ? row : nil;
 }
 
+- (NSDictionary *)fileObservationRowForTrackRowSnapshot:(SMTrackRowSnapshot *)rowSnapshot
+                                                    rows:(NSArray *)rows
+                                             usedIndexes:(NSMutableIndexSet *)usedIndexes
+{
+    if (rowSnapshot == nil || [rowSnapshot isReferenceTrack]) {
+        return nil;
+    }
+
+    NSString *mediaType = [rowSnapshot mediaType] ?: @"";
+    uint32_t trackID = [rowSnapshot ident];
+    for (NSUInteger index = 0; index < [rows count]; index++) {
+        if ([usedIndexes containsIndex:index]) {
+            continue;
+        }
+
+        NSDictionary *candidate = [rows objectAtIndex:index];
+        if (![candidate isKindOfClass:[NSDictionary class]]
+            || SlateTrackSnapshotRowBool(candidate, SlateTrackSnapshotRowKeyReferenceTrack)
+            || SlateTrackSnapshotRowInteger(candidate, SlateTrackSnapshotRowKeyTrackID) != trackID
+            || ![SlateTrackSnapshotRowString(candidate, SlateTrackSnapshotRowKeyMediaType) isEqualToString:mediaType]) {
+            continue;
+        }
+
+        [usedIndexes addIndex:index];
+        return candidate;
+    }
+
+    return nil;
+}
+
+- (NSDictionary *)trackSnapshotRowForTrackRowSnapshot:(SMTrackRowSnapshot *)rowSnapshot
+                                            runtimeRow:(NSDictionary *)runtimeRow
+{
+    if (rowSnapshot == nil) {
+        return nil;
+    }
+
+    NSMutableDictionary *row = [NSMutableDictionary dictionary];
+    if ([runtimeRow isKindOfClass:[NSDictionary class]]) {
+        [row addEntriesFromDictionary:runtimeRow];
+    }
+
+    NSInteger rowIndex = [rowSnapshot rowIndex];
+    NSString *language = [rowSnapshot language] ?: @"Unknown";
+    NSString *trackType = [rowSnapshot trackTypeLabel] ?: @"";
+    NSString *trackTypeColumn = [rowSnapshot trackTypeColumnDisplayName] ?: @"";
+    NSString *displayName = [rowSnapshot displayName] ?: @"";
+    NSString *formatSummary = [rowSnapshot formatSummary] ?: @"";
+    BOOL audioTrack = [rowSnapshot looksLikeAudioTrack];
+    BOOL videoTrack = [rowSnapshot isVideoTrack];
+
+    [row setObject:[NSNumber numberWithInteger:rowIndex] forKey:SlateTrackSnapshotRowKeyRowIndex];
+    [row setObject:[NSNumber numberWithInteger:(rowIndex + 1)] forKey:SlateTrackSnapshotRowKeyRow];
+    [row setObject:[NSNumber numberWithUnsignedInt:[rowSnapshot ident]] forKey:SlateTrackSnapshotRowKeyTrackID];
+    [row setObject:([rowSnapshot sessionIdentity] ?: @"") forKey:SlateTrackSnapshotRowKeySessionIdentity];
+    [row setObject:[rowSnapshot enabledDisplayString] forKey:SlateTrackSnapshotRowKeyEnabled];
+    [row setObject:[NSNumber numberWithBool:[rowSnapshot isEnabled]] forKey:SlateTrackSnapshotRowKeyEnabledFlag];
+    [row setObject:[NSNumber numberWithBool:[rowSnapshot isReferenceTrack]] forKey:SlateTrackSnapshotRowKeyReferenceTrack];
+    [row setObject:[NSNumber numberWithBool:audioTrack] forKey:SlateTrackSnapshotRowKeyAudioTrack];
+    [row setObject:[NSNumber numberWithBool:videoTrack] forKey:SlateTrackSnapshotRowKeyVideoTrack];
+    [row setObject:[NSNumber numberWithBool:[rowSnapshot isSubtitleTrack]] forKey:SlateTrackSnapshotRowKeySubtitleTrack];
+    [row setObject:[NSNumber numberWithBool:[rowSnapshot isClosedCaptionTrack]] forKey:SlateTrackSnapshotRowKeyClosedCaptionTrack];
+    [row setObject:[NSNumber numberWithBool:[rowSnapshot isTextTrack]] forKey:SlateTrackSnapshotRowKeyTextTrack];
+    [row setObject:[NSNumber numberWithBool:[rowSnapshot isTimecodeTrack]] forKey:SlateTrackSnapshotRowKeyTimecodeTrack];
+    [row setObject:(trackType.length > 0 ? trackType : @"(none)") forKey:SlateTrackSnapshotRowKeyTrackType];
+    [row setObject:trackTypeColumn forKey:SlateTrackSnapshotRowKeyTrackTypeColumn];
+    [row setObject:([rowSnapshot mediaType] ?: @"") forKey:SlateTrackSnapshotRowKeyMediaType];
+    [row setObject:([rowSnapshot durationString] ?: @"0:00:00:00") forKey:SlateTrackSnapshotRowKeyDuration];
+    [row setObject:language forKey:SlateTrackSnapshotRowKeyLanguage];
+    [row setObject:(displayName.length > 0 ? displayName : @"(none)") forKey:SlateTrackSnapshotRowKeyDisplayName];
+    [row setObject:(formatSummary.length > 0 ? formatSummary : @"(none)") forKey:SlateTrackSnapshotRowKeyFormatSummary];
+    [row setObject:((audioTrack || videoTrack) ? formatSummary : @"") forKey:SlateTrackSnapshotRowKeyInfo];
+    [row setObject:[NSNumber numberWithFloat:[rowSnapshot audioGain]] forKey:SlateTrackSnapshotRowKeyAudioGain];
+    [row setObject:[NSNumber numberWithShort:[rowSnapshot encodedWidth]] forKey:SlateTrackSnapshotRowKeyEncodedWidth];
+    [row setObject:[NSNumber numberWithShort:[rowSnapshot encodedHeight]] forKey:SlateTrackSnapshotRowKeyEncodedHeight];
+    [row setObject:[NSNumber numberWithFloat:[rowSnapshot displayWidth]] forKey:SlateTrackSnapshotRowKeyDisplayWidth];
+    [row setObject:[NSNumber numberWithFloat:[rowSnapshot displayHeight]] forKey:SlateTrackSnapshotRowKeyDisplayHeight];
+    [row setObject:[self trackInspectorDetailPairsForTrackRowSnapshot:rowSnapshot] forKey:SlateTrackSnapshotRowKeyDetails];
+    [row setObject:[self trackInspectorDetailsStringForTrackRowSnapshot:rowSnapshot] forKey:SlateTrackSnapshotRowKeyDetailsText];
+
+    NSURL *sourceURL = [rowSnapshot sourceURL];
+    if ([sourceURL isFileURL] && [[sourceURL path] length] > 0) {
+        [row setObject:[sourceURL path] forKey:SlateTrackSnapshotRowKeySourcePath];
+    }
+
+    if (audioTrack && runtimeRow == nil) {
+        [row setObject:[NSNumber numberWithUnsignedInteger:0] forKey:SlateTrackSnapshotRowKeyAudioChannelCount];
+        [row setObject:[NSNumber numberWithBool:NO] forKey:SlateTrackSnapshotRowKeyAudioChannelLayoutResolved];
+        [row setObject:[NSNumber numberWithBool:NO] forKey:SlateTrackSnapshotRowKeyAudioChannelAssignmentsGeneric];
+    }
+
+    return row;
+}
+
 - (NSArray *)sortedTrackSnapshotRows
 {
     NSArray *rows = [[self trackSnapshot] objectForKey:SlateTrackSnapshotKeyRows];
@@ -2901,6 +3036,7 @@ static NSString *SMTrackProbeWidthClassCode(CGFloat workspaceWidth)
         [row setObject:[snapshotRow objectForKey:SlateTrackSnapshotRowKeyRowIndex] forKey:@"rowIndex"];
         [row setObject:[snapshotRow objectForKey:SlateTrackSnapshotRowKeyRow] forKey:@"row"];
         [row setObject:[snapshotRow objectForKey:SlateTrackSnapshotRowKeyTrackID] forKey:@"trackID"];
+        [row setObject:([snapshotRow objectForKey:SlateTrackSnapshotRowKeySessionIdentity] ?: @"") forKey:@"sessionIdentity"];
         [row setObject:SlateTrackSnapshotRowString(snapshotRow, SlateTrackSnapshotRowKeyTrackType) forKey:@"trackType"];
         [row setObject:SlateTrackSnapshotRowString(snapshotRow, SlateTrackSnapshotRowKeyMediaType) forKey:@"mediaType"];
         [row setObject:SlateTrackSnapshotRowString(snapshotRow, SlateTrackSnapshotRowKeyEnabled) forKey:@"enabled"];
@@ -3580,7 +3716,7 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
 
     newTrack.isreftrack = YES;
     newTrack.track = track;
-    newTrack.ident = [[track attributeForKey:SMTrackIDAttribute] unsignedIntValue];
+    newTrack.ident = 0;
     newTrack.language = [self langForTrack:track];
     if ([newTrack isKindOfClass:[AudioTrackItem class]] &&
         [newTrack.language isEqualToString:@"Unknown"]) {
@@ -3591,6 +3727,7 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
     newTrack.duration = (trackDuration.timeScale != 0) ? ((double)trackDuration.timeValue / (double)trackDuration.timeScale) * 1000.0 : 0;
 
     [_track addObject:newTrack];
+    [self renumberReferenceTrackDisplayIDs];
     if (shouldLogReferenceTrack) {
         NSLog(@"Reference UI append %@ priorTrackCount=%lu newTrackCount=%lu ident=%ld format=%@", [sourceURL lastPathComponent], (unsigned long)priorTrackCount, (unsigned long)[_track count], (long)newTrack.ident, formatSummary);
     }
@@ -3654,8 +3791,18 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
             : ([mediaType isEqualToString:SMMediaTypeSubtitle] ? [SubtitleTrackItem class] : [TrackItem class]);
         [self appendReferenceTrackItemForTrack:track trackClass:trackClass fallbackFormatSummary:nil];
     }
-    
+
+    [self invalidateTrackSnapshot];
     [self reloadTracksTableSelectingFirstRowIfNeeded];
+}
+
+- (void)refreshSessionTrackRows
+{
+    [self invalidateTrackSnapshot];
+    [_tracks reloadData];
+    [self tableViewSelectionDidChange:[NSNotification notificationWithName:NSTableViewSelectionDidChangeNotification
+                                                                    object:_tracks]];
+    [self refreshValidationAdaptersAfterMutation];
 }
 
 -(IBAction)launchJES:(id)sender
@@ -3778,10 +3925,14 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
     return [_track objectAtIndex:rowIndex];
 }
 
-- (TrackItem *)trackCommandItemWithIdentifier:(uint32_t)trackID
+- (TrackItem *)trackCommandItemWithSessionIdentity:(NSString *)sessionIdentity
 {
+    if (![sessionIdentity isKindOfClass:[NSString class]] || [sessionIdentity length] == 0) {
+        return nil;
+    }
+
     for (TrackItem *trackItem in _track) {
-        if ([trackItem ident] == trackID) {
+        if ([[trackItem sessionIdentity] isEqualToString:sessionIdentity]) {
             return trackItem;
         }
     }
@@ -3846,9 +3997,9 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
     [self updateTrackInspectorDetailsText];
 }
 
-- (void)performTrackCommandSetTrackGainForTrackID:(uint32_t)trackID value:(float)value
+- (void)performTrackCommandSetTrackGainForSessionIdentity:(NSString *)sessionIdentity value:(float)value
 {
-    [self performTrackCommandSetTrackGainForItem:[self trackCommandItemWithIdentifier:trackID] value:value];
+    [self performTrackCommandSetTrackGainForItem:[self trackCommandItemWithSessionIdentity:sessionIdentity] value:value];
 }
 
 - (void)performTrackCommandApplyLanguageMenuItem:(NSMenuItem *)item target:(SMTrackCommandLanguageTarget)target
@@ -3918,6 +4069,27 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
     return ([self trackCommandItemAtIndex:rowIndex] != nil);
 }
 
+- (void)renumberReferenceTrackDisplayIDs
+{
+    uint32_t highestEmbeddedTrackID = 0;
+    for (TrackItem *trackItem in _track) {
+        if (![trackItem isreftrack] && [trackItem ident] > highestEmbeddedTrackID) {
+            highestEmbeddedTrackID = [trackItem ident];
+        }
+    }
+
+    uint64_t nextDisplayID = (uint64_t)highestEmbeddedTrackID + 1;
+    for (TrackItem *trackItem in _track) {
+        if (![trackItem isreftrack]) {
+            continue;
+        }
+        if (nextDisplayID > UINT32_MAX) {
+            return;
+        }
+        [trackItem setIdent:(uint32_t)nextDisplayID++];
+    }
+}
+
 - (void)performTrackCommandDeleteRow:(NSInteger)rowIndex
 {
     TrackItem *trackItem = [self trackCommandItemAtIndex:rowIndex];
@@ -3927,6 +4099,7 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
 
     [[appcontroller() movie] removeTrack:[trackItem track]];
     [_track removeObjectAtIndex:rowIndex];
+    [self renumberReferenceTrackDisplayIDs];
     [self reloadTracksTableSelectingFirstRowIfNeeded];
     [appcontroller() refreshTimelineDurationFromPlaybackState];
     [appcontroller() syncSidecarVisibilityState];
@@ -3965,9 +4138,9 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
     [self performTrackCommandSetTrackGainForItem:t value:value];
 }
 
--(void)setTrackGainForTrackID:(uint32_t)trackID value:(float)value
+-(void)setTrackGainForSessionIdentity:(NSString *)sessionIdentity value:(float)value
 {
-    [self performTrackCommandSetTrackGainForTrackID:trackID value:value];
+    [self performTrackCommandSetTrackGainForSessionIdentity:sessionIdentity value:value];
 }
 
 -(IBAction)inspectorGainSliderChanged:(id)sender
@@ -3983,9 +4156,12 @@ static BOOL SMReferenceAudioTrackSnapshotHasResolvableSource(SMTrackRowSnapshot 
     if (snapshot == nil) {
         return;
     }
-    uint32_t trackID = [snapshot ident];
-    [[[[self view] undoManager] prepareWithInvocationTarget:self] setTrackGainForTrackID:trackID value:value];
-    [self setTrackGainForTrackID:trackID value:[sender floatValue]];
+    NSString *sessionIdentity = [snapshot sessionIdentity];
+    if ([sessionIdentity length] == 0) {
+        return;
+    }
+    [[[[self view] undoManager] prepareWithInvocationTarget:self] setTrackGainForSessionIdentity:sessionIdentity value:value];
+    [self setTrackGainForSessionIdentity:sessionIdentity value:[sender floatValue]];
 }
 
 -(IBAction)applyAudioTrackLanguage:(id)sender

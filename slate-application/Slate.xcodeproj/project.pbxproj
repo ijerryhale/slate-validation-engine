@@ -12,13 +12,15 @@
 		2C0EF6121819E5890065F845 /* ChapterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FA0077131803258C00DD5A8C /* ChapterViewController.m */; };
 		2C0EF6141819E5A60065F845 /* PlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76CBB217F912BD007B0CD8 /* PlayerView.m */; };
 		2C0EF6151819E5A60065F845 /* Window.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CEC87E917F9116A002F3227 /* Window.m */; };
-		2C76CBC417F913BC007B0CD8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C76CBC317F913BC007B0CD8 /* QuartzCore.framework */; };
+		2C6847D330ABD98200AFD9F8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C6847D230ABD98200AFD9F8 /* QuartzCore.framework */; };
+		2C6847DB30ABDA1600AFD9F8 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C6847DA30ABDA1600AFD9F8 /* AudioToolbox.framework */; };
 		2C82006F2F74C639004B22C4 /* TimelineState.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C82006E2F74C639004B22C4 /* TimelineState.m */; };
 		2C8200722F74C93C004B22C4 /* TimelineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C8200712F74C93C004B22C4 /* TimelineView.m */; };
 		2C9D17FD1813371C00F8DE61 /* DictionaryKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C9D17FC1813371C00F8DE61 /* DictionaryKeys.m */; };
 		2CB1C6DD2FA2CFBC00A91038 /* featurecrop.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB1C6DC2FA2CFBC00A91038 /* featurecrop.png */; };
 		2CDE13B318133BD100E96567 /* QuadrantView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CDE13B218133BD100E96567 /* QuadrantView.m */; };
 		2D1000072F90000300000001 /* AppController+Timeline.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1000092F90000300000001 /* AppController+Timeline.m */; };
+		AEE100172FB7000100000001 /* AppController+Focus.m in Sources */ = {isa = PBXBuildFile; fileRef = AEE100182FB7000100000001 /* AppController+Focus.m */; };
 		2D10000D2F90000500000001 /* AppController+Crop.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D10000F2F90000500000001 /* AppController+Crop.m */; };
 		2D1000102F90000600000001 /* AppController+Sidecar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1000122F90000600000001 /* AppController+Sidecar.m */; };
 		2D1000132F90000700000001 /* AppController+Package.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1000152F90000700000001 /* AppController+Package.m */; };
@@ -92,6 +94,8 @@
 		2A37F4B0FDCFA73011CA2CEA /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		2C16B9121803948400B33B88 /* PackageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PackageViewController.h; sourceTree = "<group>"; };
 		2C16B9131803948400B33B88 /* PackageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PackageViewController.m; sourceTree = "<group>"; };
+		2C6847D230ABD98200AFD9F8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = ../../../../../../../System/Library/Frameworks/QuartzCore.framework; sourceTree = "<group>"; };
+		2C6847DA30ABDA1600AFD9F8 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
 		2C6DABF02F6B251D006BD395 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2C6DABF12F6B2522006BD395 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/about.rtf; sourceTree = "<group>"; };
 		2C6DABF22F6B2522006BD395 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -101,14 +105,12 @@
 		2C6DABF62F6B2522006BD395 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = en; path = en.lproj/rating.plist; sourceTree = "<group>"; };
 		2C76CBB217F912BD007B0CD8 /* PlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerView.m; sourceTree = "<group>"; };
 		2C76CBB317F912BD007B0CD8 /* PlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerView.h; sourceTree = "<group>"; };
-		2C76CBC317F913BC007B0CD8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = ../../../../../System/Library/Frameworks/QuartzCore.framework; sourceTree = "<group>"; };
 		2C82006D2F74C639004B22C4 /* TimelineState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimelineState.h; sourceTree = "<group>"; };
 		2C82006E2F74C639004B22C4 /* TimelineState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimelineState.m; sourceTree = "<group>"; };
 		2C8200702F74C93C004B22C4 /* TimelineView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimelineView.h; sourceTree = "<group>"; };
 		2C8200712F74C93C004B22C4 /* TimelineView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimelineView.m; sourceTree = "<group>"; };
 		2C9D17FB1813371C00F8DE61 /* DictionaryKeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DictionaryKeys.h; sourceTree = "<group>"; };
 		2C9D17FC1813371C00F8DE61 /* DictionaryKeys.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DictionaryKeys.m; sourceTree = "<group>"; };
-		2CB0E6EC18133495001E3103 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		2CB1C6DC2FA2CFBC00A91038 /* featurecrop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = featurecrop.png; sourceTree = "<group>"; };
 		2CDA1F742F6F07DF00E6BED3 /* SMSubtitleParsing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMSubtitleParsing.h; sourceTree = "<group>"; };
 		2CDA1F772F6F098600E6BED3 /* SMSubtitleSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMSubtitleSupport.h; sourceTree = "<group>"; };
@@ -121,6 +123,8 @@
 		2CEDB17C2F6C80BF007715C8 /* SMMovie.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMMovie.h; sourceTree = "<group>"; };
 		2D1000082F90000300000001 /* AppController+Timeline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AppController+Timeline.h"; sourceTree = "<group>"; };
 		2D1000092F90000300000001 /* AppController+Timeline.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AppController+Timeline.m"; sourceTree = "<group>"; };
+		AEE100162FB7000100000001 /* AppController+Focus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AppController+Focus.h"; sourceTree = "<group>"; };
+		AEE100182FB7000100000001 /* AppController+Focus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AppController+Focus.m"; sourceTree = "<group>"; };
 		2D10000B2F90000400000001 /* AppController+TrailerExport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AppController+TrailerExport.h"; sourceTree = "<group>"; };
 		2D10000E2F90000500000001 /* AppController+Crop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AppController+Crop.h"; sourceTree = "<group>"; };
 		2D10000F2F90000500000001 /* AppController+Crop.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AppController+Crop.m"; sourceTree = "<group>"; };
@@ -221,9 +225,10 @@
 			files = (
 				775DFF38067A968500C5B868 /* Cocoa.framework in Frameworks */,
 				A1B2C3D40100000100000001 /* AVFoundation.framework in Frameworks */,
+				2C6847D330ABD98200AFD9F8 /* QuartzCore.framework in Frameworks */,
 				A1B2C3D40100000300000001 /* AVKit.framework in Frameworks */,
+				2C6847DB30ABDA1600AFD9F8 /* AudioToolbox.framework in Frameworks */,
 				A1B2C3D40100000500000001 /* CoreMedia.framework in Frameworks */,
-				2C76CBC417F913BC007B0CD8 /* QuartzCore.framework in Frameworks */,
 				C12000022FCC000100000001 /* libSlateRuntime.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -242,8 +247,8 @@
 		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2CB0E6EC18133495001E3103 /* AudioToolbox.framework */,
-				2C76CBC317F913BC007B0CD8 /* QuartzCore.framework */,
+				2C6847DA30ABDA1600AFD9F8 /* AudioToolbox.framework */,
+				2C6847D230ABD98200AFD9F8 /* QuartzCore.framework */,
 				A1B2C3D40100000400000001 /* AVKit.framework */,
 				A1B2C3D40100000200000001 /* AVFoundation.framework */,
 				A1B2C3D40100000600000001 /* CoreMedia.framework */,
@@ -294,6 +299,8 @@
 				BCF81C5D1918313A00400A79 /* AppController.m */,
 				2D1000082F90000300000001 /* AppController+Timeline.h */,
 				2D1000092F90000300000001 /* AppController+Timeline.m */,
+				AEE100162FB7000100000001 /* AppController+Focus.h */,
+				AEE100182FB7000100000001 /* AppController+Focus.m */,
 				2D10000B2F90000400000001 /* AppController+TrailerExport.h */,
 				2D10000E2F90000500000001 /* AppController+Crop.h */,
 				2D10000F2F90000500000001 /* AppController+Crop.m */,
@@ -654,6 +661,7 @@
 				BC8EB95C18DE531C003073C4 /* SplitView.m in Sources */,
 				BCF81C5E1918313A00400A79 /* AppController.m in Sources */,
 				2D1000072F90000300000001 /* AppController+Timeline.m in Sources */,
+				AEE100172FB7000100000001 /* AppController+Focus.m in Sources */,
 				2D10000D2F90000500000001 /* AppController+Crop.m in Sources */,
 				2D1000102F90000600000001 /* AppController+Sidecar.m in Sources */,
 				2D1000132F90000700000001 /* AppController+Package.m in Sources */,

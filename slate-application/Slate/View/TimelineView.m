@@ -21,6 +21,7 @@
     TimelineController *_controller;
     TimelineRenderer *_renderer;
     TimelineReadouts *_readouts;
+    BOOL _didCommonInit;
 }
 
 @synthesize timelineState = _timelineState;
@@ -28,12 +29,16 @@
 
 - (void)commonInit
 {
+    if (_didCommonInit) {
+        return;
+    }
+    _didCommonInit = YES;
+
     [self setWantsLayer:YES];
     [self setHidden:NO];
     [self setEnabled:YES];
     [self ensureTimelineControllerIfNeeded];
     [self ensureTimelineRendererIfNeeded];
-    [self ensureReadoutLabelsIfNeeded];
     [self layoutReadoutLabels];
     [self updateReadoutLabels];
     [self updatePassiveTimelineLayers];
@@ -145,7 +150,6 @@
 
 - (TimelineLayoutSnapshot)currentLayoutSnapshot
 {
-    [self ensureTimelineReadoutsIfNeeded];
     NSTimeInterval duration = (_timelineState != nil) ? [_timelineState duration] : 0.0;
     NSTimeInterval currentTime = (_timelineState != nil) ? [_timelineState currentTime] : 0.0;
     double frameRate = (_timelineState != nil) ? [_timelineState frameRate] : 0.0;
@@ -216,10 +220,10 @@
     return TimelinePlayheadCenterX(layout);
 }
 
-- (void)syncAppControllerTransport
+- (void)syncAppControllerTimelinePresentation
 {
     AppController *appController = appcontroller();
-    [appController syncTransportViewsFromTimelineState];
+    [appController syncTimelinePresentationFromState];
 }
 
 - (void)updatePlayheadTime:(NSTimeInterval)time
@@ -228,7 +232,7 @@
     [appcontroller() setMovieCurrentTime:[_timelineState currentTime]];
     [self updateActiveMarkerLayers];
     [self updateScrubberHeadReadoutPosition];
-    [self syncAppControllerTransport];
+    [self syncAppControllerTimelinePresentation];
 }
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)event
@@ -313,14 +317,8 @@
     unichar character = [characters characterAtIndex:0];
     BOOL isLeftArrow = (character == NSLeftArrowFunctionKey || [event keyCode] == 123);
     BOOL isRightArrow = (character == NSRightArrowFunctionKey || [event keyCode] == 124);
-    BOOL isSpacebar = (character == ' ' || [event keyCode] == 49);
 
     AppController *appController = appcontroller();
-    if (isSpacebar && appController != nil) {
-        [appController togglePlayPause:self];
-        return;
-    }
-
     if (!isLeftArrow && !isRightArrow) {
         [super keyDown:event];
         return;

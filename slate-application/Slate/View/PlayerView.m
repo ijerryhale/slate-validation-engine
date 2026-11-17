@@ -185,10 +185,15 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
                                                          || (protectedStatus == AVKeyValueStatusLoaded && urlAsset.hasProtectedContent));
                                      #pragma unused(playableError, protectedError)
                                      dispatch_async(dispatch_get_main_queue(), ^{
-                                         if (unsupported) {
-                                             [self showMessage:@"The movie format is not supported for playback."];
-                                             [self stopUnsupportedStateTimer];
+                                         if (!unsupported
+                                             || self->_observedPlayerItem != playerItem
+                                             || self.player.currentItem != playerItem
+                                             || playerItem.status == AVPlayerItemStatusReadyToPlay) {
+                                             return;
                                          }
+
+                                         [self showMessage:@"The movie format is not supported for playback."];
+                                         [self stopUnsupportedStateTimer];
                                      });
                                  }];
     } else if (playerItem.status != AVPlayerItemStatusUnknown) {
@@ -357,7 +362,7 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     [_timecodeLabel setAlignment:NSTextAlignmentCenter];
     [_timecodeLabel setTextColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
     [_timecodeLabel setFont:[NSFont monospacedSystemFontOfSize:48.0 weight:NSFontWeightThin]];
-     [_timecodeOverlayView addSubview:_timecodeLabel];
+    [_timecodeOverlayView addSubview:_timecodeLabel];
     [containerView addSubview:_timecodeOverlayView];
 }
 
@@ -592,8 +597,6 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
 
 - (void)refreshSubtitleOverlay
 {
-    [self ensureTimecodeOverlayView];
-
     if (_movie == nil) {
         [_timecodeOverlayView setHidden:YES];
         [_timecodeLabel setStringValue:@""];
@@ -1332,6 +1335,7 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     self.controlsStyle = AVPlayerViewControlsStyleNone;
     [self ensurePlayerLayer];
     [self ensureDisabledOverlayView];
+    [self ensureTimecodeOverlayView];
     [self updateDisabledOverlayFrame];
     [self updateDisabledOverlayVisibility];
     
@@ -1359,7 +1363,20 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     [self stopObservingPlayerItem];
     [_timecodeLabel release];
     [_timecodeOverlayView release];
+    [_subtitleLabel release];
+    [_subtitleOverlayView release];
+    [_messageLabel release];
+    [_messageOverlayView release];
     [_disabledOverlayView release];
+    [_backgroundLayer release];
+
+    if (_cropLayer != nil) {
+        _cropLayer.delegate = nil;
+        [_cropLayer removeFromSuperlayer];
+        [_cropLayer release];
+    }
+
+    [_movie release];
     
     [_cursNorthSouth release];
     [_cursEastWest release];

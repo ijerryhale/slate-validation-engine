@@ -18,8 +18,9 @@
 
 #import <Foundation/Foundation.h>
 
-// Plain Foundation snapshot consumed by the track UI adapter.
-// No table view, controller, or movie objects belong in this contract.
+// Plain Foundation rows consumed by the track UI adapter.
+// File-observation rows and session-only rows share this shape; sessionIdentity
+// is present on rows projected from the live in-memory session.
 static NSString * const SlateTrackSnapshotSchemaVersion1 = @"trackSnapshot.v1";
 
 // Top-level keys.
@@ -37,6 +38,7 @@ static NSString * const SlateTrackSnapshotErrorKeyMessage = @"message";
 static NSString * const SlateTrackSnapshotRowKeyRowIndex = @"rowIndex";
 static NSString * const SlateTrackSnapshotRowKeyRow = @"row";
 static NSString * const SlateTrackSnapshotRowKeyTrackID = @"trackID";
+static NSString * const SlateTrackSnapshotRowKeySessionIdentity = @"sessionIdentity";
 static NSString * const SlateTrackSnapshotRowKeyEnabled = @"enabled";
 static NSString * const SlateTrackSnapshotRowKeyEnabledFlag = @"enabledFlag";
 static NSString * const SlateTrackSnapshotRowKeyReferenceTrack = @"referenceTrack";

@@ -656,7 +656,7 @@ static NSString *SMTransportSizeValue(CGSize size)
         }
             [_timelineState resetForDuration:[self effectivePlaybackDuration]];
             [_timelineState setFrameRate:_movieFrameRate];
-            [self syncTransportViewsFromTimelineState];
+            [self syncTimelinePresentationFromState];
             
             _currentTime = 0.0;
             [self layoutScrubberTimeLabels];
@@ -693,12 +693,13 @@ static NSString *SMTransportSizeValue(CGSize size)
         _currentTime = 0.0;
                     _movieFrameRate = 0.0;
                     [_timelineState resetForDuration:0.0];
-                    [self syncTransportViewsFromTimelineState];
+                    [self syncTimelinePresentationFromState];
                     [self updateTimecodeOverlayButtonState];
                     [_format setStringValue:@"Unsupported for playback"];
                     [_frameRate setStringValue:SMTransportFrameRateValue(0.0)];
                     [_currentSize setStringValue:SMTransportSizeValue(CGSizeZero)];
                     [self setHasMovie:NO];
+                    [self rebuildTransportTimelineKeyViewLoop];
                     [self refreshBottomPaneStatusGuidance];
                 }
 
@@ -890,7 +891,7 @@ static NSString *SMTransportSizeValue(CGSize size)
 
     [_timelineState resetForDuration:0.0];
     [self createTimelineViewIfNeeded];
-    [self syncTransportViewsFromTimelineState];
+    [self syncTimelinePresentationFromState];
     [self createScrubberTimeLabelsIfNeeded];
     [self layoutScrubberTimeLabels];
     [_format setStringValue:@"No movie loaded"];
@@ -1079,7 +1080,7 @@ static NSString *SMTransportSizeValue(CGSize size)
           [_timelineState duration],
           [_timelineState selectionStart],
           [_timelineState selectionEnd]);
-    [self syncTransportViewsFromTimelineState];
+    [self syncTimelinePresentationFromState];
     [_format setStringValue:@"No movie loaded"];
     [_frameRate setStringValue:SMTransportFrameRateValue(0.0)];
     [_currentSize setStringValue:SMTransportSizeValue(CGSizeZero)];
@@ -1321,7 +1322,7 @@ return (NSMakeSize(proposedSize.width, proposedSize.height)); }
     [_playerView setNeedsLayout:YES];
     [_playerView layoutSubtreeIfNeeded];
     [_playerView refreshSubtitleOverlay];
-    [self syncTransportViewsFromTimelineState];
+    [self syncTimelinePresentationFromState];
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification

@@ -53,7 +53,9 @@ static NSDictionary *TimelineLayerDisabledActions(void)
                    [NSNull null], @"frame",
                    [NSNull null], @"position",
                    [NSNull null], @"contents",
+                   [NSNull null], @"string",
                    [NSNull null], @"hidden",
+                   [NSNull null], @"foregroundColor",
                    [NSNull null], @"cornerRadius",
                    [NSNull null], @"borderWidth",
                    [NSNull null], @"borderColor",
@@ -78,16 +80,19 @@ static CGFloat CurrentTimeLabelWidth(void)
     return cachedWidth;
 }
 
-static CATextLayer *CreateLabel(CGFloat fontSize)
+static CATextLayer *CreateLabel(NSInteger fontSize, CGFloat zPosition, CGFloat foregroundAlpha)
 {
     CATextLayer *label = [[CATextLayer alloc] init];
     [label setHidden:NO];
     [label setWrapped:NO];
     [label setTruncationMode:kCATruncationNone];
-    
     [label setAlignmentMode:kCAAlignmentCenter];
-    [label setFontSize:fontSize];
-    [label setForegroundColor:[[NSColor controlTextColor] CGColor]];
+    NSFont *font = MonoSpacedFont(fontSize);
+    [label setFont:[font fontName]];
+    [label setFontSize:(font != nil ? [font pointSize] : fontSize)];
+    [label setForegroundColor:[[NSColor colorWithCalibratedWhite:1.0 alpha:foregroundAlpha] CGColor]];
+    [label setZPosition:zPosition];
+    [label setActions:TimelineLayerDisabledActions()];
     CGFloat scale = [[NSScreen mainScreen] backingScaleFactor];
     if (scale <= 0.0) {
         scale = 2.0;
@@ -103,6 +108,9 @@ static CATextLayer *CreateLabel(CGFloat fontSize)
                             *_durationLabel,
                             *_currTimeLabel;
 }
+- (void)updateCurrentTimePositionWithBounds:(NSRect)bounds
+                                     layout:(TimelineLayoutSnapshot)layout
+                             playheadCenterX:(CGFloat)playheadCenterX;
 @end
 
 @implementation TimelineReadouts
@@ -122,7 +130,22 @@ static CATextLayer *CreateLabel(CGFloat fontSize)
 
 - (CGFloat)gutterLabelWidth { return StringWidth(@"-88:88:88", MonoSpacedFont(16)); }
 - (CGFloat)contentTopInset { return 23.0; }
-- (void)attachToHostLayer:(CALayer *)hostLayer { _hostLayer = hostLayer; }
+- (void)attachToHostLayer:(CALayer *)hostLayer
+{
+    if (_hostLayer == hostLayer) {
+        return;
+    }
+
+    _hostLayer = hostLayer;
+    if (_hostLayer == nil) {
+        [_timeRemainingLabel removeFromSuperlayer];
+        [_durationLabel removeFromSuperlayer];
+        [_currTimeLabel removeFromSuperlayer];
+        return;
+    }
+
+    [self ensureReadoutLayersIfNeeded];
+}
 
 - (void)ensureLayerAttached:(CALayer *)layer
 {
@@ -140,43 +163,24 @@ static CATextLayer *CreateLabel(CGFloat fontSize)
 
     if (_timeRemainingLabel == nil)
     {
-        _timeRemainingLabel = CreateLabel(16);
-        [_timeRemainingLabel setActions:TimelineLayerDisabledActions()];
-        [_timeRemainingLabel setZPosition:20.0];
+        _timeRemainingLabel = CreateLabel(16, 20.0, 0.92);
     }
 
     [self ensureLayerAttached:_timeRemainingLabel];
 
     if (_durationLabel == nil)
     {
-        _durationLabel = CreateLabel(16);
-        [_durationLabel setActions:TimelineLayerDisabledActions()];
-        [_durationLabel setZPosition:20.0];
+        _durationLabel = CreateLabel(16, 20.0, 0.92);
     }
     
     [self ensureLayerAttached:_durationLabel];
 
     if (_currTimeLabel == nil)
     {
-        _currTimeLabel = CreateLabel( 12);
-        [_currTimeLabel setActions:TimelineLayerDisabledActions()];
-        [_currTimeLabel setZPosition:20.0];
+        _currTimeLabel = CreateLabel(12, 20.0, 0.94);
     }
     
     [self ensureLayerAttached:_currTimeLabel];
-
-    NSFont *gutterFont = MonoSpacedFont(16);
-    [_timeRemainingLabel setFont:[gutterFont fontName]];
-    [_timeRemainingLabel setFontSize:[gutterFont pointSize]];
-    [_durationLabel setFont:[gutterFont fontName]];
-    [_durationLabel setFontSize:[gutterFont pointSize]];
-
-    [_timeRemainingLabel setAlignmentMode:kCAAlignmentCenter];
-    [_durationLabel setAlignmentMode:kCAAlignmentCenter];
-    [_timeRemainingLabel setForegroundColor:[[NSColor colorWithCalibratedWhite:1.0 alpha:0.92] CGColor]];
-    [_durationLabel setForegroundColor:[[NSColor colorWithCalibratedWhite:1.0 alpha:0.92] CGColor]];
-    [_currTimeLabel setForegroundColor:[[NSColor colorWithCalibratedWhite:1.0 alpha:0.94] CGColor]];
-    [_currTimeLabel setAlignmentMode:kCAAlignmentCenter];
 }
 
 - (CGFloat)currentTimeOriginYForBounds:(NSRect)bounds layout:(TimelineLayoutSnapshot)layout headLabelHeight:(CGFloat)headLabelHeight
@@ -268,15 +272,20 @@ static CATextLayer *CreateLabel(CGFloat fontSize)
         [_currTimeLabel setString:headReadout];
     }
 
-    [self updateCurrentTimePositionForBounds:bounds
-                                      layout:layout
-                              playheadCenterX:TimelinePlayheadCenterX(layout)];
+    [self updateCurrentTimePositionWithBounds:bounds
+                                       layout:layout
+                               playheadCenterX:TimelinePlayheadCenterX(layout)];
 }
 
 - (void)updateCurrentTimePositionForBounds:(NSRect)bounds layout:(TimelineLayoutSnapshot)layout playheadCenterX:(CGFloat)playheadCenterX
 {
     [self ensureReadoutLayersIfNeeded];
 
+    [self updateCurrentTimePositionWithBounds:bounds layout:layout playheadCenterX:playheadCenterX];
+}
+
+- (void)updateCurrentTimePositionWithBounds:(NSRect)bounds layout:(TimelineLayoutSnapshot)layout playheadCenterX:(CGFloat)playheadCenterX
+{
     if (_currTimeLabel == nil) return;
 
     CGFloat currentTimeLabelWidth = CurrentTimeLabelWidth();

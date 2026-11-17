@@ -17,17 +17,12 @@
 
 @interface AppController (Timeline)
 
-- (NSView *)transportContainerView;
-- (NSButton *)transportButtonForAction:(SEL)action;
-- (NSArray *)transportTimelineFocusOrderViews;
-- (void)rebuildTransportTimelineKeyViewLoop;
-
 - (void)createScrubberTimeLabelsIfNeeded;
 - (void)createTimelineViewIfNeeded;
 - (void)enforcePlayerViewFrameLockedToTimeline;
 - (NSTimeInterval)effectivePlaybackDuration;
 - (void)refreshTimelineDurationFromPlaybackState;
-- (void)syncTransportViewsFromTimelineState;
+- (void)syncTimelinePresentationFromState;
 - (void)updateScrubberTimeLabels;
 - (void)layoutScrubberTimeLabels;
 - (BOOL)isTimelineScrubbing;

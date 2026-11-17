@@ -64,7 +64,7 @@ static void SMInstallSidecarItemsInViewMenuIfNeeded(AppController *controller)
     BOOL shouldEnable = ![self hasEnabledSidecarTracksOfMediaType:nil];
     [self setEnabled:shouldEnable forSidecarTracksOfMediaType:nil];
     [self syncSidecarVisibilityState];
-    [[_trackViewController tracks] reloadData];
+    [_trackViewController refreshSessionTrackRows];
 }
 
 - (IBAction)toggleClosedCaption:(id)sender
@@ -78,7 +78,7 @@ static void SMInstallSidecarItemsInViewMenuIfNeeded(AppController *controller)
     BOOL shouldEnable = ![self hasEnabledSidecarTracksOfMediaType:SMMediaTypeClosedCaption];
     [self setEnabled:shouldEnable forSidecarTracksOfMediaType:SMMediaTypeClosedCaption];
     [self syncSidecarVisibilityState];
-    [[_trackViewController tracks] reloadData];
+    [_trackViewController refreshSessionTrackRows];
 }
 
 - (BOOL)movieHasSidecarTracksOfMediaType:(NSString *)mediaType

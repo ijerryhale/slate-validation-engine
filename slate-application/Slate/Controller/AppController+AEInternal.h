@@ -66,11 +66,6 @@ typedef void (*SMAppleEventHandlerIMP)(id, SEL, NSAppleEventDescriptor *, NSAppl
 - (double)movieCurrentTime;
 - (void)setMovieCurrentTime:(double)time;
 
-- (void)rebuildTransportTimelineKeyViewLoop;
-- (NSArray *)transportTimelineFocusOrderViews;
-- (NSView *)transportContainerView;
-- (NSButton *)transportButtonForAction:(SEL)action;
-
 - (TrackViewController *)ensureTrackViewControllerLoaded;
 - (PackageViewController *)ensurePackageViewControllerLoaded;
 - (ChapterViewController *)ensureChapterViewControllerLoaded;
