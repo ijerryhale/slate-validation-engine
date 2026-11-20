@@ -1,12 +1,12 @@
 {
   "schemaVersion": "validationPublicFixtures.v1",
-  "fixtureSet": "slate-validation-engine-minimal",
-  "purpose": "Public fixture set for CLI, report-schema, validation-engine examples, and public app adapter smoke tests.",
+  "fixtureSet": "slate-validation-engine-public-fixtures.v1",
+  "purpose": "Public fixture set for CLI, report-schema, app adapter smoke tests, and subtitle sidecar examples.",
   "root": "fixtures",
   "sizeBudget": {
     "maxBytes": 31457280,
-    "currentBytes": 21887574,
-    "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for public app adapter smoke tests."
+    "currentBytes": 21926727,
+    "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for app adapter smoke tests and subtitle timing coverage."
   },
   "exampleManifest": "examples/examples.json",
   "goldenRoot": "golden",
@@ -204,8 +204,318 @@
     "media_sub/valid/itt/dialogue-regions.itt",
     "media_sub/valid/itt/sidecar-derived.itt",
     "media_sub/valid/scc/caption-basic.scc",
-    "media_sub/valid/srt/subtitle-basic.srt",
-    "media_sub/valid/ttml/source-basic-01-dialogue.ttml",
-    "media_sub/valid/ttml/source-basic-01-sdh.ttml"
-  ]
+    "media_sub/valid/srt/dialogue-basic.srt",
+    "media_sub/valid/ttml/dialogue-basic.ttml",
+    "media_sub/valid/ttml/dialogue-sdh.ttml"
+  ],
+  "subtitleCorpus": {
+    "referenceMovie": {
+      "path": "media_mov/valid/source-chapters-crop.mov",
+      "durationTimecode": "01:45:27",
+      "timecodeFormat": "MM:SS:FF",
+      "frameRate": "29.970"
+    },
+    "validTimingContract": {
+      "clockTimeCueEnd": "00:01:45.900",
+      "sccFinalCueStart": "00:01:44:00",
+      "sccDropFrameCueStart": "00:01:44;00",
+      "description": "Every valid timed fixture reaches the end of the reference movie; invalid fixtures remain malformed or outside its timeline."
+    },
+    "fixtures": [
+      {
+        "id": "invalid-itt-late-start",
+        "path": "media_sub/invalid/itt/late-start.itt",
+        "format": "itt",
+        "classification": "invalid",
+        "scenario": "late-start",
+        "expected": "outsideReferenceMovieTimeline"
+      },
+      {
+        "id": "invalid-itt-malformed-xml",
+        "path": "media_sub/invalid/itt/malformed-xml.itt",
+        "format": "itt",
+        "classification": "invalid",
+        "scenario": "malformed-xml",
+        "expected": "malformedInput"
+      },
+      {
+        "id": "invalid-itt-over-duration",
+        "path": "media_sub/invalid/itt/over-duration.itt",
+        "format": "itt",
+        "classification": "invalid",
+        "scenario": "over-duration",
+        "expected": "outsideReferenceMovieTimeline"
+      },
+      {
+        "id": "invalid-scc-late-start",
+        "path": "media_sub/invalid/scc/late-start.scc",
+        "format": "scc",
+        "classification": "invalid",
+        "scenario": "late-start",
+        "expected": "outsideReferenceMovieTimeline"
+      },
+      {
+        "id": "invalid-scc-malformed-payload",
+        "path": "media_sub/invalid/scc/malformed-payload.scc",
+        "format": "scc",
+        "classification": "invalid",
+        "scenario": "malformed-payload",
+        "expected": "malformedInput"
+      },
+      {
+        "id": "invalid-scc-malformed-records",
+        "path": "media_sub/invalid/scc/malformed-records.scc",
+        "format": "scc",
+        "classification": "invalid",
+        "scenario": "malformed-records",
+        "expected": "malformedInput"
+      },
+      {
+        "id": "invalid-scc-over-duration",
+        "path": "media_sub/invalid/scc/over-duration.scc",
+        "format": "scc",
+        "classification": "invalid",
+        "scenario": "over-duration",
+        "expected": "outsideReferenceMovieTimeline"
+      },
+      {
+        "id": "invalid-srt-late-start",
+        "path": "media_sub/invalid/srt/late-start.srt",
+        "format": "srt",
+        "classification": "invalid",
+        "scenario": "late-start",
+        "expected": "outsideReferenceMovieTimeline"
+      },
+      {
+        "id": "invalid-srt-malformed-partial",
+        "path": "media_sub/invalid/srt/malformed-partial.srt",
+        "format": "srt",
+        "classification": "invalid",
+        "scenario": "malformed-partial",
+        "expected": "malformedInput"
+      },
+      {
+        "id": "invalid-srt-over-duration",
+        "path": "media_sub/invalid/srt/over-duration.srt",
+        "format": "srt",
+        "classification": "invalid",
+        "scenario": "over-duration",
+        "expected": "outsideReferenceMovieTimeline"
+      },
+      {
+        "id": "valid-itt-dialogue-basic-static",
+        "path": "media_sub/valid/itt/dialogue-basic-static.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "dialogue-basic-static",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-itt-dialogue-basic",
+        "path": "media_sub/valid/itt/dialogue-basic.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "dialogue-basic",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-itt-dialogue-regions-static",
+        "path": "media_sub/valid/itt/dialogue-regions-static.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "dialogue-regions-static",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-itt-dialogue-regions",
+        "path": "media_sub/valid/itt/dialogue-regions.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "dialogue-regions",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-itt-region-layout",
+        "path": "media_sub/valid/itt/region-layout.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "region-layout",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-itt-sidecar-derived-static",
+        "path": "media_sub/valid/itt/sidecar-derived-static.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "sidecar-derived-static",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-itt-sidecar-derived",
+        "path": "media_sub/valid/itt/sidecar-derived.itt",
+        "format": "itt",
+        "classification": "valid",
+        "scenario": "sidecar-derived",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-scc-caption-basic",
+        "path": "media_sub/valid/scc/caption-basic.scc",
+        "format": "scc",
+        "classification": "valid",
+        "scenario": "caption-basic",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-scc-caption-control",
+        "path": "media_sub/valid/scc/caption-control.scc",
+        "format": "scc",
+        "classification": "valid",
+        "scenario": "caption-control",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-scc-multichannel-state-sequence",
+        "path": "media_sub/valid/scc/multichannel-state-sequence.scc",
+        "format": "scc",
+        "classification": "valid",
+        "scenario": "multichannel-state-sequence",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-scc-packet-decoder",
+        "path": "media_sub/valid/scc/packet-decoder.scc",
+        "format": "scc",
+        "classification": "valid",
+        "scenario": "packet-decoder",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-srt-dialogue-basic",
+        "path": "media_sub/valid/srt/dialogue-basic.srt",
+        "format": "srt",
+        "classification": "valid",
+        "scenario": "dialogue-basic",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-srt-dialogue-control",
+        "path": "media_sub/valid/srt/dialogue-control.srt",
+        "format": "srt",
+        "classification": "valid",
+        "scenario": "dialogue-control",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-srt-entities-and-literal-angles",
+        "path": "media_sub/valid/srt/entities-and-literal-angles.srt",
+        "format": "srt",
+        "classification": "valid",
+        "scenario": "entities-and-literal-angles",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-srt-identity-a-same-name",
+        "path": "media_sub/valid/srt/identity-a/same-name.srt",
+        "format": "srt",
+        "classification": "valid",
+        "scenario": "same-name",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-srt-identity-b-same-name",
+        "path": "media_sub/valid/srt/identity-b/same-name.srt",
+        "format": "srt",
+        "classification": "valid",
+        "scenario": "same-name",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-srt-inline-formatting",
+        "path": "media_sub/valid/srt/inline-formatting.srt",
+        "format": "srt",
+        "classification": "valid",
+        "scenario": "inline-formatting",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-dialogue-basic",
+        "path": "media_sub/valid/ttml/dialogue-basic.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "dialogue-basic",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-dialogue-sdh",
+        "path": "media_sub/valid/ttml/dialogue-sdh.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "dialogue-sdh",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-region-inheritance",
+        "path": "media_sub/valid/ttml/region-inheritance.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "region-inheritance",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-regions-multizone",
+        "path": "media_sub/valid/ttml/regions-multizone.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "regions-multizone",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-regions-playback",
+        "path": "media_sub/valid/ttml/regions-playback.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "regions-playback",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-regions-sparse",
+        "path": "media_sub/valid/ttml/regions-sparse.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "regions-sparse",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-timed-spans-playback",
+        "path": "media_sub/valid/ttml/timed-spans-playback.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "timed-spans-playback",
+        "expected": "parseableWithinReferenceMovie"
+      }
+    ],
+    "auxiliaryFiles": [
+      {
+        "path": "media_sub/README.md",
+        "kind": "corpusDocumentation"
+      },
+      {
+        "path": "media_sub/valid/ttml/README.md",
+        "kind": "layoutInventoryDocumentation"
+      },
+      {
+        "path": "media_sub/valid/ttml/regions-duplicate-inventory.payload.json",
+        "kind": "layoutInventoryPayload"
+      },
+      {
+        "path": "media_sub/valid/ttml/regions-multizone.payload.json",
+        "kind": "layoutInventoryPayload"
+      },
+      {
+        "path": "media_sub/valid/ttml/regions-sparse.payload.json",
+        "kind": "layoutInventoryPayload"
+      }
+    ]
+  }
 }

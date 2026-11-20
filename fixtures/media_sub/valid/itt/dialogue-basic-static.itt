@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="eng">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:fontFamily="Helvetica" tts:fontSize="100%" tts:textAlign="center" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </styling>
+    <layout>
+      <region xml:id="bottomCenter" tts:origin="10% 78%" tts:extent="80% 18%" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </layout>
+  </head>
+  <body region="bottomCenter" style="s1">
+    <div>
+      <p begin="00:00:03.450" end="00:00:09.798">EN: Mara: We are live at the loading dock.<br/>Clock reads 00:00:03.450.</p>
+      <p begin="00:00:12.267" end="00:00:18.615">EN: Jules: Copy that. First crate is moving now.<br/>Clock reads 00:00:12.267.</p>
+      <p begin="00:00:21.083" end="00:00:27.431">EN: Mara: Hold on the slate and watch monitor two.<br/>Clock reads 00:00:21.083.</p>
+      <p begin="00:00:29.900" end="00:00:36.248">EN: Jules: Camera A is clean. Rolling through frame.<br/>Clock reads 00:00:29.900.</p>
+      <p begin="00:00:38.717" end="00:00:45.065">EN: Mara: Bring up the title card on my mark.<br/>Clock reads 00:00:38.717.</p>
+      <p begin="00:00:47.533" end="00:00:53.881">EN: Jules: Lower third is in. Stand by for talent.<br/>Clock reads 00:00:47.533.</p>
+      <p begin="00:00:56.350" end="00:01:02.698">EN: Mara: Audio is stable. Stay with the wide shot.<br/>Clock reads 00:00:56.350.</p>
+      <p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for dialogue basic static.<br/>Clock reads 00:01:44.000.</p>
+    </div>
+  </body>
+</tt>

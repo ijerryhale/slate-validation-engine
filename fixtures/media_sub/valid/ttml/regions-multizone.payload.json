@@ -1,0 +1,42 @@
+{
+  "displayItems": [
+    {
+      "line": "Upper region cue.",
+      "begin": 0,
+      "end": 2000,
+      "regionID": "upper",
+      "regionResolved": true
+    },
+    {
+      "line": "Lower region cue.",
+      "begin": 2000,
+      "end": 4000,
+      "regionID": "lower",
+      "regionResolved": true
+    },
+    {
+      "line": "Cue without an explicit region.",
+      "begin": 4000,
+      "end": 5000
+    }
+  ],
+  "ttmlLayoutInventory": {
+    "schemaVersion": "ttmlLayoutInventory.v1",
+    "regions": [
+      {
+        "id": "upper",
+        "origin": "12% 8%",
+        "extent": "76% 18%",
+        "displayAlign": "before",
+        "textAlign": "center"
+      },
+      {
+        "id": "lower",
+        "origin": "10% 74%",
+        "extent": "80% 20%",
+        "displayAlign": "after",
+        "textAlign": "start"
+      }
+    ]
+  }
+}

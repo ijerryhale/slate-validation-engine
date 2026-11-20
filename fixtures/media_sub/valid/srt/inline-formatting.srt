@@ -1,0 +1,10 @@
+1
+00:00:01,000 --> 00:00:05,000
+<i>Italic
+continues</i> <b>Bold</b> <u>Underline</u>
+<b>Bold <i>both</i></b> plain
+
+2
+00:01:44,000 --> 00:01:45,900
+EN: Mara: Final picture cue for inline formatting.
+Clock reads 00:01:44.000.

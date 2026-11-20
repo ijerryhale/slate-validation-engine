@@ -25,6 +25,7 @@
       <p region="lower" begin="00:00:16.250" end="00:00:20.250">Hold the frame. Let the reference settle.</p>
       <p region="lower" begin="00:00:21.000" end="00:00:25.000"><span style="sound">[soft confirmation beep]</span><br/>Signal confirmed.</p>
       <p region="lower" begin="00:00:26.000" end="00:00:29.500">End of sequence.</p>
+      <p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for dialogue sdh.<br/>Clock reads 00:01:44.000.</p>
     </div>
   </body>
 </tt>

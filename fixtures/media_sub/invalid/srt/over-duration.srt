@@ -1,0 +1,19 @@
+1
+00:00:03,000 --> 00:00:07,000
+[EN] Mara: The handoff starts on time.
+Clock reads 00:00:03.000.
+
+2
+00:00:12,000 --> 00:00:16,000
+[EN] Jules: The first pass looks normal so far.
+Clock reads 00:00:12.000.
+
+3
+00:12:15,000 --> 00:12:20,000
+[EN] Mara: This log continues far beyond picture duration.
+Clock reads 00:12:15.000.
+
+4
+00:12:22,000 --> 00:12:27,000
+[EN] Jules: Treat this as a file-longer-than-movie case.
+Clock reads 00:12:22.000.

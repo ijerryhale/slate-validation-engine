@@ -1,0 +1,14 @@
+1
+00:10:00,000 --> 00:10:04,000
+[EN] Mara: This cue starts after picture end.
+Clock reads 00:10:00.000.
+
+2
+00:10:06,500 --> 00:10:10,500
+[EN] Jules: Nothing should render if playback never reaches this point.
+Clock reads 00:10:06.500.
+
+3
+00:10:12,000 --> 00:10:16,000
+[EN] Mara: Keep this as a late-start validation case.
+Clock reads 00:10:12.000.

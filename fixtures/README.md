@@ -1,7 +1,8 @@
 # Slate Validation Public Fixtures
 
-This is the intentionally small fixture set for the public
-`slate-validation-engine` repo track. It includes one movie/package/chapter image triplet for public Slate.app adapter smoke tests.
+This is the public fixture set for the `slate-validation-engine` repository.
+It includes one movie/package/chapter-image triplet for Slate.app adapter
+smoke tests and a cross-format subtitle/caption corpus tied to that movie.
 
 The set proves:
 
@@ -13,15 +14,17 @@ The set proves:
 - chapter-image path handling with tiny generated images
 - text-role package parsing with tiny SRT, SCC, ITT, and TTML sidecars
 - a public chapter/crop movie triplet for UI inspection smoke tests
+- valid and invalid SRT, SCC, ITT, and TTML subtitle/caption cases
+- valid subtitle timing through the full reference movie duration
 
-Most fixtures deliberately omit movie or sound media. Some fixtures therefore
-report missing-media findings; that is expected and keeps the public clone
-lightweight.
+Most package fixtures deliberately omit movie or sound media. The single
+public movie is the timing reference for `media_sub`; see
+`media_sub/README.md` for its frame-based duration contract.
 
 `valid` means the fixture is parseable and intentionally shaped. It does not
 mean the current validation result exits `0`.
 
-The machine-readable fixture list is `fixtures.json`.
+The machine-readable package and subtitle fixture inventory is `fixtures.json`.
 
 Examples and normalized golden outputs live under `examples` and `golden`.
 Golden output files replace the absolute checkout path with `<repo>` so the

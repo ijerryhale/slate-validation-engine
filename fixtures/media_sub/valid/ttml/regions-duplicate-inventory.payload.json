@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "ttmlLayoutInventory.v1",
+  "regions": [
+    {
+      "id": "duplicateRegion",
+      "origin": "12% 14%",
+      "extent": "30% 20%"
+    },
+    {
+      "id": "duplicateRegion",
+      "origin": "55% 14%",
+      "extent": "30% 20%"
+    }
+  ]
+}

@@ -70,13 +70,45 @@ fixtures/media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-02.
 fixtures/media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-03.png
 fixtures/media_pkg/valid/source-chapters-crop.itmsp/metadata.xml
 fixtures/media_pkg/valid/source-basic.itmsp/metadata.xml
+fixtures/media_sub/README.md
+fixtures/media_sub/invalid/itt/late-start.itt
+fixtures/media_sub/invalid/itt/malformed-xml.itt
+fixtures/media_sub/invalid/itt/over-duration.itt
+fixtures/media_sub/invalid/scc/late-start.scc
+fixtures/media_sub/invalid/scc/malformed-payload.scc
+fixtures/media_sub/invalid/scc/malformed-records.scc
+fixtures/media_sub/invalid/scc/over-duration.scc
+fixtures/media_sub/invalid/srt/late-start.srt
+fixtures/media_sub/invalid/srt/malformed-partial.srt
+fixtures/media_sub/invalid/srt/over-duration.srt
+fixtures/media_sub/valid/itt/dialogue-basic-static.itt
 fixtures/media_sub/valid/itt/dialogue-basic.itt
+fixtures/media_sub/valid/itt/dialogue-regions-static.itt
 fixtures/media_sub/valid/itt/dialogue-regions.itt
+fixtures/media_sub/valid/itt/region-layout.itt
+fixtures/media_sub/valid/itt/sidecar-derived-static.itt
 fixtures/media_sub/valid/itt/sidecar-derived.itt
 fixtures/media_sub/valid/scc/caption-basic.scc
-fixtures/media_sub/valid/srt/subtitle-basic.srt
-fixtures/media_sub/valid/ttml/source-basic-01-dialogue.ttml
-fixtures/media_sub/valid/ttml/source-basic-01-sdh.ttml
+fixtures/media_sub/valid/scc/caption-control.scc
+fixtures/media_sub/valid/scc/multichannel-state-sequence.scc
+fixtures/media_sub/valid/scc/packet-decoder.scc
+fixtures/media_sub/valid/srt/dialogue-basic.srt
+fixtures/media_sub/valid/srt/dialogue-control.srt
+fixtures/media_sub/valid/srt/entities-and-literal-angles.srt
+fixtures/media_sub/valid/srt/identity-a/same-name.srt
+fixtures/media_sub/valid/srt/identity-b/same-name.srt
+fixtures/media_sub/valid/srt/inline-formatting.srt
+fixtures/media_sub/valid/ttml/README.md
+fixtures/media_sub/valid/ttml/dialogue-basic.ttml
+fixtures/media_sub/valid/ttml/dialogue-sdh.ttml
+fixtures/media_sub/valid/ttml/region-inheritance.ttml
+fixtures/media_sub/valid/ttml/regions-duplicate-inventory.payload.json
+fixtures/media_sub/valid/ttml/regions-multizone.payload.json
+fixtures/media_sub/valid/ttml/regions-multizone.ttml
+fixtures/media_sub/valid/ttml/regions-playback.ttml
+fixtures/media_sub/valid/ttml/regions-sparse.payload.json
+fixtures/media_sub/valid/ttml/regions-sparse.ttml
+fixtures/media_sub/valid/ttml/timed-spans-playback.ttml
 fixtures/verify_golden.sh
 public-repo.json
 schemas/runtime-manifest.schema.json
@@ -297,6 +329,52 @@ while IFS= read -r path; do
 done <"$REQUIRED_APP"
 
 failures=0
+
+if ruby -rjson - <<'RUBY'
+begin
+  manifest = JSON.parse(File.read("fixtures/fixtures.json"))
+  corpus = manifest.fetch("subtitleCorpus")
+  entries = corpus.fetch("fixtures")
+  auxiliary = corpus.fetch("auxiliaryFiles")
+  paths = (entries + auxiliary).map { |entry| entry.fetch("path") }
+  ids = entries.map { |entry| entry.fetch("id") }
+  if paths.uniq.length != paths.length || ids.uniq.length != ids.length
+    warn "Error: subtitle fixture manifest has duplicate paths or IDs."
+    exit 1
+  end
+
+  listed = paths.map { |path| File.join("fixtures", path) }.sort
+  actual = Dir.glob("fixtures/media_sub/**/*").select { |path| File.file?(path) }.sort
+  unless listed == actual
+    warn "Error: subtitle fixture manifest does not match fixtures/media_sub."
+    warn "  missing from manifest: #{(actual - listed).join(', ')}" unless (actual - listed).empty?
+    warn "  missing from directory: #{(listed - actual).join(', ')}" unless (listed - actual).empty?
+    exit 1
+  end
+
+  (manifest.fetch("supportFiles") + [corpus.fetch("referenceMovie").fetch("path")]).each do |path|
+    unless File.file?(File.join("fixtures", path))
+      warn "Error: fixture manifest references a missing support file: #{path}"
+      exit 1
+    end
+  end
+
+  budget = manifest.fetch("sizeBudget")
+  actual_bytes = Dir.glob("fixtures/**/*").select { |path| File.file?(path) && File.basename(path) != ".DS_Store" }.inject(0) { |sum, path| sum + File.size(path) }
+  unless budget.fetch("currentBytes") == actual_bytes && actual_bytes <= budget.fetch("maxBytes")
+    warn "Error: fixture size budget is stale or exceeded (manifest #{budget.fetch('currentBytes')}, actual #{actual_bytes}, maximum #{budget.fetch('maxBytes')})."
+    exit 1
+  end
+rescue StandardError => error
+  warn "Error: could not validate public fixture manifest: #{error.message}"
+  exit 1
+end
+RUBY
+then
+    :
+else
+    failures=$((failures + 1))
+fi
 
 if [ -e slate-application/_tools/harnessapp/ae_eventids.txt ]; then
     echo "Error: private Apple Event ID inventory leaked into public package:" >&2

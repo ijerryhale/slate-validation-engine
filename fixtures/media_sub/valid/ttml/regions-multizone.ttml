@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt:tt xmlns:tt="http://www.w3.org/ns/ttml"
+       xmlns:parameter="http://www.w3.org/ns/ttml#parameter"
+       xmlns:style="http://www.w3.org/ns/ttml#styling"
+       xml:lang="en-US"
+       parameter:timeBase="media">
+  <tt:head>
+    <tt:layout>
+      <tt:region xml:id="upper"
+                 style:origin="12% 8%"
+                 style:extent="76% 18%"
+                 style:displayAlign="before"
+                 style:textAlign="center"/>
+      <tt:region xml:id="lower"
+                 style:origin="10% 74%"
+                 style:extent="80% 20%"
+                 style:displayAlign="after"
+                 style:textAlign="start"/>
+    </tt:layout>
+  </tt:head>
+  <tt:body>
+    <tt:div>
+      <tt:p begin="0s" end="2s" region="upper">Upper region cue.</tt:p>
+      <tt:p begin="2s" end="4s" region="lower">Lower region cue.</tt:p>
+      <tt:p begin="4s" end="5s">Cue without an explicit region.</tt:p>
+      <tt:p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for regions multizone.<tt:br/>Clock reads 00:01:44.000.</tt:p>
+    </tt:div>
+  </tt:body>
+</tt:tt>

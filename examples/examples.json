@@ -1,6 +1,6 @@
 {
   "schemaVersion": "validationExamples.v1",
-  "fixtureSet": "slate-validation-engine-minimal",
+  "fixtureSet": "slate-validation-engine-public-fixtures.v1",
   "root": ".",
   "cli": "slate",
   "examples": [

@@ -17,6 +17,7 @@
       <p begin="00:00:20.000" end="00:00:25.000" region="bottomRight">EN: Mara: Hold the frame while I verify sync.<br/>Clock reads 00:00:20.000.</p>
       <p begin="00:00:28.000" end="00:00:33.000" region="bottomCenter">EN: Jules: This pass should stay clean end to end.<br/>Clock reads 00:00:28.000.</p>
       <p begin="00:00:36.000" end="00:00:41.000" region="bottomLeft">EN: Mara: Keep this one as the moving-region control.<br/>Clock reads 00:00:36.000.</p>
+      <p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for dialogue regions.<br/>Clock reads 00:01:44.000.</p>
     </div>
   </body>
 </tt>

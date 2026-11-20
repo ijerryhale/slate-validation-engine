@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="eng">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:fontFamily="Helvetica" tts:fontSize="100%" tts:textAlign="center" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </styling>
+    <layout>
+      <region xml:id="bottom" tts:origin="10% 78%" tts:extent="80% 18%" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </layout>
+  </head>
+  <body region="bottom" style="s1">
+    <div>
+      <p begin="00:10:00.000" end="00:10:04.500">EN: Mara: This cue starts after picture end.<br/>Clock reads 00:10:00.000.</p>
+      <p begin="00:10:06.000" end="00:10:10.500">EN: Jules: Nothing should render if playback never reaches this point.<br/>Clock reads 00:10:06.000.</p>
+      <p begin="00:10:12.000" end="00:10:16.500">EN: Mara: Keep this as a late-start validation case.<br/>Clock reads 00:10:12.000.</p>
+    </div>
+  </body>
+</tt>

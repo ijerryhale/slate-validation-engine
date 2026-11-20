@@ -6,7 +6,7 @@
     "total" : 12,
     "warnings" : 11
   },
-  "operatorText" : "Summary:\n- Blockers: 1\n- Warnings: 11\n\nNext:\n- Metadata \/ Declared vendor ID is missing\n\nBlockers:\n- Metadata: Declared vendor ID is missing\n  The open package session does not declare Package.vendorID.\n\nWarnings:\n- Metadata: Declared ISAN is missing\n  The open package session does not declare Package.isan.\n- Metadata: Declared original spoken language is missing\n  The open package session does not declare Package.originalSpokenLanguage.\n- Metadata: Declared package copyright is missing\n  The open package session does not declare Package.copyright.\n- Metadata: Declared package country is missing\n  The open package session does not declare Package.country.\n- Metadata: Declared platform data is missing\n  The open package session does not declare any platform-data rows.\n- Metadata: Declared production company is missing\n  The open package session does not declare Package.productionCompany.\n- Metadata: Primary locale cast is missing\n  The open package session does not expose cast rows for the primary locale.\n- Metadata: Primary locale crew is missing\n  The open package session does not expose crew rows for the primary locale.\n- Metadata: Primary locale poster art is missing\n  The open package session does not expose Locale.posterArt for the primary locale.\n- Package: Declared primary asset does not classify as a video asset\n  Package selected ..\/..\/..\/media_sub\/valid\/srt\/subtitle-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.\n\nDeferred Comparisons:\n- Package: Movie comparison unavailable\n  A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.",
+  "operatorText" : "Summary:\n- Blockers: 1\n- Warnings: 11\n\nNext:\n- Metadata \/ Declared vendor ID is missing\n\nBlockers:\n- Metadata: Declared vendor ID is missing\n  The open package session does not declare Package.vendorID.\n\nWarnings:\n- Metadata: Declared ISAN is missing\n  The open package session does not declare Package.isan.\n- Metadata: Declared original spoken language is missing\n  The open package session does not declare Package.originalSpokenLanguage.\n- Metadata: Declared package copyright is missing\n  The open package session does not declare Package.copyright.\n- Metadata: Declared package country is missing\n  The open package session does not declare Package.country.\n- Metadata: Declared platform data is missing\n  The open package session does not declare any platform-data rows.\n- Metadata: Declared production company is missing\n  The open package session does not declare Package.productionCompany.\n- Metadata: Primary locale cast is missing\n  The open package session does not expose cast rows for the primary locale.\n- Metadata: Primary locale crew is missing\n  The open package session does not expose crew rows for the primary locale.\n- Metadata: Primary locale poster art is missing\n  The open package session does not expose Locale.posterArt for the primary locale.\n- Package: Declared primary asset does not classify as a video asset\n  Package selected ..\/..\/..\/media_sub\/valid\/srt\/dialogue-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.\n\nDeferred Comparisons:\n- Package: Movie comparison unavailable\n  A package is open, but no movie is loaded, so declared-vs-observed media checks were skipped.",
   "nextFinding" : {
     "category" : "metadata",
     "evidence" : "The open package session does not declare Package.vendorID.",
@@ -120,7 +120,7 @@
     },
     {
       "category" : "package",
-      "evidence" : "Package selected ..\/..\/..\/media_sub\/valid\/srt\/subtitle-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.",
+      "evidence" : "Package selected ..\/..\/..\/media_sub\/valid\/srt\/dialogue-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.",
       "fallbackUsed" : false,
       "code" : "package.declared_primary_asset_does_not_classify_as_a_video_asset",
       "scope" : "package-session",
@@ -204,7 +204,7 @@
       {
         "code" : "package.declared_primary_asset_does_not_classify_as_a_video_asset",
         "scope" : "package-session",
-        "evidence" : "Package selected ..\/..\/..\/media_sub\/valid\/srt\/subtitle-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.",
+        "evidence" : "Package selected ..\/..\/..\/media_sub\/valid\/srt\/dialogue-basic.srt as the primary asset, but its declared role\/media hints classify it as non-video.",
         "fallbackUsed" : false
       },
       {

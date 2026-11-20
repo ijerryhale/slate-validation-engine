@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Slate playback companion to regions-multizone.ttml.
+  Play against source-chapters-crop.mov with this sidecar enabled by itself.
+  Checkpoints below are elapsed seconds from the start of the video.
+
+   2.75  Four labels: upper left, upper right, middle right, and lower left.
+   3-5   Those four labels clear individually in the same order.
+   5.5   All captions are clear.
+   8.5   CONTROL has a forced line break. The middle-right sentence wraps
+         within its region. The long cue in the small left region is clipped
+         at its bottom edge; OVERFLOW NEIGHBOR remains readable to its right.
+         Pause and resize the player so the video letterboxes. All labels
+         should follow the picture as it moves and stay inside their regions.
+  16.0   LOWER A and LOWER B stack in that order. Upper right stays separate.
+  17.0   LOWER B expires and LOWER A remains.
+  18.5   LOWER C replaces LOWER A at the same instant.
+  20.5   All captions are clear.
+  23.0   The unassigned cue is bottom-centered with upper left still visible.
+         Resize to letterbox the video and confirm the fallback stays inside
+         the picture rectangle rather than extending into the bars.
+  26.5   The cue in the region with no extent is bottom-centered. Two other
+         cues stay positioned in the upper-right and middle-right regions.
+  28.75  Only the final lower-left cue remains.
+  29.5   All captions are clear again. Seek back to 2.75 to restore four labels.
+  104.0  A final marker appears near the shared movie out at 01:45:27.
+         It clears at 00:01:45.900.
+-->
+<tt:tt xmlns:tt="http://www.w3.org/ns/ttml"
+       xmlns:parameter="http://www.w3.org/ns/ttml#parameter"
+       xmlns:style="http://www.w3.org/ns/ttml#styling"
+       xml:lang="en-US"
+       parameter:timeBase="media">
+  <tt:head>
+    <tt:layout>
+      <tt:region xml:id="upperLeft"
+                 style:origin="7% 9%"
+                 style:extent="40% 20%"
+                 style:displayAlign="before"
+                 style:textAlign="start"/>
+      <tt:region xml:id="upperRight"
+                 style:origin="53% 9%"
+                 style:extent="40% 20%"
+                 style:displayAlign="before"
+                 style:textAlign="end"/>
+      <tt:region xml:id="middleRight"
+                 style:origin="54% 33.5%"
+                 style:extent="39% 32%"
+                 style:displayAlign="center"
+                 style:textAlign="center"/>
+      <tt:region xml:id="overflowSmall"
+                 style:origin="4% 34%"
+                 style:extent="18% 8%"
+                 style:displayAlign="before"
+                 style:textAlign="start"/>
+      <tt:region xml:id="overflowNeighbor"
+                 style:origin="24% 34%"
+                 style:extent="24% 20%"
+                 style:displayAlign="before"
+                 style:textAlign="start"/>
+      <tt:region xml:id="lowerLeft"
+                 style:origin="7% 71%"
+                 style:extent="86% 24%"
+                 style:displayAlign="after"
+                 style:textAlign="start"/>
+      <tt:region xml:id="sparse"
+                 style:origin="7% 9%"
+                 style:displayAlign="before"
+                 style:textAlign="start"/>
+    </tt:layout>
+  </tt:head>
+  <tt:body>
+    <tt:div>
+      <!-- Four regions with staggered entrances and exits. -->
+      <tt:p begin="0s" end="3s" region="upperLeft">UPPER LEFT · first in, first out.</tt:p>
+      <tt:p begin="500ms" end="4s" region="upperRight">UPPER RIGHT · right-aligned.</tt:p>
+      <tt:p begin="1.5s" dur="3s" region="middleRight">MID-RIGHT · centered in its box.</tt:p>
+      <tt:p begin="2.5s" end="5s" region="lowerLeft">LOWER LEFT · last to clear.</tt:p>
+
+      <!-- Automatic wrapping and an explicit line break on screen together. -->
+      <tt:p begin="6.5s" end="12.5s" region="middleRight">
+        This sentence should wrap inside the middle-right region as the player gets narrower. Keep the last word visible.
+      </tt:p>
+      <tt:p begin="6.5s" end="12.5s" region="overflowSmall">
+        This deliberately long subtitle wraps to many lines inside a short region. Its lower lines must be clipped at the region edge so they cannot cover another subtitle or spill into the picture below. The rest of this passage makes the overflow visible even when the player is large: the words keep wrapping, the region remains short, and the visible lines stay inside the box. This last sentence adds several more lines to check that the clip holds until the cue expires.
+      </tt:p>
+      <tt:p begin="6.5s" end="12.5s" region="overflowNeighbor">
+        OVERFLOW NEIGHBOR · this separate cue must remain readable beside the clipped long cue.
+      </tt:p>
+      <tt:p begin="7s" end="10.5s" region="upperLeft"><tt:span>CONTROL:</tt:span> Line one.<tt:br/>Line two &amp; still here.</tt:p>
+      <tt:p begin="8s" end="9.75s" region="lowerLeft">LOWER LEFT · exits first.</tt:p>
+
+      <!-- Overlap in one region, then replace its remaining cue at a shared boundary. -->
+      <tt:p begin="12.5s" end="18.5s" region="lowerLeft">LOWER A · first in this region.</tt:p>
+      <tt:p begin="14s" end="17s" region="lowerLeft">LOWER B · second in this region.</tt:p>
+      <tt:p begin="15s" end="19s" region="upperRight">UPPER RIGHT · independent exit.</tt:p>
+      <tt:p begin="00:00:18.500" dur="1500ms" region="lowerLeft">LOWER C · replaces A at 18.5.</tt:p>
+    </tt:div>
+
+    <!-- Cue times in this block are relative to 21.5 seconds. -->
+    <tt:div begin="21.5s">
+      <tt:p begin="0s" end="3s">FALLBACK · no region on this cue.</tt:p>
+      <tt:p begin="1s" dur="1.25s" region="upperLeft">UPPER LEFT · alongside fallback.</tt:p>
+      <tt:p begin="3s" dur="2.5s" region="sparse">FALLBACK · region has no extent.</tt:p>
+      <tt:p begin="4s" end="7s" region="middleRight">MID-RIGHT · final positioned cue.</tt:p>
+      <tt:p begin="4750ms" dur="1750ms" region="upperRight">UPPER RIGHT · brief return.</tt:p>
+      <tt:p begin="5.5s" end="7.5s" region="lowerLeft">LOWER LEFT · final cue.</tt:p>
+      <tt:p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for regions playback.<tt:br/>Clock reads 00:01:44.000.</tt:p>
+    </tt:div>
+  </tt:body>
+</tt:tt>

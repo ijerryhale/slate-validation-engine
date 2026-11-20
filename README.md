@@ -12,7 +12,7 @@ This repository skeleton is intentionally narrow:
 - public `Slate.app` adapter source that calls sibling runtimes
 - public `paneharness` proof target
 - machine-readable report contracts
-- tiny public fixtures
+- compact public package, media, and subtitle fixtures
 - examples and golden outputs
 
 It does not include private validation engine internals, package normalization

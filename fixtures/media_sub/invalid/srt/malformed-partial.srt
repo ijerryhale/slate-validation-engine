@@ -1,0 +1,14 @@
+1
+00:00:03,000 --> 00:00:07,000
+[EN] Mara: The first cue is valid.
+Clock reads 00:00:03.000.
+
+2
+00:00:10,000 - 00:00:14,000
+[EN] Jules: This timing line is malformed on purpose.
+Clock reads 00:00:10.000.
+
+3
+00:00:16,000 --> 00:00:20,000
+[EN] Mara: The final cue returns to valid structure.
+Clock reads 00:00:16.000.

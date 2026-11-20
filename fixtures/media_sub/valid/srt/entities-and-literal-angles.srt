@@ -1,0 +1,10 @@
+1
+00:00:01,000 --> 00:00:05,000
+A &amp; B &lt;tag&gt; &#169; &#x1F642; &quot;quoted&apos; &unknown;
+literal 2 < 3 and dangling <i
+<span>unknown tag content</span>
+
+2
+00:01:44,000 --> 00:01:45,900
+EN: Mara: Final picture cue for entities and literal angles.
+Clock reads 00:01:44.000.

@@ -1,0 +1,26 @@
+{
+  "displayItems": [
+    {
+      "line": "Sparse region cue.",
+      "begin": 0,
+      "end": 3000,
+      "regionID": "caption",
+      "regionResolved": true
+    },
+    {
+      "line": "Unassigned cue stays distinct.",
+      "begin": 3000,
+      "end": 5000
+    }
+  ],
+  "ttmlLayoutInventory": {
+    "schemaVersion": "ttmlLayoutInventory.v1",
+    "regions": [
+      {
+        "id": "caption",
+        "origin": "10% 78%",
+        "textAlign": "center"
+      }
+    ]
+  }
+}

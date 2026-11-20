@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="eng">
+  <head>
+    <styling>
+      <style xml:id="s1" tts:fontFamily="Helvetica" tts:fontSize="100%" tts:textAlign="center" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </styling>
+    <layout>
+      <region xml:id="bottom" tts:origin="10% 78%" tts:extent="80% 18%" xmlns:tts="http://www.w3.org/ns/ttml#styling"/>
+    </layout>
+  </head>
+  <body region="bottom" style="s1">
+    <div>
+      <p begin="00:00:03.000" end="00:00:07.000">EN: Mara: The handoff starts on time.<br/>Clock reads 00:00:03.000.</p>
+      <p begin="00:00:12.000" end="00:00:16.000">EN: Jules: The first pass looks normal so far.<br/>Clock reads 00:00:12.000.</p>
+      <p begin="00:12:15.000" end="00:12:20.000">EN: Mara: This log continues far beyond picture duration.<br/>Clock reads 00:12:15.000.</p>
+      <p begin="00:12:22.000" end="00:12:27.000">EN: Jules: Treat this as a file-longer-than-movie case.<br/>Clock reads 00:12:22.000.</p>
+    </div>
+  </body>
+</tt>

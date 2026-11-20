@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt:tt xmlns:tt="http://www.w3.org/ns/ttml"
+       xmlns:style="http://www.w3.org/ns/ttml#styling"
+       xml:lang="en-US">
+  <tt:head>
+    <tt:layout>
+      <tt:region xml:id="bodyRegion"
+                 style:origin="4% 70%"
+                 style:extent="92% 25%"/>
+      <tt:region xml:id="divRegion"
+                 style:origin="5% 5%"
+                 style:extent="40% 20%"/>
+      <tt:region xml:id="paragraphRegion"
+                 style:origin="50% 5%"
+                 style:extent="45% 20%"/>
+      <tt:region xml:id="duplicateRegion"
+                 style:origin="12% 14%"
+                 style:extent="30% 20%"/>
+    </tt:layout>
+  </tt:head>
+  <tt:body region="bodyRegion">
+    <tt:div>
+      <tt:p begin="0s" end="1s">Body inherited</tt:p>
+      <tt:div region="divRegion">
+        <tt:p begin="1s" end="2s">Div inherited</tt:p>
+        <tt:p begin="2s" end="3s" region="paragraphRegion">Paragraph override</tt:p>
+        <tt:p begin="3s" end="4s" region="missingRegion">Unresolved paragraph</tt:p>
+        <tt:p begin="4s" end="5s" region="duplicateRegion">Declared region</tt:p>
+      </tt:div>
+      <tt:div region="missingDivRegion">
+        <tt:p begin="5s" end="6s">Unresolved div inheritance</tt:p>
+      </tt:div>
+      <tt:p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for region inheritance.<tt:br/>Clock reads 00:01:44.000.</tt:p>
+    </tt:div>
+  </tt:body>
+</tt:tt>

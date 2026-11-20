@@ -1,0 +1,29 @@
+1
+00:00:04,000 --> 00:00:09,000
+[EN] Mara: Intake bay is live for the new manifest.
+Clock reads 00:00:04.000.
+
+2
+00:00:12,000 --> 00:00:17,000
+[EN] Jules: Copy. Subtitle feed stays locked here.
+Clock reads 00:00:12.000.
+
+3
+00:00:20,000 --> 00:00:25,000
+[EN] Mara: Hold the frame while I verify sync.
+Clock reads 00:00:20.000.
+
+4
+00:00:28,000 --> 00:00:33,000
+[EN] Jules: This pass should stay clean end to end.
+Clock reads 00:00:28.000.
+
+5
+00:00:36,000 --> 00:00:41,000
+[EN] Mara: Keep this one as the subtitle control.
+Clock reads 00:00:36.000.
+
+6
+00:01:44,000 --> 00:01:45,900
+EN: Mara: Final picture cue for dialogue control.
+Clock reads 00:01:44.000.

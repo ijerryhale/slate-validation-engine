@@ -15,7 +15,7 @@
     <assets media_type="text">
         <asset>
             <data_file role="forced_subtitle">
-                <file_name>../../../media_sub/valid/srt/subtitle-basic.srt</file_name>
+                <file_name>../../../media_sub/valid/srt/dialogue-basic.srt</file_name>
             </data_file>
             <locale name="en-US" />
         </asset>
