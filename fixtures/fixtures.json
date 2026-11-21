@@ -5,7 +5,7 @@
   "root": "fixtures",
   "sizeBudget": {
     "maxBytes": 31457280,
-    "currentBytes": 21926727,
+    "currentBytes": 22528424,
     "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for app adapter smoke tests and subtitle timing coverage."
   },
   "exampleManifest": "examples/examples.json",
@@ -192,6 +192,82 @@
       "notes": "Invalid JSON fixture with a URL-like source path."
     }
   ],
+  "applicationFixtures": [
+    {
+      "id": "app-asset-role-mixed",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/asset-role-mixed.itmsp/metadata.xml",
+      "supportFiles": [
+        "media_sub/valid/itt/dialogue-basic.itt",
+        "media_img/valid/poster_probe_b.png"
+      ],
+      "purpose": "Mixed video, audio, subtitle, and image role cues."
+    },
+    {
+      "id": "app-reconcile-mixed-role",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/reconcile-mixed-role.itmsp/metadata.xml",
+      "supportFiles": [
+        "media_mov/valid/source-chapters-crop.mov",
+        "media_sub/valid/srt/dialogue-basic.srt"
+      ],
+      "purpose": "Declared media roles that conflict with the referenced media."
+    },
+    {
+      "id": "app-reconcile-text-coverage",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/reconcile-text-coverage.itmsp/metadata.xml",
+      "supportFiles": [
+        "media_mov/valid/source-chapters-crop.mov",
+        "media_sub/valid/srt/dialogue-basic.srt"
+      ],
+      "purpose": "Declared subtitle coverage when the movie exposes no observed text counterpart."
+    },
+    {
+      "id": "app-ui-large",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/ui-large.itmsp/metadata.xml",
+      "supportFiles": [
+        "media_img/valid/chapter_probe_a.png",
+        "media_img/valid/chapter_probe_b.png",
+        "media_img/valid/chapter_probe_c.png",
+        "media_img/valid/chapter_probe_a1.png",
+        "media_img/valid/chapter_probe_b1.png",
+        "media_img/valid/chapter_probe_c1.png",
+        "media_img/valid/chapter_probe_d.png",
+        "media_img/valid/chapter_probe_d1.png",
+        "media_img/valid/poster_probe_a.png",
+        "media_img/valid/poster_probe_b.png",
+        "media_sub/valid/srt/dialogue-control.srt",
+        "media_sub/valid/scc/caption-basic.scc",
+        "media_sub/valid/itt/dialogue-regions.itt",
+        "media_sub/valid/itt/sidecar-derived.itt"
+      ],
+      "purpose": "Dense eight-locale package and inspector layout probe."
+    },
+    {
+      "id": "app-ui-small",
+      "kind": "appleManifestXML",
+      "classification": "valid",
+      "path": "media_pkg/valid/ui-small.itmsp/metadata.xml",
+      "supportFiles": [
+        "media_mov/valid/source-chapters-crop.mov",
+        "media_img/valid/chapter_probe_a.png",
+        "media_img/valid/chapter_probe_b.png",
+        "media_img/valid/chapter_probe_c.png",
+        "media_img/valid/chapter_probe_d.png",
+        "media_img/valid/poster_probe_a.png",
+        "media_img/valid/poster_probe_b.png",
+        "media_sub/valid/srt/dialogue-basic.srt",
+        "media_sub/valid/itt/dialogue-basic.itt"
+      ],
+      "purpose": "Daily-size, two-locale package and inspector layout probe."
+    }
+  ],
   "supportFiles": [
     "media_img/valid/chapter_probe_a.png",
     "media_img/valid/chapter_probe_b.png",
@@ -206,7 +282,15 @@
     "media_sub/valid/scc/caption-basic.scc",
     "media_sub/valid/srt/dialogue-basic.srt",
     "media_sub/valid/ttml/dialogue-basic.ttml",
-    "media_sub/valid/ttml/dialogue-sdh.ttml"
+    "media_sub/valid/ttml/dialogue-sdh.ttml",
+    "media_img/valid/chapter_probe_a1.png",
+    "media_img/valid/chapter_probe_b1.png",
+    "media_img/valid/chapter_probe_c1.png",
+    "media_img/valid/chapter_probe_d.png",
+    "media_img/valid/chapter_probe_d1.png",
+    "media_img/valid/poster_probe_a.png",
+    "media_img/valid/poster_probe_b.png",
+    "media_sub/valid/srt/dialogue-control.srt"
   ],
   "subtitleCorpus": {
     "referenceMovie": {

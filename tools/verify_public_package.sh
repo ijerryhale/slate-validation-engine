@@ -54,8 +54,15 @@ fixtures/golden/report/xml-source-basic.report.json
 fixtures/golden/report/xml-source-missing-path.report.json
 fixtures/golden/report/xml-source-nonlocal-url.report.json
 fixtures/media_img/valid/chapter_probe_a.png
+fixtures/media_img/valid/chapter_probe_a1.png
 fixtures/media_img/valid/chapter_probe_b.png
+fixtures/media_img/valid/chapter_probe_b1.png
 fixtures/media_img/valid/chapter_probe_c.png
+fixtures/media_img/valid/chapter_probe_c1.png
+fixtures/media_img/valid/chapter_probe_d.png
+fixtures/media_img/valid/chapter_probe_d1.png
+fixtures/media_img/valid/poster_probe_a.png
+fixtures/media_img/valid/poster_probe_b.png
 fixtures/media_json/invalid/source-missing-path.json
 fixtures/media_json/invalid/source-nonlocal-url.json
 fixtures/media_json/valid/chapter-basic.json
@@ -64,12 +71,17 @@ fixtures/media_mov/valid/source-chapters-crop.mov
 fixtures/media_pkg/invalid/source-missing-path.itmsp/metadata.xml
 fixtures/media_pkg/invalid/source-nonlocal-url.itmsp/metadata.xml
 fixtures/media_pkg/valid/asset-role-text.itmsp/metadata.xml
+fixtures/media_pkg/valid/asset-role-mixed.itmsp/metadata.xml
 fixtures/media_pkg/valid/chapter-basic.itmsp/metadata.xml
+fixtures/media_pkg/valid/reconcile-mixed-role.itmsp/metadata.xml
+fixtures/media_pkg/valid/reconcile-text-coverage.itmsp/metadata.xml
 fixtures/media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-01.png
 fixtures/media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-02.png
 fixtures/media_pkg/valid/source-chapters-crop.itmsp/chapter_img/chapter-crop-03.png
 fixtures/media_pkg/valid/source-chapters-crop.itmsp/metadata.xml
 fixtures/media_pkg/valid/source-basic.itmsp/metadata.xml
+fixtures/media_pkg/valid/ui-large.itmsp/metadata.xml
+fixtures/media_pkg/valid/ui-small.itmsp/metadata.xml
 fixtures/media_sub/README.md
 fixtures/media_sub/invalid/itt/late-start.itt
 fixtures/media_sub/invalid/itt/malformed-xml.itt
@@ -330,7 +342,7 @@ done <"$REQUIRED_APP"
 
 failures=0
 
-if ruby -rjson - <<'RUBY'
+if ruby -rjson -rrexml/document - <<'RUBY'
 begin
   manifest = JSON.parse(File.read("fixtures/fixtures.json"))
   corpus = manifest.fetch("subtitleCorpus")
@@ -356,6 +368,56 @@ begin
     unless File.file?(File.join("fixtures", path))
       warn "Error: fixture manifest references a missing support file: #{path}"
       exit 1
+    end
+  end
+
+  application_fixtures = manifest.fetch("applicationFixtures")
+  app_paths = application_fixtures.map { |entry| entry.fetch("path") }
+  app_ids = application_fixtures.map { |entry| entry.fetch("id") }
+  if app_paths.uniq.length != app_paths.length || app_ids.uniq.length != app_ids.length
+    warn "Error: application fixture manifest has duplicate paths or IDs."
+    exit 1
+  end
+
+  application_fixtures.each do |entry|
+    package_path = entry.fetch("path")
+    package_file = File.join("fixtures", package_path)
+    unless File.file?(package_file)
+      warn "Error: application fixture manifest references a missing package: #{package_path}"
+      exit 1
+    end
+
+    dependencies = entry.fetch("supportFiles")
+    unless (dependencies - manifest.fetch("supportFiles")).empty?
+      warn "Error: application fixture dependencies are missing from supportFiles: #{entry.fetch('id')}"
+      exit 1
+    end
+    dependencies.each do |dependency|
+      unless File.file?(File.join("fixtures", dependency))
+        warn "Error: application fixture references a missing support file: #{dependency}"
+        exit 1
+      end
+    end
+
+    fixture_root = File.expand_path("fixtures")
+    package_dir = File.dirname(File.expand_path(package_file))
+    document = REXML::Document.new(File.read(package_file))
+    document.elements.each("//*") do |node|
+      next unless %w[file_name thumbnail_file].include?(node.name.split(":").last)
+
+      reference = node.text.to_s.strip
+      next if reference.empty?
+      if reference.start_with?("/") || reference.include?("slate-validation-engine/fixtures/")
+        warn "Error: application fixture contains a nonportable media path: #{package_path}: #{reference}"
+        exit 1
+      end
+
+      next unless reference.include?("media_sub/") || reference.include?("media_img/")
+      resolved_path = File.expand_path(reference, package_dir)
+      unless resolved_path.start_with?(fixture_root + File::SEPARATOR) && File.file?(resolved_path)
+        warn "Error: application fixture media path does not resolve: #{package_path}: #{reference}"
+        exit 1
+      end
     end
   end
 
@@ -513,7 +575,7 @@ find . -type f ! -path './.git/*' ! -path './Runtime/slate' ! -path './slate-app
     -name '.gitattributes' -o \
     -name '.gitignore' \
 \) -print0 \
-    | xargs -0 grep -nE '(/Users/jhale|Desktop/Slate|fixture_reference|____tools|___task_notes|AssistantOwned|Jeff Porcaro|porcaro)' \
+    | xargs -0 grep -nE '(/Users/jhale|Desktop/Slate|fixture_reference|____tools|___task_notes|AssistantOwned|Jeff Porcaro|porcaro|\.\./\.\./\.\./\.\./slate-validation-engine/fixtures/media_sub/)' \
     >"$PRIVATE_PATHS" 2>/dev/null
 
 if [ -s "$PRIVATE_PATHS" ]; then

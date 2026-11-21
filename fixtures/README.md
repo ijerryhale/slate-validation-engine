@@ -13,6 +13,8 @@ The set proves:
 - warning and blocker exit codes
 - chapter-image path handling with tiny generated images
 - text-role package parsing with tiny SRT, SCC, ITT, and TTML sidecars
+- app-oriented package probes for mixed asset roles, reconciliation, and
+  normal-to-dense package layouts
 - a public chapter/crop movie triplet for UI inspection smoke tests
 - valid and invalid SRT, SCC, ITT, and TTML subtitle/caption cases
 - valid subtitle timing through the full reference movie duration
@@ -25,6 +27,24 @@ public movie is the timing reference for `media_sub`; see
 mean the current validation result exits `0`.
 
 The machine-readable package and subtitle fixture inventory is `fixtures.json`.
+
+## Application package fixtures
+
+`fixtures.json` lists five additional packages under `applicationFixtures`:
+
+- `asset-role-mixed.itmsp` combines video, audio, text, and image role cues.
+- `reconcile-mixed-role.itmsp` exercises declared asset roles that conflict
+  with the referenced media.
+- `reconcile-text-coverage.itmsp` exercises declared subtitle coverage when
+  the movie has no observed text counterpart.
+- `ui-small.itmsp` provides a daily-size, two-locale package for UI inspection.
+- `ui-large.itmsp` provides a dense, eight-locale package with larger chapter,
+  cast, crew, platform, and poster sections.
+
+These inputs are not CLI golden-output cases. Their supplied subtitle and
+image dependencies are listed in `supportFiles`; private movie and sound
+assets remain outside the public fixture set. Generated chapter and poster
+probes live under `media_img/valid`.
 
 Examples and normalized golden outputs live under `examples` and `golden`.
 Golden output files replace the absolute checkout path with `<repo>` so the
