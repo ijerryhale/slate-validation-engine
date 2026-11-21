@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="1.0" identifier="ui-large_pkg" xmlns="http://apple.com/itunes/importer" default_locale="en-US">
+    <provider>Slate Fixtures</provider>
+
+    <locale name="en-US" display_name="English (US)" />
+    <locale name="es-ES" display_name="Spanish (Spain)" />
+    <locale name="fr-FR" display_name="French (France)" />
+    <locale name="de-DE" display_name="German (Germany)" />
+    <locale name="it-IT" display_name="Italian (Italy)" />
+    <locale name="ja-JP" display_name="Japanese (Japan)" />
+    <locale name="pt-BR" display_name="Portuguese (Brazil)" />
+    <locale name="ko-KR" display_name="Korean (South Korea)" />
+
+    <metadata locale="en-US">
+        <title>UI Big Fixture</title>
+        <short_synopsis>High-density fixture for extreme UI and readability checks.</short_synopsis>
+        <long_synopsis>Dense package fixture intended to pressure-test package presentation and readability surfaces with broad locale coverage, large chapter sets, platform metadata, client genres, and long cast and crew rosters.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="TV14">TV-14</rating>
+        <cast>
+            <member first_name="Aria" last_name="Stone" character="Captain Voss" />
+            <member first_name="Liam" last_name="Wren" character="Chief Hale" />
+            <member first_name="Nina" last_name="Yu" character="Dr. Sato" />
+            <member first_name="Omar" last_name="Price" character="Marshal Quinn" />
+            <member first_name="Ivy" last_name="Roman" character="Pilot Kade" />
+            <member first_name="Eli" last_name="Mason" character="Observer Pike" />
+            <member first_name="Zoe" last_name="Rivera" character="Archivist Lune" />
+            <member first_name="Hugo" last_name="Blake" character="Broker Flint" />
+            <member first_name="Mina" last_name="Cross" character="Engineer Vale" />
+            <member first_name="Jae" last_name="Turner" character="Signal Echo" />
+            <member first_name="Rory" last_name="Lane" character="Warden Sol" />
+            <member first_name="Pia" last_name="Novak" character="Courier Tess" />
+        </cast>
+        <crew>
+            <member first_name="Maya" last_name="Cole" credit="Director" />
+            <member first_name="Jon" last_name="Mercer" credit="Writer" />
+            <member first_name="Dina" last_name="Pierce" credit="Producer" />
+            <member first_name="Felix" last_name="Khan" credit="Editor" />
+            <member first_name="Rhea" last_name="Dunn" credit="Composer" />
+            <member first_name="Ari" last_name="Wallace" credit="Production Designer" />
+            <member first_name="Kira" last_name="Lopez" credit="VFX Supervisor" />
+            <member first_name="Neil" last_name="Gates" credit="Colorist" />
+            <member first_name="Sara" last_name="Kim" credit="Sound Designer" />
+            <member first_name="Theo" last_name="Meyer" credit="Music Editor" />
+            <member first_name="Ines" last_name="Park" credit="Post Supervisor" />
+            <member first_name="Yara" last_name="Bennett" credit="Localization Lead" />
+        </crew>
+    </metadata>
+
+    <metadata locale="es-ES">
+        <title>Fixture UI Grande</title>
+        <short_synopsis>Fixture denso para pruebas de interfaz.</short_synopsis>
+        <long_synopsis>Cobertura amplia de metadatos, capitulos y localizacion para revisar extremos de uso visual.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="ICAA">16</rating>
+    </metadata>
+
+    <metadata locale="fr-FR">
+        <title>Fixture UI Dense</title>
+        <short_synopsis>Fixture dense pour verification visuelle.</short_synopsis>
+        <long_synopsis>Couverture large des locales, chapitres et metadonnees pour tests de charge d'interface.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="CSA">13</rating>
+    </metadata>
+
+    <metadata locale="de-DE">
+        <title>UI Grosses Fixture</title>
+        <short_synopsis>Dichte Fixture fuer UI-Lasttests.</short_synopsis>
+        <long_synopsis>Viele Lokalisierungen, Kapitel und Metadaten zum Pruefen von Anzeige und Lesbarkeit.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="FSK">16</rating>
+    </metadata>
+
+    <metadata locale="it-IT">
+        <title>Fixture UI Estesa</title>
+        <short_synopsis>Fixture estesa per test visuali.</short_synopsis>
+        <long_synopsis>Molti campi localizzati e capitoli per valutare densita e leggibilita nell'interfaccia.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="TVPG">TV-14</rating>
+    </metadata>
+
+    <metadata locale="ja-JP">
+        <title>UI Big Fixture JP</title>
+        <short_synopsis>Dense fixture for UI checks.</short_synopsis>
+        <long_synopsis>Large localized set for package, chapter, and readiness display stress verification.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="EIRIN">G</rating>
+    </metadata>
+
+    <metadata locale="pt-BR">
+        <title>Fixture UI Ampla</title>
+        <short_synopsis>Fixture ampla para verificacao visual.</short_synopsis>
+        <long_synopsis>Alta densidade de dados localizados para observar o comportamento de interface em extremos.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="DJCTQ">14</rating>
+    </metadata>
+
+    <metadata locale="ko-KR">
+        <title>UI Big Fixture KR</title>
+        <short_synopsis>High density UI package fixture.</short_synopsis>
+        <long_synopsis>Expanded metadata and chapter load profile for daily and edge-case package inspection.</long_synopsis>
+        <release_date>2026-04-27</release_date>
+        <rating system="KMRB">15</rating>
+    </metadata>
+
+    <platform_data>
+        <platform id="itunes" project_number="UI-BIG-2001" chapter_timecode_format="smpte">
+            <genre>Drama</genre>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+        </platform>
+        <platform id="appletv" project_number="UI-BIG-2002" chapter_timecode_format="timecode">
+            <genre>Sci-Fi</genre>
+            <genre>Adventure</genre>
+        </platform>
+        <platform id="vod-global" project_number="UI-BIG-2003" chapter_timecode_format="ndf">
+            <genre>International</genre>
+            <genre>Serialized</genre>
+        </platform>
+        <platform id="mobile" project_number="UI-BIG-2004" chapter_timecode_format="smpte">
+            <genre>Action</genre>
+            <genre>Drama</genre>
+        </platform>
+    </platform_data>
+
+    <client_genres>
+        <genre>Drama</genre>
+        <genre>Thriller</genre>
+        <genre>Mystery</genre>
+        <genre>Sci-Fi</genre>
+        <genre>Adventure</genre>
+        <genre>International</genre>
+        <genre>Serialized</genre>
+        <genre>Action</genre>
+        <genre>Character Study</genre>
+        <genre>Suspense</genre>
+    </client_genres>
+
+    <chapters>
+        <chapter time="00:00:25:00" thumbnail_time="00:00:25:10" cropTop="4" cropLeft="6" cropRight="6" cropBtm="4">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_a.png</thumbnail_file>
+            <localized_info locale="en-US" title="Threshold" />
+            <localized_info locale="es-ES" title="Umbral" />
+            <localized_info locale="fr-FR" title="Seuil" />
+            <localized_info locale="de-DE" title="Schwelle" />
+        </chapter>
+        <chapter time="00:02:10:00" thumbnail_time="00:02:10:08" cropTop="6" cropLeft="8" cropRight="8" cropBtm="6">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_b.png</thumbnail_file>
+            <localized_info locale="en-US" title="Signal" />
+            <localized_info locale="es-ES" title="Senal" />
+            <localized_info locale="fr-FR" title="Signal" />
+            <localized_info locale="de-DE" title="Signal" />
+        </chapter>
+        <chapter time="00:04:05:00" thumbnail_time="00:04:05:11" cropTop="8" cropLeft="10" cropRight="10" cropBtm="8">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_c.png</thumbnail_file>
+            <localized_info locale="en-US" title="Crosswind" />
+            <localized_info locale="es-ES" title="Viento Cruzado" />
+            <localized_info locale="fr-FR" title="Vent Croise" />
+            <localized_info locale="de-DE" title="Querwind" />
+        </chapter>
+        <chapter time="00:06:00:00" thumbnail_time="00:06:00:07" cropTop="10" cropLeft="12" cropRight="12" cropBtm="10">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_d.png</thumbnail_file>
+            <localized_info locale="en-US" title="Handoff" />
+            <localized_info locale="es-ES" title="Transferencia" />
+            <localized_info locale="fr-FR" title="Passage" />
+            <localized_info locale="de-DE" title="Uebergabe" />
+        </chapter>
+        <chapter time="00:08:00:00" thumbnail_time="00:08:00:09" cropTop="6" cropLeft="8" cropRight="8" cropBtm="6">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_a1.png</thumbnail_file>
+            <localized_info locale="en-US" title="Echo Room" />
+            <localized_info locale="es-ES" title="Sala de Eco" />
+            <localized_info locale="fr-FR" title="Salle Echo" />
+            <localized_info locale="de-DE" title="Echo Raum" />
+        </chapter>
+        <chapter time="00:10:05:00" thumbnail_time="00:10:05:10" cropTop="4" cropLeft="6" cropRight="6" cropBtm="4">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_b1.png</thumbnail_file>
+            <localized_info locale="en-US" title="Faultline" />
+            <localized_info locale="es-ES" title="Falla" />
+            <localized_info locale="fr-FR" title="Faille" />
+            <localized_info locale="de-DE" title="Bruchlinie" />
+        </chapter>
+        <chapter time="00:12:00:00" thumbnail_time="00:12:00:12" cropTop="2" cropLeft="4" cropRight="4" cropBtm="2">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_c1.png</thumbnail_file>
+            <localized_info locale="en-US" title="Relay" />
+            <localized_info locale="es-ES" title="Relevo" />
+            <localized_info locale="fr-FR" title="Relais" />
+            <localized_info locale="de-DE" title="Relais" />
+        </chapter>
+        <chapter time="00:14:00:00" thumbnail_time="00:14:00:11" cropTop="8" cropLeft="12" cropRight="12" cropBtm="8">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_d1.png</thumbnail_file>
+            <localized_info locale="en-US" title="Pressure" />
+            <localized_info locale="es-ES" title="Presion" />
+            <localized_info locale="fr-FR" title="Pression" />
+            <localized_info locale="de-DE" title="Druck" />
+        </chapter>
+        <chapter time="00:16:00:00" thumbnail_time="00:16:00:09" cropTop="10" cropLeft="14" cropRight="14" cropBtm="10">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_a.png</thumbnail_file>
+            <localized_info locale="en-US" title="Convergence" />
+            <localized_info locale="es-ES" title="Convergencia" />
+            <localized_info locale="fr-FR" title="Convergence" />
+            <localized_info locale="de-DE" title="Konvergenz" />
+        </chapter>
+        <chapter time="00:18:00:00" thumbnail_time="00:18:00:10" cropTop="12" cropLeft="16" cropRight="16" cropBtm="12">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_b.png</thumbnail_file>
+            <localized_info locale="en-US" title="Rupture" />
+            <localized_info locale="es-ES" title="Ruptura" />
+            <localized_info locale="fr-FR" title="Rupture" />
+            <localized_info locale="de-DE" title="Bruch" />
+        </chapter>
+        <chapter time="00:20:00:00" thumbnail_time="00:20:00:08" cropTop="8" cropLeft="10" cropRight="10" cropBtm="8">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_c.png</thumbnail_file>
+            <localized_info locale="en-US" title="Aftermath" />
+            <localized_info locale="es-ES" title="Consecuencia" />
+            <localized_info locale="fr-FR" title="Retombee" />
+            <localized_info locale="de-DE" title="Nachwirkung" />
+        </chapter>
+        <chapter time="00:22:00:00" thumbnail_time="00:22:00:12" cropTop="6" cropLeft="8" cropRight="8" cropBtm="6">
+            <thumbnail_file>../../../media_img/valid/chapter_probe_d.png</thumbnail_file>
+            <localized_info locale="en-US" title="New Orbit" />
+            <localized_info locale="es-ES" title="Nueva Orbita" />
+            <localized_info locale="fr-FR" title="Nouvelle Orbite" />
+            <localized_info locale="de-DE" title="Neue Umlaufbahn" />
+        </chapter>
+    </chapters>
+
+    <assets media_type="video" vendor_id="UI-BIG-VEND-1">
+        <asset type="full" role="source" width="1920" height="1080" frame_rate="24.000">
+            <data_file role="source">
+                <file_name>../../../media_mov/valid/source-probe-10.mov</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+        <asset type="preview" role="trailer" width="1920" height="1080" frame_rate="24.000">
+            <data_file role="trailer">
+                <file_name>../../../media_mov/valid/source-basic-08.mov</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+        <asset type="subtitle" media_type="text" role="subtitle">
+            <data_file role="subtitle">
+                <file_name>../../../media_sub/valid/srt/dialogue-control.srt</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+        <asset type="caption" media_type="text" role="cc">
+            <data_file role="caption">
+                <file_name>../../../media_sub/valid/scc/caption-basic.scc</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+        <asset type="subtitle-forced" media_type="text" role="forced-subtitle">
+            <data_file role="subtitle">
+                <file_name>../../../media_sub/valid/itt/dialogue-regions.itt</file_name>
+            </data_file>
+            <locale name="fr-FR" />
+        </asset>
+        <asset type="subtitle" media_type="text" role="subtitle">
+            <data_file role="subtitle">
+                <file_name>../../../media_sub/valid/itt/sidecar-derived.itt</file_name>
+            </data_file>
+            <locale name="de-DE" />
+        </asset>
+    </assets>
+
+    <assets media_type="image">
+        <asset type="poster" role="poster">
+            <data_file role="art">
+                <file_name>../../../media_img/valid/poster_probe_a.png</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+        <asset type="poster" role="poster">
+            <data_file role="art">
+                <file_name>../../../media_img/valid/poster_probe_b.png</file_name>
+            </data_file>
+            <locale name="es-ES" />
+        </asset>
+        <asset type="poster" role="poster">
+            <data_file role="art">
+                <file_name>../../../media_img/valid/poster_probe_a.png</file_name>
+            </data_file>
+            <locale name="fr-FR" />
+        </asset>
+        <asset type="poster" role="poster">
+            <data_file role="art">
+                <file_name>../../../media_img/valid/poster_probe_b.png</file_name>
+            </data_file>
+            <locale name="de-DE" />
+        </asset>
+    </assets>
+</package>
