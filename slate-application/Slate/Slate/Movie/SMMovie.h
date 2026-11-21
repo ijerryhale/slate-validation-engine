@@ -241,6 +241,10 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 - (SMTrack *)addSidecarITTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
 - (SMTrack *)addSidecarSRTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
 - (SMTrack *)addSidecarTTMLSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
+// Creates distinct session-only closed-caption tracks for the file's decoded
+// CC1-CC4 channels. Channel labels remain in each track's descriptor and
+// enabled state is independent; deleting one channel removes that source's
+// channel group. Returns the initially enabled primary channel (CC1 when present).
 - (SMTrack *)addSidecarSCCSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
 @end
 

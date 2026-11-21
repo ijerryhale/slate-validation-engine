@@ -97,13 +97,15 @@ NSArray *SMSerializedSubtitleItemsFromSRTString(NSString *contents,
                                                 NSError **outError,
                                                 NSArray **outDiagnostics);
 
+// SCC timecodes identify 30-frame addresses at 1000/1001 seconds per frame;
+// `:` denotes non-drop and `;` denotes drop-frame addressing. Each 16-bit word
+// in a record advances one frame. Channels are numbered 1 through 4.
 // SCC parsing path, reached from TrackViewController -importSCCSubtitleFromURL:.
 BOOL SMMillisecondsForSCCTimestamp(NSString *timestamp, SMSubtitleMilliseconds *outMilliseconds);
 
-// Ordered CEA-608 events decoded from Scenarist SCC records. Each 16-bit word
-// occupies one successive frame starting at its record timecode. Each event
-// stores time (milliseconds), type, parity-stripped firstByte/secondByte,
-// sourceLine, and the active channel.
+// Ordered CEA-608 events decoded from Scenarist SCC records. Each event stores
+// time (milliseconds), type, parity-stripped firstByte/secondByte, sourceLine,
+// and the active channel.
 static NSString * const SMSubtitleSCCEventKeyTime = @"time";
 static NSString * const SMSubtitleSCCEventKeyType = @"type";
 static NSString * const SMSubtitleSCCEventKeyFirstByte = @"firstByte";
@@ -114,6 +116,8 @@ static NSString * const SMSubtitleSCCCueKeyRow = @"cea608Row";
 static NSString * const SMSubtitleSCCCueKeyColumn = @"cea608Column";
 static NSString * const SMSubtitleSCCCueKeyGridRows = @"cea608GridRows";
 static NSString * const SMSubtitleSCCCueKeyGridColumns = @"cea608GridColumns";
+// Numeric channel attached to each synthetic SCC sidecar track descriptor.
+static NSString * const SMSubtitleSCCTrackDescriptorKeyChannel = @"subtitleChannel";
 static NSString * const SMSubtitleSCCEventTypeCharacter = @"character";
 static NSString * const SMSubtitleSCCEventTypeControl = @"control";
 static NSString * const SMSubtitleSCCEventTypeSpecialCharacter = @"specialCharacter";
@@ -123,6 +127,8 @@ static NSString * const SMSubtitleSCCDiagnosticKeyLine = SMSubtitleDiagnosticKey
 static NSString * const SMSubtitleSCCDiagnosticKeyMessage = SMSubtitleDiagnosticKeyMessage;
 
 NSArray *SMDecodedSCCEventsFromString(NSString *contents, NSArray **outDiagnostics);
+// Returns a numeric-channel-keyed dictionary whose values are time-ordered
+// cue arrays. Cues retain CEA-608 row/column and grid-size metadata for display.
 NSDictionary *SMSubtitleSCCCueItemsByChannelFromString(NSString *contents,
                                                        SMSubtitleMilliseconds mediaDurationMilliseconds,
                                                        NSArray **outDiagnostics);

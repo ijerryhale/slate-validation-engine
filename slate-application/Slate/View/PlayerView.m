@@ -743,7 +743,7 @@ static NSAttributedString *SMSubtitleAttributedStringFromDisplayItem(NSDictionar
                 id trackIdentifier = [track attributeForKey:SMTrackIDAttribute];
                 id trackName = [track attributeForKey:SMTrackDisplayNameAttribute];
                 NSDictionary *descriptor = [track attributeForKey:@"__syntheticSidecarDisplayDescriptor"];
-                id channel = [descriptor objectForKey:@"subtitleChannel"];
+                id channel = [descriptor objectForKey:SMSubtitleSCCTrackDescriptorKeyChannel];
                 NSString *entryKey = [NSString stringWithFormat:@"cea608:%@:%@",
                                       trackIdentifier ?: trackName ?: @"caption",
                                       channel ?: @"1"];
