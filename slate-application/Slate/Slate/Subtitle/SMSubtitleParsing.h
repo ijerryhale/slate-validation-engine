@@ -81,9 +81,19 @@ NSDictionary *SMSerializedTTMLLayoutInventoryFromDocument(NSXMLDocument *xmlDoc)
 // Returns the first matching declaration, preserving the inventory's source order.
 NSDictionary *SMSubtitleTTMLRegionDefinitionForID(NSString *regionID, NSDictionary *inventory);
 
+// SRT timestamps require numeric HH:MM:SS fractions (comma or period; one to
+// three fractional digits), with minutes/seconds in range. Cue intervals are
+// clipped to the media duration when it is known: cues extending past the end
+// are shortened, and cues beginning at/after the end are skipped with a
+// warning. A negative media duration means unknown.
+// Recognized <b>/<i>/<u> markup is represented as text-run traits, not HTML;
+// malformed tag-like text and literal angle text remain ordinary text.
+// Malformed cues produce warnings while valid neighboring cues are retained;
+// a document with no valid in-range cues returns a fatal NSError.
 // SRT parsing path, reached from TrackViewController -importSRTSubtitleFromURL:.
 BOOL SMMillisecondsForSRTTimestamp(NSString *timestamp, SMSubtitleMilliseconds *outMilliseconds);
 NSArray *SMSerializedSubtitleItemsFromSRTString(NSString *contents,
+                                                SMSubtitleMilliseconds mediaDurationMilliseconds,
                                                 NSError **outError,
                                                 NSArray **outDiagnostics);
 
