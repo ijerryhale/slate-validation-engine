@@ -325,6 +325,7 @@ static BOOL TimelineVerboseRefreshLoggingEnabled(void)
         NSTimeInterval landedTime = 0.0;
         SMGetTimeInterval([activeMovie currentTime], &landedTime);
         SMTimelineLog(@"Timeline queueSeek immediate landedTime=%.3f", landedTime);
+        [_playerView refreshSubtitleOverlay];
     }
 }
 

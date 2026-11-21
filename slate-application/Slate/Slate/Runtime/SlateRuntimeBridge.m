@@ -384,7 +384,7 @@ static BOOL SlateRuntimePackageSnapshotIsUsable(NSDictionary *snapshot)
     return [[snapshot objectForKey:SlatePackageSnapshotKeySchemaVersion] isEqualToString:SlatePackageSnapshotSchemaVersion1];
 }
 
-static NSDictionary *SlateRuntimeTrackEmptySnapshot(BOOL hasMovie)
+static NSDictionary *SlateRuntimeEmptyFileTrackObservation(BOOL hasMovie)
 {
     return [NSDictionary dictionaryWithObjectsAndKeys:
             SlateTrackSnapshotSchemaVersion1, SlateTrackSnapshotKeySchemaVersion,
@@ -394,15 +394,15 @@ static NSDictionary *SlateRuntimeTrackEmptySnapshot(BOOL hasMovie)
             nil];
 }
 
-static NSDictionary *SlateRuntimeTrackUnavailableSnapshot(BOOL hasMovie, NSString *code, NSString *message)
+static NSDictionary *SlateRuntimeUnavailableFileTrackObservation(BOOL hasMovie, NSString *code, NSString *message)
 {
-    NSMutableDictionary *snapshot = [NSMutableDictionary dictionaryWithDictionary:SlateRuntimeTrackEmptySnapshot(hasMovie)];
+    NSMutableDictionary *observation = [NSMutableDictionary dictionaryWithDictionary:SlateRuntimeEmptyFileTrackObservation(hasMovie)];
     NSDictionary *error = [NSDictionary dictionaryWithObjectsAndKeys:
                            SlateRuntimeStringOrEmpty(code), SlateTrackSnapshotErrorKeyCode,
-                           SlateRuntimeStringHasContent(message) ? message : @"SlateTrackRuntime could not produce track snapshot output.", SlateTrackSnapshotErrorKeyMessage,
+                           SlateRuntimeStringHasContent(message) ? message : @"SlateTrackRuntime could not produce a source file track observation.", SlateTrackSnapshotErrorKeyMessage,
                            nil];
-    [snapshot setObject:error forKey:SlateTrackSnapshotKeyError];
-    return snapshot;
+    [observation setObject:error forKey:SlateTrackSnapshotKeyError];
+    return observation;
 }
 
 static NSDictionary *SlateRuntimeChapterEmptySnapshot(BOOL hasPackage)
@@ -508,15 +508,15 @@ static NSDictionary *SlateRuntimePackageSnapshotFromExecutable(NSString *package
     return SlateRuntimePackageSnapshotIsUsable(snapshot) ? snapshot : nil;
 }
 
-static BOOL SlateRuntimeTrackSnapshotIsUsable(NSDictionary *snapshot)
+static BOOL SlateRuntimeFileTrackObservationIsUsable(NSDictionary *observation)
 {
-    if (![snapshot isKindOfClass:[NSDictionary class]]) {
+    if (![observation isKindOfClass:[NSDictionary class]]) {
         return NO;
     }
-    return [[snapshot objectForKey:SlateTrackSnapshotKeySchemaVersion] isEqualToString:SlateTrackSnapshotSchemaVersion1];
+    return [[observation objectForKey:SlateTrackSnapshotKeySchemaVersion] isEqualToString:SlateTrackSnapshotSchemaVersion1];
 }
 
-static NSDictionary *SlateRuntimeTrackSnapshotFromExecutable(SMMovie *movie)
+static NSDictionary *SlateRuntimeFileTrackObservationFromExecutable(SMMovie *movie)
 {
     NSString *runtimePath = SlateRuntimeTrackRuntimeExecutablePath();
     NSString *moviePath = [[movie URL] path];
@@ -542,8 +542,8 @@ static NSDictionary *SlateRuntimeTrackSnapshotFromExecutable(SMMovie *movie)
         return nil;
     }
 
-    NSDictionary *snapshot = (NSDictionary *)jsonObject;
-    return SlateRuntimeTrackSnapshotIsUsable(snapshot) ? snapshot : nil;
+    NSDictionary *observation = (NSDictionary *)jsonObject;
+    return SlateRuntimeFileTrackObservationIsUsable(observation) ? observation : nil;
 }
 
 static BOOL SlateRuntimeChapterSnapshotIsUsable(NSDictionary *snapshot)
@@ -1102,25 +1102,25 @@ static NSDictionary *SlateRuntimeTimelineSnapshotFromExecutable(NSRect bounds,
     return SlateRuntimePackageSnapshotFromExecutable(packagePath);
 }
 
-+ (NSDictionary *)trackSnapshotForMovie:(SMMovie *)movie hasMovie:(BOOL)hasMovie
++ (NSDictionary *)fileTrackObservationForMovie:(SMMovie *)movie hasMovie:(BOOL)hasMovie
 {
     if (!hasMovie) {
-        return SlateRuntimeTrackEmptySnapshot(NO);
+        return SlateRuntimeEmptyFileTrackObservation(NO);
     }
     if (!SlateRuntimeStringHasContent(SlateRuntimeTrackRuntimeExecutablePath())) {
-        return SlateRuntimeTrackUnavailableSnapshot(YES,
+        return SlateRuntimeUnavailableFileTrackObservation(YES,
                                                  @"runtime.track_missing",
                                                  @"SlateTrackRuntime is missing from the same directory as Slate.app.");
     }
 
-    NSDictionary *externalSnapshot = SlateRuntimeTrackSnapshotFromExecutable(movie);
-    if (externalSnapshot != nil) {
-        return externalSnapshot;
+    NSDictionary *fileObservation = SlateRuntimeFileTrackObservationFromExecutable(movie);
+    if (fileObservation != nil) {
+        return fileObservation;
     }
 
-    return SlateRuntimeTrackUnavailableSnapshot(YES,
+    return SlateRuntimeUnavailableFileTrackObservation(YES,
                                              @"runtime.track_bad_contract",
-                                             @"SlateTrackRuntime did not return a usable track snapshot contract.");
+                                             @"SlateTrackRuntime did not return a usable source file track observation.");
 }
 
 + (NSDictionary *)chapterSnapshotForPackagePath:(NSString *)packagePath

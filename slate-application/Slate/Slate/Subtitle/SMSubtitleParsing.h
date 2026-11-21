@@ -14,6 +14,37 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "SMSubtitleTTMLLayoutContract.h"
+
+// Shared normalized subtitle cue contract. `begin` and `end` are nonnegative
+// integer milliseconds; `line` uses LF (`\n`) line endings. TTML cues may also
+// carry regionID/regionResolved. Timed spans split paragraph text into cue
+// intervals. `textRuns` is reserved for safe inline
+// formatting such as SRT bold, italic, and underline; each run has `text` and
+// optional boolean traits. `line` remains the plain-text projection of runs.
+static NSString * const SMSubtitleCueKeyLine = @"line";
+static NSString * const SMSubtitleCueKeyBegin = @"begin";
+static NSString * const SMSubtitleCueKeyEnd = @"end";
+static NSString * const SMSubtitleCueKeyTextRuns = @"textRuns";
+static NSString * const SMSubtitleTextRunKeyText = @"text";
+static NSString * const SMSubtitleTextRunKeyBold = @"bold";
+static NSString * const SMSubtitleTextRunKeyItalic = @"italic";
+static NSString * const SMSubtitleTextRunKeyUnderline = @"underline";
+
+typedef long long SMSubtitleMilliseconds;
+
+// Parser diagnostics describe rejected cues and fatal parse failures. Fatal
+// failures are also returned as NSError; recoverable warnings accompany the
+// valid cues that remain.
+static NSString * const SMSubtitleDiagnosticKeySeverity = @"severity";
+static NSString * const SMSubtitleDiagnosticKeySourceLine = @"sourceLine";
+static NSString * const SMSubtitleDiagnosticKeyCueIndex = @"cueIndex";
+static NSString * const SMSubtitleDiagnosticKeyMessage = @"message";
+static NSString * const SMSubtitleDiagnosticSeverityWarning = @"warning";
+static NSString * const SMSubtitleDiagnosticSeverityFatal = @"fatal";
+static NSString * const SMSubtitleErrorKeyDiagnostic = @"SMSubtitleDiagnostic";
+static NSString * const SMSubtitleErrorKeyDiagnostics = @"SMSubtitleDiagnostics";
+NSError *SMSubtitleFatalParsingError(NSInteger code, NSString *description, NSError *underlyingError);
 
 // Pure subtitle-file parsing helpers for synthetic sidecar display.
 //
@@ -28,18 +59,59 @@
 // which use these helpers to normalize ITT/TTML/SRT/SCC content into cue payload arrays.
 
 // ITT parsing path, reached from TrackViewController -importITTSubtitleFromURL:.
-unsigned SMMillisecondsForITTTimestamp(NSString *timestamp, NSUInteger frameRateMultiplier, float frameDurationInMilliseconds);
-NSArray *SMChildStringsForXMLNode(NSXMLNode *node);
-NSArray *SMSerializedSubtitleItemsFromITTDocument(NSXMLDocument *xmlDoc, short *outLanguageCode);
+BOOL SMMillisecondsForITTTimestamp(NSString *timestamp,
+                                   double frameDurationInMilliseconds,
+                                   SMSubtitleMilliseconds *outMilliseconds);
+NSArray *SMSerializedSubtitleItemsFromITTDocument(NSXMLDocument *xmlDoc,
+                                                  short *outLanguageCode,
+                                                  NSError **outError,
+                                                  NSArray **outDiagnostics);
 
 // TTML parsing path, reached from TrackViewController -importTTMLSubtitleFromURL:.
-NSArray *SMSerializedSubtitleItemsFromTTMLDocument(NSXMLDocument *xmlDoc, short *outLanguageCode);
+// A negative media duration means unknown. Unsupported timeContainer values and
+// invalid TTML timing parameters are reported through outError.
+NSArray *SMSerializedSubtitleItemsFromTTMLDocument(NSXMLDocument *xmlDoc,
+                                                   short *outLanguageCode,
+                                                   SMSubtitleMilliseconds mediaDurationMilliseconds,
+                                                   NSError **outError,
+                                                   NSArray **outDiagnostics);
+// Returns ttmlLayoutInventory.v1 when an ITT/TTML head/layout is present; otherwise nil.
+NSDictionary *SMSerializedTTMLLayoutInventoryFromDocument(NSXMLDocument *xmlDoc);
+// Returns the first matching declaration, preserving the inventory's source order.
+NSDictionary *SMSubtitleTTMLRegionDefinitionForID(NSString *regionID, NSDictionary *inventory);
 
 // SRT parsing path, reached from TrackViewController -importSRTSubtitleFromURL:.
-unsigned SMMillisecondsForSRTTimestamp(NSString *timestamp);
-NSArray *SMSerializedSubtitleItemsFromSRTString(NSString *contents);
+BOOL SMMillisecondsForSRTTimestamp(NSString *timestamp, SMSubtitleMilliseconds *outMilliseconds);
+NSArray *SMSerializedSubtitleItemsFromSRTString(NSString *contents,
+                                                NSError **outError,
+                                                NSArray **outDiagnostics);
 
 // SCC parsing path, reached from TrackViewController -importSCCSubtitleFromURL:.
-unsigned SMMillisecondsForSCCTimestamp(NSString *timestamp);
-NSString *SMDecodedTextForSCCPayload(NSString *payload);
-NSArray *SMSerializedSubtitleItemsFromSCCString(NSString *contents);
+BOOL SMMillisecondsForSCCTimestamp(NSString *timestamp, SMSubtitleMilliseconds *outMilliseconds);
+
+// Ordered CEA-608 events decoded from Scenarist SCC records. Each 16-bit word
+// occupies one successive frame starting at its record timecode. Each event
+// stores time (milliseconds), type, parity-stripped firstByte/secondByte,
+// sourceLine, and the active channel.
+static NSString * const SMSubtitleSCCEventKeyTime = @"time";
+static NSString * const SMSubtitleSCCEventKeyType = @"type";
+static NSString * const SMSubtitleSCCEventKeyFirstByte = @"firstByte";
+static NSString * const SMSubtitleSCCEventKeySecondByte = @"secondByte";
+static NSString * const SMSubtitleSCCEventKeyChannel = @"channel";
+static NSString * const SMSubtitleSCCEventKeySourceLine = @"sourceLine";
+static NSString * const SMSubtitleSCCCueKeyRow = @"cea608Row";
+static NSString * const SMSubtitleSCCCueKeyColumn = @"cea608Column";
+static NSString * const SMSubtitleSCCCueKeyGridRows = @"cea608GridRows";
+static NSString * const SMSubtitleSCCCueKeyGridColumns = @"cea608GridColumns";
+static NSString * const SMSubtitleSCCEventTypeCharacter = @"character";
+static NSString * const SMSubtitleSCCEventTypeControl = @"control";
+static NSString * const SMSubtitleSCCEventTypeSpecialCharacter = @"specialCharacter";
+static NSString * const SMSubtitleSCCEventTypeExtendedCharacter = @"extendedCharacter";
+static NSString * const SMSubtitleSCCEventTypePadding = @"padding";
+static NSString * const SMSubtitleSCCDiagnosticKeyLine = SMSubtitleDiagnosticKeySourceLine;
+static NSString * const SMSubtitleSCCDiagnosticKeyMessage = SMSubtitleDiagnosticKeyMessage;
+
+NSArray *SMDecodedSCCEventsFromString(NSString *contents, NSArray **outDiagnostics);
+NSDictionary *SMSubtitleSCCCueItemsByChannelFromString(NSString *contents,
+                                                       SMSubtitleMilliseconds mediaDurationMilliseconds,
+                                                       NSArray **outDiagnostics);

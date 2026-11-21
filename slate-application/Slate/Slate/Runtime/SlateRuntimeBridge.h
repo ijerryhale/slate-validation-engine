@@ -21,7 +21,7 @@
 
 + (NSDictionary *)packageContextForPackagePath:(NSString *)packagePath;
 + (NSDictionary *)packageSnapshotForPackagePath:(NSString *)packagePath;
-+ (NSDictionary *)trackSnapshotForMovie:(SMMovie *)movie hasMovie:(BOOL)hasMovie;
++ (NSDictionary *)fileTrackObservationForMovie:(SMMovie *)movie hasMovie:(BOOL)hasMovie;
 + (NSDictionary *)chapterSnapshotForPackagePath:(NSString *)packagePath
                                           movie:(SMMovie *)movie
                                      hasPackage:(BOOL)hasPackage;

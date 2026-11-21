@@ -192,13 +192,16 @@ static void SMInstallSidecarItemsInViewMenuIfNeeded(AppController *controller)
         [mainMenu insertItem:trackMenuItem atIndex:insertIndex];
     }
 
-    if ([trackMenu itemWithTitle:@"Add Reference Track..."] == nil) {
-        NSMenuItem *addReferenceTrackItem = [[[NSMenuItem alloc] initWithTitle:@"Add Reference Track..."
-                                                                        action:@selector(addReferenceTrack:)
-                                                                 keyEquivalent:@""] autorelease];
-        [addReferenceTrackItem setTarget:self];
+    NSMenuItem *addReferenceTrackItem = [trackMenu itemWithTitle:@"Add Reference Track..."];
+    if (addReferenceTrackItem == nil) {
+        addReferenceTrackItem = [[[NSMenuItem alloc] initWithTitle:@"Add Reference Track..."
+                                                            action:@selector(addReferenceTrack:)
+                                                     keyEquivalent:@"R"] autorelease];
         [trackMenu addItem:addReferenceTrackItem];
     }
+    [addReferenceTrackItem setTarget:self];
+    [addReferenceTrackItem setKeyEquivalent:@"R"];
+    [addReferenceTrackItem setKeyEquivalentModifierMask:(NSEventModifierFlagCommand | NSEventModifierFlagShift)];
 
     NSMenuItem *deleteTrackItem = [trackMenu itemWithTitle:@"Delete Reference Track"];
     if (deleteTrackItem == nil) {

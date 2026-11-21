@@ -23,6 +23,7 @@ enum	// popup tag choices
 };
 
 @class PlayerView;
+@class SplitViewController;
 @class TrackViewController;
 @class PackageViewController;
 @class ChapterViewController;
@@ -68,7 +69,7 @@ enum	// popup tag choices
     IBOutlet PlayerView             *_playerView;
     IBOutlet NSView                *_topView;
      IBOutlet NSView                *_bottomView;
-
+    IBOutlet SplitViewController   *_splitViewController;
     PackageViewController          *_packageViewController;
     TrackViewController            *_trackViewController;
     ChapterViewController           *_chapterViewController;

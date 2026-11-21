@@ -18,7 +18,23 @@
 
 #import <Cocoa/Cocoa.h>
 
-static inline CGFloat SlateWorkspacePrimaryPaneLeadingInset(void) { return 14.0; }
+typedef NS_ENUM(NSInteger, SMWorkspaceWidthClass) {
+    SMWorkspaceWidthClass0 = 0,
+    SMWorkspaceWidthClass1 = 1,
+    SMWorkspaceWidthClass2 = 2,
+};
+
+static inline SMWorkspaceWidthClass SMWorkspaceWidthClassForWidth(CGFloat workspaceWidth)
+{
+    if (workspaceWidth >= 1280.0) {
+        return SMWorkspaceWidthClass2;
+    }
+    if (workspaceWidth >= 1107.0) {
+        return SMWorkspaceWidthClass1;
+    }
+    return SMWorkspaceWidthClass0;
+}
+
 static inline CGFloat SlateWorkspacePrimaryPaneTableAnchorX(void) { return 14.0; }
 // Shared hard handoff used by Chapter + Track rail choreography near the
 // class-2 -> class-1 transition window.
@@ -27,11 +43,6 @@ static inline CGFloat SlateWorkspacePrimaryPaneTableAnchorX(void) { return 14.0;
 static inline CGFloat SlateWorkspaceRailBreakWidthClass2To1(void) { return 1294.0; }
 // Keep Chapter/Track top choreography aligned with Package rail baseline.
 static inline CGFloat SlateWorkspacePrimaryPaneTableAnchorTopY(void) { return 323.0; }
-static inline CGFloat SlateWorkspaceTopInset(void) { return 24.0; }
-static inline CGFloat SlateWorkspaceTrailingInsetMinimum(void) { return 8.0; }
-static inline CGFloat SlateWorkspaceSectionLabelHeight(void) { return 16.0; }
-static inline CGFloat SlateWorkspaceSectionLabelGap(void) { return 6.0; }
-static inline CGFloat SlateWorkspaceSectionLabelYOffset(void) { return 4.0; }
 static inline CGFloat SlateWorkspaceMinimumContentHeight(void) { return 120.0; }
 // Allow horizontal stretch beyond the class-2 design width so table views can
 // surface more content, then freeze and center once that headroom is exhausted.

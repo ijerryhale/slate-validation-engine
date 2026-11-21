@@ -13,12 +13,12 @@
 //  Unauthorized use, disclosure, reproduction, or distribution is prohibited.
 //
 
-@interface SplitViewController : NSObject <NSSplitViewDelegate>
+@interface SplitViewController : NSSplitViewController
 {
-    IBOutlet SplitView  *_splitView;
-    CGFloat             _position;
+    IBOutlet NSView *_splitViewHost;
 }
 
--(IBAction)toggleBtmPane:(id)sender;
+- (void)attachToWindow:(NSWindow *)window topView:(NSView *)topView bottomView:(NSView *)bottomView;
+- (IBAction)toggleBtmPane:(id)sender;
 
 @end

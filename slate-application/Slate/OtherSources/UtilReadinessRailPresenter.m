@@ -8,30 +8,27 @@
 #import "UtilReadinessRailPresenter.h"
 #import "UtilInspectorRailContract.h"
 #import "Runtime/SlateReviewSnapshotContract.h"
+#import "Runtime/SlateRuntimeBridge.h"
+
+static NSString * const SlateReadinessRailTitle = @"Readiness";
 
 @implementation UtilReadinessRailPresenter
 
 @synthesize sectionLabel = _sectionLabel;
-@synthesize statusLabel = _statusLabel;
 @synthesize scrollView = _scrollView;
-@synthesize textView = _textView;
 @synthesize pinButton = _pinButton;
+@synthesize pinned = _pinned;
 
-- (id)initWithSectionTitle:(NSString *)sectionTitle
-      findingsToolTipTitle:(NSString *)findingsToolTipTitle
-                 pinTarget:(id)pinTarget
-                 pinAction:(SEL)pinAction
-          textViewDelegate:(id<NSTextViewDelegate>)textViewDelegate
+- (id)initWithFindingsToolTipTitle:(NSString *)findingsToolTipTitle
+                   pinDefaultsKey:(NSString *)pinDefaultsKey
+                            owner:(id<SMInspectorRailModeAdapter, NSTextViewDelegate>)owner
 {
     self = [super init];
     if (self != nil) {
-        _sectionTitle = [(sectionTitle ?: @"Readiness") copy];
         _findingsToolTipTitle = [(findingsToolTipTitle ?: @"Readiness findings") copy];
-        _canonicalFindings = [[NSArray alloc] init];
-        _jumpLinkByFindingIdentity = [[NSDictionary alloc] init];
-        _pinTarget = pinTarget;
-        _pinAction = pinAction;
-        _textViewDelegate = textViewDelegate;
+        _pinDefaultsKey = [pinDefaultsKey copy];
+        _pinned = [[NSUserDefaults standardUserDefaults] boolForKey:_pinDefaultsKey];
+        _owner = owner;
     }
     return self;
 }
@@ -43,10 +40,8 @@
     [_scrollView release];
     [_textView release];
     [_pinButton release];
-    [_sectionTitle release];
     [_findingsToolTipTitle release];
-    [_canonicalFindings release];
-    [_jumpLinkByFindingIdentity release];
+    [_pinDefaultsKey release];
     [super dealloc];
 }
 
@@ -68,7 +63,7 @@
     }
 
     if (_sectionLabel == nil) {
-        _sectionLabel = [self newSectionLabelWithString:_sectionTitle];
+        _sectionLabel = [self newSectionLabelWithString:SlateReadinessRailTitle];
     }
     if ([_sectionLabel superview] == nil) {
         [superview addSubview:_sectionLabel];
@@ -86,7 +81,7 @@
         _textView = [[NSTextView alloc] initWithFrame:NSZeroRect];
         SlateInspectorRailApplyWarningTextViewStyle(_textView);
         SlateInspectorRailApplyReadinessLinkStyle(_textView);
-        [_textView setDelegate:_textViewDelegate];
+        [_textView setDelegate:_owner];
     }
 
     if (_scrollView == nil) {
@@ -98,134 +93,140 @@
         [superview addSubview:_scrollView];
     }
 
-    if (_pinButton == nil && _pinTarget != nil && _pinAction != NULL) {
-        _pinButton = [SlateInspectorRailCreatePinButton(_pinTarget, _pinAction) retain];
+    if (_pinButton == nil) {
+        _pinButton = [SlateInspectorRailCreatePinButton(self, @selector(pinButtonChanged:)) retain];
+        [_pinButton setState:_pinned ? NSControlStateValueOn : NSControlStateValueOff];
     }
     if (_pinButton != nil && [_pinButton superview] == nil) {
         [superview addSubview:_pinButton];
     }
 }
 
-- (void)setPinTarget:(id)target action:(SEL)action
+- (void)pinButtonChanged:(NSButton *)sender
 {
-    _pinTarget = target;
-    _pinAction = action;
-
-    if (_pinButton != nil) {
-        [_pinButton setTarget:_pinTarget];
-        [_pinButton setAction:_pinAction];
-        [[_pinButton cell] setTarget:_pinTarget];
-        [[_pinButton cell] setAction:_pinAction];
+    BOOL pinned = ([sender state] == NSControlStateValueOn);
+    if (_pinned == pinned) {
+        return;
     }
+    _pinned = pinned;
+    [[NSUserDefaults standardUserDefaults] setBool:pinned forKey:_pinDefaultsKey];
+    [_owner applyWorkspaceLayoutForWidth:NSWidth([[_pinButton superview] bounds])];
 }
 
-- (void)setPinState:(BOOL)pinned
+- (void)restoreSubviewOrderWithOverlays:(NSArray<NSView *> *)overlays
 {
-    [_pinButton setState:(pinned ? NSOnState : NSOffState)];
-}
-
-- (void)setTextViewDelegate:(id<NSTextViewDelegate>)delegate
-{
-    _textViewDelegate = delegate;
-    [_textView setDelegate:_textViewDelegate];
-}
-
-- (void)setSectionTitle:(NSString *)sectionTitle
-{
-    NSString *resolvedTitle = SlateInspectorRailStringHasContent(sectionTitle) ? sectionTitle : @"Readiness";
-    if ([_sectionTitle isEqualToString:resolvedTitle]) {
+    NSView *superview = [_sectionLabel superview];
+    if (superview == nil) {
         return;
     }
 
-    [_sectionTitle release];
-    _sectionTitle = [resolvedTitle copy];
-    [_sectionLabel setStringValue:_sectionTitle];
+    NSMutableArray *orderedViews = [NSMutableArray arrayWithObjects:_sectionLabel, _statusLabel, _scrollView, nil];
+    [orderedViews addObjectsFromArray:overlays];
+    [orderedViews addObject:_pinButton];
+
+    NSArray *subviews = [superview subviews];
+    NSUInteger previousIndex = NSNotFound;
+    BOOL needsReorder = NO;
+    for (NSView *view in orderedViews) {
+        NSUInteger index = [subviews indexOfObjectIdenticalTo:view];
+        if (index == NSNotFound) {
+            return;
+        }
+        if (previousIndex != NSNotFound && index <= previousIndex) {
+            needsReorder = YES;
+        }
+        previousIndex = index;
+    }
+    if (needsReorder || previousIndex != [subviews count] - 1) {
+        for (NSView *view in orderedViews) {
+            [superview addSubview:view positioned:NSWindowAbove relativeTo:nil];
+        }
+    }
 }
 
-- (void)updateCopyHints
+- (void)renderReviewPaneSnapshot:(NSDictionary *)snapshot
 {
-    NSString *toolTip = SlateInspectorRailFindingsSummaryToolTip(_canonicalFindings, _findingsToolTipTitle);
+    if (![snapshot isKindOfClass:[NSDictionary class]]) {
+        snapshot = @{SlateReviewPaneSnapshotKeyEmptyStatus: @"No findings", SlateReviewPaneSnapshotKeyEmptyMessage: @""};
+    }
+    NSArray *findings = [snapshot objectForKey:SlateReviewPaneSnapshotKeyFindings];
+    NSArray *canonicalFindings = SlateInspectorRailCanonicalFindingsArray(findings);
+    NSString *emptyStatus = [snapshot objectForKey:SlateReviewPaneSnapshotKeyEmptyStatus];
+    NSString *emptyMessage = [snapshot objectForKey:SlateReviewPaneSnapshotKeyEmptyMessage];
+    NSDictionary *jumpLinks = [snapshot objectForKey:SlateReviewPaneSnapshotKeyJumpLinksByFindingIdentity];
+    if (![jumpLinks isKindOfClass:[NSDictionary class]]) {
+        jumpLinks = nil;
+    }
+
+    NSMutableArray *blockers = nil;
+    NSMutableArray *warnings = nil;
+    SlateInspectorRailSplitFindingsBySeverity(canonicalFindings, &blockers, &warnings);
+    SlateInspectorRailApplyWarningStatusStyle(_statusLabel, [blockers count] > 0, [warnings count] > 0);
+    [_statusLabel setStringValue:SlateInspectorRailReadinessStatusText(canonicalFindings, emptyStatus)];
+
+    NSAttributedString *readinessText = SlateInspectorRailReadinessAttributedText(canonicalFindings, emptyMessage, jumpLinks);
+    SlateInspectorRailSetReadinessText(_textView, readinessText);
+
+    NSString *toolTip = SlateInspectorRailFindingsSummaryToolTip(canonicalFindings, _findingsToolTipTitle);
     [_statusLabel setToolTip:toolTip];
     [_sectionLabel setToolTip:toolTip];
     SlateInspectorRailApplyCopyHintToView(_scrollView, toolTip);
     SlateInspectorRailApplyCopyHintToView(_textView, toolTip);
 }
 
-- (void)updateWithFindings:(NSArray *)findings
-               emptyStatus:(NSString *)emptyStatus
-              emptyMessage:(NSString *)emptyMessage
-jumpLinksByFindingIdentity:(NSDictionary *)jumpLinkByFindingIdentity
+- (void)presentFindings:(NSArray *)findings
+                paneKey:(NSString *)paneKey
+            emptyStatus:(NSString *)emptyStatus
+           emptyMessage:(NSString *)emptyMessage
+     jumpLinkForFinding:(NSString *(^)(NSDictionary *finding))jumpLinkForFinding
 {
-    NSArray *canonicalFindings = SlateInspectorRailCanonicalFindingsArray(findings);
-    [_canonicalFindings release];
-    _canonicalFindings = [canonicalFindings retain];
-
-    NSDictionary *resolvedJumpLinks = [jumpLinkByFindingIdentity isKindOfClass:[NSDictionary class]]
-        ? jumpLinkByFindingIdentity
-        : [NSDictionary dictionary];
-    [_jumpLinkByFindingIdentity release];
-    _jumpLinkByFindingIdentity = [resolvedJumpLinks retain];
-
-    NSMutableArray *blockers = nil;
-    NSMutableArray *warnings = nil;
-    SlateInspectorRailSplitFindingsBySeverity(_canonicalFindings, &blockers, &warnings);
-    SlateInspectorRailApplyWarningStatusStyle(_statusLabel, [blockers count] > 0, [warnings count] > 0);
-    [_statusLabel setStringValue:SlateInspectorRailReadinessStatusText(_canonicalFindings, emptyStatus)];
-
-    NSAttributedString *readinessText = SlateInspectorRailReadinessAttributedText(_canonicalFindings,
-                                                                                 emptyMessage,
-                                                                                 _jumpLinkByFindingIdentity);
-    SlateInspectorRailSetReadinessText(_textView, readinessText);
-    [self updateCopyHints];
-}
-
-- (void)updateWithReviewPaneSnapshot:(NSDictionary *)reviewPaneSnapshot
-{
-    if (![reviewPaneSnapshot isKindOfClass:[NSDictionary class]]) {
-        [self updateWithFindings:[NSArray array]
-                      emptyStatus:@"No findings"
-                     emptyMessage:@""
-       jumpLinksByFindingIdentity:[NSDictionary dictionary]];
-        return;
+    NSMutableDictionary *jumpLinks = [NSMutableDictionary dictionary];
+    for (NSDictionary *finding in findings) {
+        if (![finding isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        NSString *link = jumpLinkForFinding(finding);
+        if (SlateInspectorRailStringHasContent(link)) {
+            [jumpLinks setObject:link forKey:SlateInspectorRailFindingIdentity(finding)];
+        }
     }
 
-    NSArray *findings = [reviewPaneSnapshot objectForKey:SlateReviewPaneSnapshotKeyFindings];
-    NSString *emptyStatus = [reviewPaneSnapshot objectForKey:SlateReviewPaneSnapshotKeyEmptyStatus];
-    NSString *emptyMessage = [reviewPaneSnapshot objectForKey:SlateReviewPaneSnapshotKeyEmptyMessage];
-    NSDictionary *jumpLinks = [reviewPaneSnapshot objectForKey:SlateReviewPaneSnapshotKeyJumpLinksByFindingIdentity];
-    [self updateWithFindings:findings
-                 emptyStatus:emptyStatus
-                emptyMessage:emptyMessage
-  jumpLinksByFindingIdentity:jumpLinks];
+    NSDictionary *snapshot = [SlateRuntimeBridge reviewPaneSnapshotWithPaneKey:paneKey
+                                                                         title:SlateReadinessRailTitle
+                                                                      findings:findings
+                                                                   emptyStatus:emptyStatus
+                                                                  emptyMessage:emptyMessage
+                                                    jumpLinksByFindingIdentity:jumpLinks];
+    [self renderReviewPaneSnapshot:snapshot];
 }
 
-- (void)setRailHidden:(BOOL)hidden
+- (void)hideRail
 {
-    [_sectionLabel setHidden:hidden];
-    [_statusLabel setHidden:hidden];
-    [_scrollView setHidden:hidden];
-    [_pinButton setHidden:hidden];
+    [_sectionLabel setHidden:YES];
+    [_statusLabel setHidden:YES];
+    [_scrollView setHidden:YES];
+    [_pinButton setHidden:YES];
 }
 
-- (void)applySectionFrame:(NSRect)sectionFrame
-              statusFrame:(NSRect)statusFrame
-              scrollFrame:(NSRect)scrollFrame
-                 pinFrame:(NSRect)pinFrame
-               pinVisible:(BOOL)pinVisible
+- (void)layoutRailAtX:(CGFloat)x topY:(CGFloat)topY bottomY:(CGFloat)bottomY
 {
+    CGFloat width = SlateInspectorRailFixedWidth();
+    CGFloat titleHeight = SlateInspectorRailSectionHeaderHeight();
+    CGFloat rowHeight = SlateInspectorRailDisclosureRowHeight();
+    CGFloat titleY = topY - titleHeight;
+    CGFloat statusY = titleY - SlateInspectorRailSectionHeaderYOffset() - rowHeight - 2.0;
+    CGFloat scrollHeight = SlateInspectorRailReadinessScrollHeight(statusY, bottomY);
+    CGFloat pinWidth = SlateInspectorRailPinControlWidth();
+
+    [_sectionLabel setFrame:NSMakeRect(x, titleY, width, titleHeight)];
+    [_statusLabel setFrame:NSMakeRect(x, statusY, width, rowHeight)];
+    [_scrollView setFrame:NSMakeRect(x, bottomY, width, scrollHeight)];
+    [_pinButton setFrame:NSMakeRect(x + width - pinWidth, titleY, pinWidth, rowHeight)];
+
     [_sectionLabel setHidden:NO];
     [_statusLabel setHidden:NO];
     [_scrollView setHidden:NO];
-    [_sectionLabel setFrame:sectionFrame];
-    [_statusLabel setFrame:statusFrame];
-    [_scrollView setFrame:scrollFrame];
-
-    if (_pinButton != nil) {
-        [_pinButton setHidden:!pinVisible];
-        if (pinVisible) {
-            [_pinButton setFrame:pinFrame];
-        }
-    }
+    [_pinButton setHidden:NO];
 }
 
 - (BOOL)ownsTextView:(NSTextView *)textView

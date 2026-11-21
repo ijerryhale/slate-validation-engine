@@ -17,8 +17,8 @@
 
 @interface TrackViewController : NSViewController <NSTableViewDelegate, NSTextViewDelegate>
 {
-    // Controller-owned track rows; validation reads snapshots from here.
-    NSMutableArray              *_track;
+    // Ordered track rows for the current in-memory session.
+    NSMutableArray              *_sessionTrackItems;
     NSArray                     *_canonicalValidationFindings;
 
     // NIB-era controls kept as the adapter surface.
@@ -39,13 +39,10 @@
     BOOL                    _gainSliderTargetsMovie;
     
     // Code-owned headers, groups, and readiness rail.
-    NSTextField             *_tracksSectionLabel;
-    NSTextField             *_tracksStateLabel;
     NSTextField             *_advancedSectionLabel;
     NSBox                   *_advancedGroupBox;
     UtilReadinessRailPresenter *_readinessPresenter;
     NSButton                *_trackInspectorCopyButton;
-    BOOL                    _inspectorRailPinned;
 }
 
 #pragma mark - View Surface

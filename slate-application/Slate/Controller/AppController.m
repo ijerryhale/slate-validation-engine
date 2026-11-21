@@ -22,6 +22,7 @@ NSString *BASE_URL;
 #import "TrackViewController.h"
 #import "PackageViewController.h"
 #import "PlayerView.h"
+#import "SplitViewController.h"
 #import "Window.h"
 
 #import "AppController+Private.h"
@@ -718,6 +719,10 @@ static NSString *SMTransportSizeValue(CGSize size)
 - (IBAction)addReferenceTrack:(id)sender
 {
     #pragma unused(sender)
+    if (_movie == nil) {
+        return;
+    }
+
     [self ensureTrackViewControllerLoaded];
     NSOpenPanel *openPanel = [NSOpenPanel openPanel];
 
@@ -757,7 +762,10 @@ static NSString *SMTransportSizeValue(CGSize size)
 
 -(void)updateCurrentSize
 {
-    [_currentSize setStringValue:SMTransportSizeValue(NSRectToCGRect(_playerView.movieBounds).size)];
+    NSString *size = SMTransportSizeValue(NSRectToCGRect(_playerView.movieBounds).size);
+    if (![_currentSize.stringValue isEqualToString:size]) {
+        [_currentSize setStringValue:size];
+    }
 }
 
 //  don't delete, used to edit crop rect values
@@ -890,6 +898,7 @@ static NSString *SMTransportSizeValue(CGSize size)
     [self updateTimecodeOverlayButtonState];
 
     [_timelineState resetForDuration:0.0];
+    [_splitViewController attachToWindow:_window topView:_topView bottomView:_bottomView];
     [self createTimelineViewIfNeeded];
     [self syncTimelinePresentationFromState];
     [self createScrubberTimeLabelsIfNeeded];
@@ -930,6 +939,16 @@ static NSString *SMTransportSizeValue(CGSize size)
     
     [self selectBottomPane:nil];
     [self applyModeWorkspaceResponsiveLayout];
+    [_topView setPostsFrameChangedNotifications:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(playerPaneFrameDidChange:)
+                                                 name:NSViewFrameDidChangeNotification
+                                               object:_topView];
+    [_bottomView setPostsFrameChangedNotifications:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(workspacePaneFrameDidChange:)
+                                                 name:NSViewFrameDidChangeNotification
+                                               object:_bottomView];
     SMTimelineLog(@"Timeline startup awakeFromNib end slider=%@ playerView=%@ windowVisible=%d sliderFrame=%@ sliderHidden=%d btmViewFrame=%@",
           TimelinePointerString(_timelineView),
           TimelinePointerString(_playerView),
@@ -942,6 +961,8 @@ static NSString *SMTransportSizeValue(CGSize size)
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:REFRESH_CROP_VALUES object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:_topView];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:_bottomView];
     
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowWillEnterFullScreenNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidExitFullScreenNotification object:nil];
@@ -1289,13 +1310,28 @@ static NSString *SMTransportSizeValue(CGSize size)
           NSStringFromRect([_timelineView frame]),
           [_timelineView isHidden]);
     [self layoutScrubberTimeLabels];
-    [self applyModeWorkspaceResponsiveLayout];
     [self updateCurrentSize];
     [self refreshCropValues:nil];
     SMTimelineLog(@"Timeline startup windowDidResize end sliderFrame(after)=%@ duration=%.3f currentTime=%.3f",
           NSStringFromRect([_timelineView frame]),
           [_timelineState duration],
           [_timelineState currentTime]);
+}
+
+- (void)playerPaneFrameDidChange:(NSNotification *)notification
+{
+    [self windowDidResize:notification];
+    // AVKit updates the displayed video bounds after the pane's frame changes.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_playerView layoutSubtreeIfNeeded];
+        [self updateCurrentSize];
+    });
+}
+
+- (void)workspacePaneFrameDidChange:(NSNotification *)notification
+{
+    #pragma unused (notification)
+    [self applyModeWorkspaceResponsiveLayout];
 }
 
 #pragma mark - FULL SCREEN STUFF
@@ -1378,6 +1414,11 @@ return (NSMakeSize(proposedSize.width, proposedSize.height)); }
     {
         [item setState:[self sidecarAutoloadEnabled] ? NSOnState : NSOffState];
         return YES;
+    }
+
+    if ([item action] == @selector(addReferenceTrack:))
+    {
+        return (_movie != nil);
     }
 
     if ([item action] == @selector(deleteTrack:))

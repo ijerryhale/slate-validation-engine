@@ -222,28 +222,12 @@ static NSInteger SMChapterRowIndexFromFindingScope(NSString *scope)
                                                  [NSArray arrayWithObject:SMValidationScopeChapterRowPrefix]);
 }
 
-typedef NS_ENUM(NSInteger, SMWorkspaceWidthClass) {
-    SMWorkspaceWidthClass0 = 0,
-    SMWorkspaceWidthClass1 = 1,
-    SMWorkspaceWidthClass2 = 2,
-};
-
 #pragma mark - Layout Constants
 
-static const CGFloat SMChapterWorkspaceWideBreakpoint = 1280.0;
-static const CGFloat SMChapterWorkspaceMediumBreakpoint = 1107.0;
-static const CGFloat SMChapterWorkspaceCompactBlendEndWidth = 1040.0;
-static const CGFloat SMChapterResponsiveWorkspaceMinimumWidth = 600.0;
-static const CGFloat SMChapterCompactTableMinimumWidth = 430.0;
-static const CGFloat SMChapterReadinessRailTableMinimumWidth = 420.0;
-static const CGFloat SMChapterPinnedRelaxedTableMinimumWidth = 360.0;
-static const CGFloat SMChapterPinnedRelaxWindowWidth = 120.0;
-static const CGFloat SMChapterTableMinimumWidthWide = 520.0;
-static const CGFloat SMChapterInspectorRailMinimumPadding = 6.0;
+static const CGFloat SMChapterInspectorRailPadding = 8.0;
 static const CGFloat SMChapterInspectorRowHeight = 16.0;
 static const CGFloat SMChapterInspectorRowGap = 4.0;
-static const CGFloat SMChapterInspectorPopupWidthWide = 116.0;
-static const CGFloat SMChapterInspectorPopupWidthCompact = 102.0;
+static const CGFloat SMChapterInspectorPopupWidth = 116.0;
 static const CGFloat SMChapterInspectorCropPopupMinimumWidth = 96.0;
 static const CGFloat SMChapterInspectorPreviewFixedSideLength = 256.0;
 static const CGFloat SMChapterTitleColumnMinimumWidth = 118.0;
@@ -254,10 +238,8 @@ static const CGFloat SMChapterCropColumnBaseWidth = 106.0;
 static const CGFloat SMChapterTableEmptyStateInset = 18.0;
 static const CGFloat SMChapterTableEmptyStateHeight = 40.0;
 
-static const CGFloat SMChapterInspectorGroupInsetX = 8.0;
 static const CGFloat SMChapterInspectorGroupHeaderInsetX = 10.0;
 static const CGFloat SMChapterInspectorGroupHeaderTopInset = 6.0;
-static const CGFloat SMChapterMinimumInterColumnGap = 14.0;
 static const NSInteger SMChapterTableMaximumVisibleRows = 12;
 static const CGFloat SMChapterTableRowHeight = 28.0;
 static const CGFloat SMChapterTableIntercellVerticalSpacing = 4.0;
@@ -268,7 +250,6 @@ static NSString * const SMChapterReadinessFindingsToolTipTitle = @"Readiness fin
 static NSString * const SMChapterReadinessStatusNoFindings = @"No chapter findings";
 static NSString * const SMChapterReadinessEmptyMessageNoFindings = @"No chapter readiness findings.";
 static NSString * const SMChapterTableNoRowsMessage = @"No chapter rows are declared in this package.";
-static NSString * const SMChapterSectionTitleReadiness = @"Readiness";
 static NSString * const SMChapterResizableColumnWidthsDefaultsKey = @"SMChapterResizableColumnWidths";
 static NSString * const SMChapterJumpBlockedStatusFormat = @"Chapter row %ld %@ marker %@ exceeds movie duration %@. Jump blocked.";
 
@@ -303,30 +284,9 @@ static CGFloat SMChapterMaximumTableHeightForVisibleRows(void)
     return SMChapterTableHeaderHeight + (rowSlotHeight * (CGFloat)SMChapterTableMaximumVisibleRows);
 }
 
-static CGFloat SMChapterFixedInspectorRailHeight(void)
-{
-    CGFloat designContentTopY = SlateWorkspacePrimaryPaneTableAnchorTopY()
-        + SlateInspectorRailSectionHeaderHeight()
-        + SlateInspectorRailSectionHeaderYOffset();
-    return MAX(SlateWorkspaceMinimumContentHeight(), designContentTopY - SlateInspectorRailBottomInset());
-}
-
-static SMWorkspaceWidthClass SMWorkspaceWidthClassForWidth(CGFloat workspaceWidth)
-{
-    if (workspaceWidth >= SMChapterWorkspaceWideBreakpoint) {
-        return SMWorkspaceWidthClass2;
-    }
-    if (workspaceWidth >= SMChapterWorkspaceMediumBreakpoint) {
-        return SMWorkspaceWidthClass1;
-    }
-    return SMWorkspaceWidthClass0;
-}
-
 static NSString * const SMChapterInspectorRailPinnedDefaultsKey = @"SMChapterInspectorRailPinned";
 static void *SMChapterHasMovieKVOContext = &SMChapterHasMovieKVOContext;
 
-static CGFloat SMChapterWorkspaceOuterPadding(void) { return 10.0; }
-static CGFloat SMChapterWorkspaceGutter(void) { return 14.0; }
 static NSRect SMChapterDefaultRootFrame(void) { return NSMakeRect(0.0, 0.0, 1280.0, 360.0); }
 static NSRect SMChapterDefaultTableScrollFrame(void) { return NSMakeRect(14.0, 14.0, 881.0, 346.0); }
 static NSRect SMChapterDefaultQuadrantFrame(void) { return NSMakeRect(960.0, 128.0, 256.0, 255.0); }
@@ -338,171 +298,12 @@ static NSRect SMChapterDefaultCropModePopupFrame(void) { return NSMakeRect(992.0
 
 #pragma mark - Layout Helpers
 
-static CGFloat SMChapterLerp(CGFloat fromValue, CGFloat toValue, CGFloat t)
-{
-    CGFloat clamped = MIN(MAX(t, 0.0), 1.0);
-    return fromValue + ((toValue - fromValue) * clamped);
-}
-
-static CGFloat SMChapterCompactBlendForWidth(CGFloat workspaceWidth)
-{
-    const CGFloat blendStartWidth = SMChapterWorkspaceMediumBreakpoint;
-    const CGFloat blendEndWidth = SMChapterWorkspaceCompactBlendEndWidth;
-    if (workspaceWidth >= blendStartWidth) {
-        return 0.0;
-    }
-    if (workspaceWidth <= blendEndWidth) {
-        return 1.0;
-    }
-    return (blendStartWidth - workspaceWidth) / (blendStartWidth - blendEndWidth);
-}
-
 static CGFloat SMChapterFixedWidthForHeaderTitle(NSString *title)
 {
     NSFont *headerFont = SMChapterTableHeaderFont();
     CGFloat textWidth = ceil([title sizeWithAttributes:[NSDictionary dictionaryWithObject:headerFont
                                                                                     forKey:NSFontAttributeName]].width);
     return MAX(1.0, textWidth + SMChapterFixedHeaderColumnHorizontalPadding);
-}
-
-static BOOL SMChapterResolveInspectorAndReadinessRails(CGFloat workspaceWidthWithoutReadiness,
-                                                       CGFloat workspaceWidthWithReadiness,
-                                                       CGFloat minimumLayoutWidthForInspector,
-                                                       BOOL preferReadinessRail,
-                                                       BOOL *outShowReadinessRail,
-                                                       CGFloat *outLayoutBandWidth)
-{
-    BOOL showReadinessRail = preferReadinessRail;
-    CGFloat layoutBandWidth = showReadinessRail ? workspaceWidthWithReadiness : workspaceWidthWithoutReadiness;
-    if (layoutBandWidth < minimumLayoutWidthForInspector && showReadinessRail) {
-        showReadinessRail = NO;
-        layoutBandWidth = workspaceWidthWithoutReadiness;
-    }
-
-    if (outShowReadinessRail != NULL) {
-        *outShowReadinessRail = showReadinessRail;
-    }
-    if (outLayoutBandWidth != NULL) {
-        *outLayoutBandWidth = layoutBandWidth;
-    }
-
-    return (layoutBandWidth >= minimumLayoutWidthForInspector);
-}
-
-typedef struct {
-    BOOL showInspectorRail;
-    BOOL showReadinessRail;
-    NSRect tableFrame;
-    NSRect inspectorFrame;
-    NSRect readinessFrame;
-} SMChapterFixedRailLayout;
-
-static SMChapterFixedRailLayout SMChapterResolveFixedRailLayout(SMWorkspaceWidthClass widthClass,
-                                                                BOOL inspectorRailPinned,
-                                                                CGFloat compactFiveColumnWidth,
-                                                                NSRect layoutBounds,
-                                                                CGFloat tableStartX,
-                                                                CGFloat workspaceBottomY,
-                                                                CGFloat workspaceWidthValue,
-                                                                CGFloat tableContentTopY,
-                                                                CGFloat railContentTopY)
-{
-    CGFloat gutter = SMChapterWorkspaceGutter();
-    CGFloat compactBlend = (widthClass == SMWorkspaceWidthClass2) ? 0.0 : SMChapterCompactBlendForWidth(NSWidth(layoutBounds));
-    CGFloat compactTableMinimum = MAX(SMChapterCompactTableMinimumWidth, compactFiveColumnWidth);
-    CGFloat minimumTableWidth = SMChapterLerp(SMChapterTableMinimumWidthWide, compactTableMinimum, compactBlend);
-    CGFloat minimumTableWidthForRail = minimumTableWidth;
-    CGFloat minimumTableWidthForReadinessRail = MIN(minimumTableWidth, SMChapterReadinessRailTableMinimumWidth);
-    CGFloat inspectorFixedWidth = SlateInspectorRailModeInspectorFixedWidth();
-    CGFloat inspectorMinWidth = inspectorFixedWidth;
-    CGFloat inspectorTargetWidth = inspectorFixedWidth;
-    CGFloat readinessWidth = SlateInspectorRailFixedWidth();
-    CGFloat readinessRightInset = SlateInspectorRailRightInset();
-    CGFloat railBottomY = workspaceBottomY;
-    CGFloat readinessBottomY = railBottomY;
-    BOOL wantsReadinessRail = (widthClass != SMWorkspaceWidthClass0) || inspectorRailPinned;
-
-    CGFloat readinessFrameX = NSMaxX(layoutBounds) - readinessRightInset - readinessWidth;
-    CGFloat layoutWidthWithReadiness = readinessFrameX - gutter - tableStartX;
-    BOOL pinnedCanAffectLayout = inspectorRailPinned && (widthClass != SMWorkspaceWidthClass2);
-    BOOL readinessEligibleByWidth = pinnedCanAffectLayout || (NSWidth(layoutBounds) >= SlateInspectorRailChapterMinimumHostWidth());
-    CGFloat strictMinimumLayoutWidthForInspector = minimumTableWidth + inspectorMinWidth + gutter;
-    if (pinnedCanAffectLayout) {
-        // Smoothly relax table minima in pinned mode to avoid a hard snap around
-        // the strict threshold while preserving readiness as width tightens.
-        CGFloat relaxedTableMinimum = SMChapterPinnedRelaxedTableMinimumWidth;
-        CGFloat relaxWindow = SMChapterPinnedRelaxWindowWidth;
-        CGFloat relaxStart = strictMinimumLayoutWidthForInspector + relaxWindow;
-        CGFloat relaxEnd = strictMinimumLayoutWidthForInspector - relaxWindow;
-        CGFloat relaxBlend = 0.0;
-        if (layoutWidthWithReadiness <= relaxEnd) {
-            relaxBlend = 1.0;
-        } else if (layoutWidthWithReadiness < relaxStart) {
-            relaxBlend = (relaxStart - layoutWidthWithReadiness) / (relaxStart - relaxEnd);
-        }
-        minimumTableWidthForRail = SMChapterLerp(minimumTableWidthForRail, relaxedTableMinimum, relaxBlend);
-        minimumTableWidthForReadinessRail = MIN(minimumTableWidthForReadinessRail, minimumTableWidthForRail);
-    }
-
-    CGFloat minimumLayoutWidthForInspector = minimumTableWidthForRail + inspectorMinWidth + gutter;
-    CGFloat minimumLayoutWidthForReadinessRail = minimumTableWidthForReadinessRail + inspectorMinWidth + gutter;
-    BOOL preferReadinessRail = wantsReadinessRail
-        && readinessEligibleByWidth
-        && (layoutWidthWithReadiness >= minimumLayoutWidthForReadinessRail);
-    BOOL showReadinessRail = NO;
-    CGFloat layoutBandWidth = 0.0;
-    BOOL showInspectorRail = SMChapterResolveInspectorAndReadinessRails(workspaceWidthValue,
-                                                                        layoutWidthWithReadiness,
-                                                                        minimumLayoutWidthForInspector,
-                                                                        preferReadinessRail,
-                                                                        &showReadinessRail,
-                                                                        &layoutBandWidth);
-
-    SMChapterFixedRailLayout layout;
-    layout.showInspectorRail = showInspectorRail;
-    layout.showReadinessRail = showReadinessRail;
-    layout.tableFrame = NSMakeRect(tableStartX,
-                                   workspaceBottomY,
-                                   MAX(0.0, layoutBandWidth),
-                                   MAX(SlateWorkspaceMinimumContentHeight(), tableContentTopY - workspaceBottomY));
-    layout.inspectorFrame = NSZeroRect;
-    layout.readinessFrame = NSZeroRect;
-
-    if (showInspectorRail) {
-        CGFloat inspectorAvailableWidth = layoutBandWidth - minimumTableWidthForRail - gutter;
-        CGFloat inspectorWidth = MIN(inspectorTargetWidth, inspectorAvailableWidth);
-        inspectorWidth = MAX(inspectorMinWidth, inspectorWidth);
-        CGFloat tableWidth = layoutBandWidth - inspectorWidth - gutter;
-        tableWidth = MAX(minimumTableWidthForRail, tableWidth);
-
-        layout.tableFrame.size.width = tableWidth;
-        CGFloat inspectorHeight = SMChapterFixedInspectorRailHeight();
-        layout.inspectorFrame = NSMakeRect(NSMaxX(layout.tableFrame) + gutter,
-                                           railBottomY,
-                                           inspectorWidth,
-                                           inspectorHeight);
-        // Keep short chapter lists bounded while rails absorb vertical headroom.
-        layout.tableFrame.origin.y = railBottomY;
-        layout.tableFrame.size.height = MAX(1.0, tableContentTopY - layout.tableFrame.origin.y);
-        if (widthClass == SMWorkspaceWidthClass2) {
-            CGFloat inset = MIN(SlateInspectorRailWideMiddleColumnInset(),
-                                floor(MAX(0.0, layout.inspectorFrame.size.width - 120.0) * 0.5));
-            if (inset > 0.0) {
-                layout.inspectorFrame.origin.x += inset;
-                layout.inspectorFrame.size.width -= (inset * 2.0);
-            }
-        }
-        if (showReadinessRail) {
-            CGFloat readinessHeight = MAX(SlateInspectorRailWarningBlockMinHeight(),
-                                          railContentTopY - readinessBottomY);
-            layout.readinessFrame = NSMakeRect(readinessFrameX,
-                                               readinessBottomY,
-                                               readinessWidth,
-                                               readinessHeight);
-        }
-    }
-
-    return layout;
 }
 
 #pragma mark - Snapshot Helpers
@@ -607,7 +408,7 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
 
 #pragma mark - Private Interface
 
-@interface ChapterViewController ()
+@interface ChapterViewController () <SMInspectorRailModeAdapter>
 {
     NSDictionary *_chapterSnapshot;
 }
@@ -1173,7 +974,6 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     }
 
     _rowArray = [[NSMutableArray alloc] init];
-    _inspectorRailPinned = [[NSUserDefaults standardUserDefaults] boolForKey:SMChapterInspectorRailPinnedDefaultsKey];
 
     [self applyPersistedChapterControlValues];
     [self startObservingAppHasMovieIfNeeded];
@@ -1400,87 +1200,6 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
 
 #pragma mark - Readiness Rail
 
-- (NSTextField *)newChapterOverlayLaNSTextAlignmentbelWithString:(NSString *)stringValue
-                                              font:(NSFont *)font
-                                         textColor:(NSColor *)textColor
-                                         alignment:(NSTextAlignment)alignment
-                                         multiLine:(BOOL)multiLine
-{
-    return SlateInspectorRailCreateLabel(stringValue,
-                                           font,
-                                           textColor,
-                                           alignment,
-                                           multiLine);
-}
-
-- (void)restoreChapterReadinessSubviewOrderIfNeeded
-{
-    NSView *containerView = [self view];
-    if (containerView == nil) {
-        return;
-    }
-
-    NSMutableArray *orderedViews = [NSMutableArray arrayWithCapacity:7];
-    NSView *readinessSectionLabel = [_readinessPresenter sectionLabel];
-    NSView *readinessStatusLabel = [_readinessPresenter statusLabel];
-    NSView *readinessScrollView = [_readinessPresenter scrollView];
-    NSView *inspectorPinButton = [_readinessPresenter pinButton];
-    if (readinessSectionLabel != nil) {
-        [orderedViews addObject:readinessSectionLabel];
-    }
-    if (readinessStatusLabel != nil) {
-        [orderedViews addObject:readinessStatusLabel];
-    }
-    if (readinessScrollView != nil) {
-        [orderedViews addObject:readinessScrollView];
-    }
-    if (_leadoutLabel != nil) {
-        [orderedViews addObject:_leadoutLabel];
-    }
-    if (_tableEmptyStateLabel != nil) {
-        [orderedViews addObject:_tableEmptyStateLabel];
-    }
-    if (_inspectorEmptyStateLabel != nil) {
-        [orderedViews addObject:_inspectorEmptyStateLabel];
-    }
-    if (inspectorPinButton != nil) {
-        [orderedViews addObject:inspectorPinButton];
-    }
-    if ([orderedViews count] != 7) {
-        return;
-    }
-
-    NSArray *subviews = [containerView subviews];
-    NSUInteger previousIndex = NSNotFound;
-    BOOL needsReorder = NO;
-    for (NSView *view in orderedViews) {
-        if ([view superview] != containerView) {
-            return;
-        }
-        NSUInteger index = [subviews indexOfObjectIdenticalTo:view];
-        if (index == NSNotFound) {
-            return;
-        }
-        if (previousIndex != NSNotFound && index <= previousIndex) {
-            needsReorder = YES;
-            break;
-        }
-        previousIndex = index;
-    }
-    if (!needsReorder
-        && [subviews indexOfObjectIdenticalTo:[orderedViews lastObject]] != ([subviews count] - 1)) {
-        needsReorder = YES;
-    }
-    if (!needsReorder) {
-        return;
-    }
-
-    for (NSView *view in orderedViews) {
-        [view removeFromSuperview];
-        [containerView addSubview:view];
-    }
-}
-
 - (NSTextField *)newChapterOverlayLabelWithString:(NSString *)stringValue
                                               font:(NSFont *)font
                                          textColor:(NSColor *)textColor
@@ -1514,14 +1233,11 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     }
 
     if (_readinessPresenter == nil) {
-        _readinessPresenter = [[UtilReadinessRailPresenter alloc] initWithSectionTitle:SMChapterSectionTitleReadiness
-                                                                 findingsToolTipTitle:SMChapterReadinessFindingsToolTipTitle
-                                                                            pinTarget:self
-                                                                            pinAction:@selector(toggleInspectorRailPinned:)
-                                                                     textViewDelegate:(id<NSTextViewDelegate>)self];
+        _readinessPresenter = [[UtilReadinessRailPresenter alloc] initWithFindingsToolTipTitle:SMChapterReadinessFindingsToolTipTitle
+                                                                  pinDefaultsKey:SMChapterInspectorRailPinnedDefaultsKey
+                                                                           owner:self];
     }
     [_readinessPresenter ensureViewsInSuperview:[self view]];
-    [_readinessPresenter setPinState:_inspectorRailPinned];
 
     if (_leadoutLabel == nil) {
         _leadoutLabel = [[self newChapterOverlayLabelWithString:@"Leadout (secs):"
@@ -1545,38 +1261,7 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
         [[self view] addSubview:_tableEmptyStateLabel];
     }
 
-    if (_inspectorEmptyStateLabel == nil) {
-        _inspectorEmptyStateLabel = [[self newChapterOverlayLabelWithString:@""
-                                                                       font:[NSFont systemFontOfSize:11.5]
-                                                                  textColor:[NSColor secondaryLabelColor]
-                                                                  alignment:NSTextAlignmentCenter
-                                                                multiLine:YES] retain];
-        SlateInspectorRailApplyStateMessageStyle(_inspectorEmptyStateLabel);
-        [_inspectorEmptyStateLabel setFont:[NSFont systemFontOfSize:11.5]];
-        [_inspectorEmptyStateLabel setAutoresizingMask:NSViewNotSizable];
-        [_inspectorEmptyStateLabel setHidden:YES];
-        [[self view] addSubview:_inspectorEmptyStateLabel];
-    }
-
-    [self restoreChapterReadinessSubviewOrderIfNeeded];
-}
-
-- (void)setInspectorRailPinned:(BOOL)pinned
-{
-    if (_inspectorRailPinned == pinned) {
-        return;
-    }
-
-    _inspectorRailPinned = pinned;
-    [_readinessPresenter setPinState:pinned];
-    [[NSUserDefaults standardUserDefaults] setBool:pinned forKey:SMChapterInspectorRailPinnedDefaultsKey];
-}
-
-- (IBAction)toggleInspectorRailPinned:(id)sender
-{
-    BOOL pinned = ([(NSButton *)sender state] == NSOnState);
-    [self setInspectorRailPinned:pinned];
-    [self applyWorkspaceLayoutForWidth:NSWidth([[self view] bounds])];
+    [_readinessPresenter restoreSubviewOrderWithOverlays:@[_leadoutLabel, _tableEmptyStateLabel]];
 }
 
 - (NSInteger)chapterRowIndexForReadinessFinding:(NSDictionary *)finding
@@ -1598,39 +1283,19 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     return NSNotFound;
 }
 
-- (NSDictionary *)chapterReadinessJumpLinksByFindingIdentity
-{
-    NSMutableDictionary *jumpLinkByFindingIdentity = [NSMutableDictionary dictionary];
-    for (NSDictionary *finding in [self canonicalValidationFindings]) {
-        if (![finding isKindOfClass:[NSDictionary class]]) {
-            continue;
-        }
-
-        NSInteger rowIndex = [self chapterRowIndexForReadinessFinding:finding];
-        NSString *jumpLink = SlateInspectorRailJumpLink(@"chapters", rowIndex);
-        if (SMChapterStringHasContent(jumpLink)) {
-            [jumpLinkByFindingIdentity setObject:jumpLink
-                                          forKey:SlateInspectorRailFindingIdentity(finding)];
-        }
-    }
-
-    return jumpLinkByFindingIdentity;
-}
-
 - (void)updateChapterReadinessPanelPresentation
 {
     [self ensureChapterLayoutSupplementaryViews];
 
     NSString *emptyStatus = _hasPackageContext ? SMChapterReadinessStatusNoFindings : SMChapterReadinessStatusNoPackageLoaded;
     NSString *emptyMessage = _hasPackageContext ? SMChapterReadinessEmptyMessageNoFindings : @"";
-    NSDictionary *jumpLinkByFindingIdentity = [self chapterReadinessJumpLinksByFindingIdentity];
-    NSDictionary *reviewPaneSnapshot = [SlateRuntimeBridge reviewPaneSnapshotWithPaneKey:SlateReviewPaneKeyChapter
-                                                                                title:SMChapterSectionTitleReadiness
-                                                                             findings:[self canonicalValidationFindings]
-                                                                          emptyStatus:emptyStatus
-                                                                         emptyMessage:emptyMessage
-                                                           jumpLinksByFindingIdentity:jumpLinkByFindingIdentity];
-    [_readinessPresenter updateWithReviewPaneSnapshot:reviewPaneSnapshot];
+    [_readinessPresenter presentFindings:[self canonicalValidationFindings]
+                                 paneKey:SlateReviewPaneKeyChapter
+                             emptyStatus:emptyStatus
+                            emptyMessage:emptyMessage
+                      jumpLinkForFinding:^NSString *(NSDictionary *finding) {
+        return SlateInspectorRailJumpLink(@"chapters", [self chapterRowIndexForReadinessFinding:finding]);
+    }];
 }
 
 - (BOOL)textView:(NSTextView *)textView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex
@@ -1703,156 +1368,30 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     [self setChapterPanelView:_quadrantView frame:SMChapterDefaultQuadrantFrame() hidden:YES];
 }
 
-- (void)hideChapterReadinessRail
-{
-    [_readinessPresenter applySectionFrame:NSZeroRect
-                               statusFrame:NSZeroRect
-                               scrollFrame:NSZeroRect
-                                  pinFrame:NSZeroRect
-                                pinVisible:YES];
-    [_readinessPresenter setRailHidden:YES];
-}
-
-- (void)hideChapterInspectorEmptyState
-{
-    [_inspectorEmptyStateLabel setStringValue:@""];
-    [_inspectorEmptyStateLabel setAutoresizingMask:NSViewNotSizable];
-    [self setChapterPanelView:_inspectorEmptyStateLabel frame:NSZeroRect hidden:YES];
-}
-
-- (void)applyChapterReadinessRailFrame:(NSRect)readinessFrame
-                    readinessTopYAnchor:(CGFloat)readinessTopYAnchor
+- (void)applyChapterInspectorRailFrame:(NSRect)inspectorGroupFrame
                      sectionLabelHeight:(CGFloat)sectionLabelHeight
-                             sectionGap:(CGFloat)sectionGap
-{
-    CGFloat readinessStatusHeight = SlateInspectorRailDisclosureRowHeight();
-    CGFloat readinessTopY = readinessTopYAnchor;
-    CGFloat readinessStatusY = readinessTopY - readinessStatusHeight - 2.0;
-    CGFloat readinessPanelBottomY = NSMinY(readinessFrame);
-    CGFloat readinessScrollHeight = (readinessStatusY - sectionGap) - readinessPanelBottomY;
-    readinessScrollHeight = MAX(SlateInspectorRailWarningBlockMinHeight(), readinessScrollHeight);
-    readinessScrollHeight = MIN(readinessScrollHeight, NSHeight(readinessFrame));
-    readinessScrollHeight = MAX(0.0, readinessScrollHeight);
-
-    NSRect readinessSectionFrame = NSMakeRect(readinessFrame.origin.x,
-                                              readinessTopY + SlateInspectorRailSectionHeaderYOffset(),
-                                              readinessFrame.size.width,
-                                              sectionLabelHeight);
-    NSRect readinessStatusFrame = NSMakeRect(readinessFrame.origin.x,
-                                             readinessStatusY,
-                                             readinessFrame.size.width,
-                                             readinessStatusHeight);
-    NSRect readinessScrollFrame = NSMakeRect(readinessFrame.origin.x,
-                                            readinessPanelBottomY,
-                                            readinessFrame.size.width,
-                                            readinessScrollHeight);
-    NSRect pinFrame = NSMakeRect(NSMaxX(readinessFrame) - SlateInspectorRailPinControlWidth(),
-                                 NSMinY(readinessSectionFrame),
-                                 SlateInspectorRailPinControlWidth(),
-                                 SlateInspectorRailDisclosureRowHeight());
-    [_readinessPresenter applySectionFrame:readinessSectionFrame
-                               statusFrame:readinessStatusFrame
-                               scrollFrame:readinessScrollFrame
-                                  pinFrame:pinFrame
-                                pinVisible:YES];
-    [self updateChapterReadinessPanelPresentation];
-}
-
-- (void)applyChapterInspectorRailFrame:(NSRect)inspectorFrame
-                          layoutBounds:(NSRect)layoutBounds
-                                gutter:(CGFloat)gutter
-                       readinessBottomY:(CGFloat)readinessBottomY
-                           contentTopY:(CGFloat)contentTopY
-                     sectionLabelHeight:(CGFloat)sectionLabelHeight
-                             widthClass:(SMWorkspaceWidthClass)widthClass
-                      showReadinessRail:(BOOL)showReadinessRail
 {
     [_inspectorSectionLabel setHidden:NO];
-    CGFloat inspectorContentTopY = MIN(contentTopY, NSMaxY(inspectorFrame));
-    [_inspectorSectionLabel setFrame:NSMakeRect(inspectorFrame.origin.x,
-                                                inspectorContentTopY + SlateInspectorRailSectionHeaderYOffset(),
-                                                inspectorFrame.size.width,
-                                                sectionLabelHeight)];
 
-    CGFloat inspectorGroupInsetX = SMChapterInspectorGroupInsetX;
-    inspectorGroupInsetX = MIN(inspectorGroupInsetX,
-                               MAX(0.0, gutter - SMChapterMinimumInterColumnGap));
     CGFloat inspectorHeaderInsetX = SMChapterInspectorGroupHeaderInsetX;
     CGFloat inspectorHeaderTopInset = SMChapterInspectorGroupHeaderTopInset;
-    // Keep C + I fixed-height; readiness absorbs vertical headroom.
-    CGFloat inspectorGroupTopY = NSMaxY(inspectorFrame);
-    CGFloat inspectorGroupBottomY = readinessBottomY;
-    NSRect inspectorGroupFrame = NSZeroRect;
-    if (inspectorGroupTopY > inspectorGroupBottomY) {
-        inspectorGroupFrame = NSMakeRect(inspectorFrame.origin.x - inspectorGroupInsetX,
-                                         inspectorGroupBottomY,
-                                         inspectorFrame.size.width + (inspectorGroupInsetX * 2.0),
-                                         inspectorGroupTopY - inspectorGroupBottomY);
-        if (!showReadinessRail) {
-            // Keep the rightmost active rail edge on the shared inset contract
-            // when readiness drops in class-1 layouts, while preserving left
-            // alignment with the table/inspector gutter.
-            CGFloat desiredRightEdge = NSMaxX(layoutBounds) - SlateInspectorRailRightInset();
-            inspectorGroupFrame.size.width = MAX(1.0, desiredRightEdge - NSMinX(inspectorGroupFrame));
-        }
-        [_inspectorGroupBox setFrame:inspectorGroupFrame];
-        [_inspectorGroupBox setHidden:NO];
-        [_inspectorSectionLabel setFrame:NSMakeRect(NSMinX(inspectorGroupFrame) + inspectorHeaderInsetX,
-                                                    NSMaxY(inspectorGroupFrame) - sectionLabelHeight - inspectorHeaderTopInset,
-                                                    MAX(1.0, NSWidth(inspectorGroupFrame) - inspectorHeaderInsetX - 8.0),
-                                                    sectionLabelHeight)];
-    } else {
-        [self setChapterPanelView:_inspectorGroupBox frame:NSZeroRect hidden:YES];
-    }
+    [_inspectorGroupBox setFrame:inspectorGroupFrame];
+    [_inspectorGroupBox setHidden:NO];
+    [_inspectorSectionLabel setFrame:NSMakeRect(NSMinX(inspectorGroupFrame) + inspectorHeaderInsetX,
+                                                NSMaxY(inspectorGroupFrame) - sectionLabelHeight - inspectorHeaderTopInset,
+                                                MAX(1.0, NSWidth(inspectorGroupFrame) - inspectorHeaderInsetX - 8.0),
+                                                sectionLabelHeight)];
 
-    [self layoutChapterInspectorControlsInRailFrame:inspectorFrame
-                                        contentTopY:inspectorContentTopY
-                               inspectorGroupFrame:inspectorGroupFrame
-                                         widthClass:widthClass];
-}
-
-- (CGFloat)visibleTableWidthForColumnIdentifiers:(NSArray *)identifiers
-{
-    if (![identifiers isKindOfClass:[NSArray class]] || [identifiers count] == 0) {
-        return 0.0;
-    }
-
-    CGFloat width = 0.0;
-    NSUInteger visibleColumnCount = 0;
-    for (NSString *identifier in identifiers) {
-        NSTableColumn *column = [_tableView tableColumnWithIdentifier:identifier];
-        if (column == nil || [column isHidden]) {
-            continue;
-        }
-
-        width += [identifier isEqualToString:KEY_CHAPTITLE] ? [column minWidth] : [column width];
-        visibleColumnCount++;
-    }
-
-    if (visibleColumnCount > 1) {
-        width += ([[_tableView headerView] bounds].size.width >= 0.0
-                  ? [_tableView intercellSpacing].width * (visibleColumnCount - 1)
-                  : 0.0);
-    }
-
-    // Include table border slop so the next hidden column does not peek.
-    return ceil(width + 2.0);
+    [self layoutChapterInspectorControlsInRailFrame:inspectorGroupFrame];
 }
 
 - (void)layoutChapterInspectorControlsInRailFrame:(NSRect)railFrame
-                                       contentTopY:(CGFloat)contentTopY
-                              inspectorGroupFrame:(NSRect)inspectorGroupFrame
-                                        widthClass:(SMWorkspaceWidthClass)widthClass
 {
     CGFloat sectionGap = SlateInspectorRailSectionGap();
-    CGFloat compactPadding = SMChapterWorkspaceOuterPadding() - 2.0;
-    CGFloat railPadding = MAX(SMChapterInspectorRailMinimumPadding, compactPadding);
+    CGFloat railPadding = SMChapterInspectorRailPadding;
     CGFloat rowHeight = SMChapterInspectorRowHeight;
     CGFloat rowGap = SMChapterInspectorRowGap;
-    BOOL useWideInspectorMetrics = (NSWidth(railFrame) >= 320.0) || (widthClass == SMWorkspaceWidthClass2);
-    CGFloat popupWidth = useWideInspectorMetrics ? SMChapterInspectorPopupWidthWide : SMChapterInspectorPopupWidthCompact;
 
-    CGFloat innerX = railFrame.origin.x + railPadding;
     CGFloat innerWidth = MAX(160.0, railFrame.size.width - (railPadding * 2.0));
     CGFloat controlY = railFrame.origin.y + railPadding;
     CGFloat controlInsetX = 12.0;
@@ -1865,9 +1404,9 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     jumpFrame.size.width = MIN(innerWidth, 240.0);
 
     CGFloat popupMaxWidth = MAX(SMChapterInspectorCropPopupMinimumWidth, rightControlX - leftControlX);
-    popupWidth = MIN(popupWidth, popupMaxWidth);
+    CGFloat popupWidth = MIN(SMChapterInspectorPopupWidth, popupMaxWidth);
     CGFloat popupX = rightControlX - popupWidth;
-    CGFloat availableJumpWidth = MAX(72.0, popupX - leftControlX - SMChapterWorkspaceGutter());
+    CGFloat availableJumpWidth = MAX(72.0, popupX - leftControlX - SlateInspectorRailColumnGap());
     jumpFrame.size.width = MIN(jumpFrame.size.width, availableJumpWidth);
 
     // Chapter creation controls are intentionally hidden in inspection-first mode.
@@ -1879,9 +1418,7 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     controlY = MAX(NSMaxY(jumpFrame), NSMaxY(cropPopupFrame)) + rowGap + 3.0;
 
     CGFloat previewBottomY = controlY + sectionGap;
-    CGFloat previewCenterX = (NSWidth(inspectorGroupFrame) > 0.0)
-        ? NSMidX(inspectorGroupFrame)
-        : (innerX + (innerWidth / 2.0));
+    CGFloat previewCenterX = NSMidX(railFrame);
     NSRect quadrantFrame = NSMakeRect(floor(previewCenterX - (SMChapterInspectorPreviewFixedSideLength / 2.0)),
                                       previewBottomY,
                                       SMChapterInspectorPreviewFixedSideLength,
@@ -1917,11 +1454,8 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     tableEmptyFrame.size.height = SMChapterTableEmptyStateHeight;
     [_tableEmptyStateLabel setFrame:tableEmptyFrame];
 
-    // Keep C + I visually quiet; left table + right readiness already convey state.
-    [self hideChapterInspectorEmptyState];
     BOOL inspectorRailVisible = (_inspectorSectionLabel != nil && ![_inspectorSectionLabel isHidden]);
     if (!inspectorRailVisible) {
-        [self hideChapterInspectorEmptyState];
         [self setChapterPanelView:_quadrantView frame:SMChapterDefaultQuadrantFrame() hidden:YES];
         return;
     }
@@ -1938,15 +1472,7 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     [self updateChapterControlEnabledStates];
 
     SMWorkspaceWidthClass widthClass = SMWorkspaceWidthClassForWidth(workspaceWidth);
-
     NSScrollView *tableScrollView = [_tableView enclosingScrollView];
-    CGFloat compactFiveColumnWidth = [self visibleTableWidthForColumnIdentifiers:[NSArray arrayWithObjects:
-                                                                                  @"chapterTitle",
-                                                                                  @"mediaChapterTimecode",
-                                                                                  @"mediaImageTimecode",
-                                                                                  @"chapterTimecode",
-                                                                                  @"imageTimecode",
-                                                                                  nil]];
     if (tableScrollView != nil && _quadrantView != nil) {
         NSRect viewBounds = [[self view] bounds];
         NSRect defaultRootFrame = SMChapterDefaultRootFrame();
@@ -1955,125 +1481,44 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
                                                                     NSHeight(defaultRootFrame),
                                                                     SlateWorkspaceHorizontalExpansionAllowance(),
                                                                     SlateWorkspaceVerticalExpansionAllowance());
-        CGFloat leadingInset = SlateWorkspacePrimaryPaneTableAnchorX();
-        // Keep right-edge choreography deterministic across 2 -> 1 breaks: always
-        // honor the shared rail inset contract rather than drifting with captured
-        // default frames.
-        CGFloat trailingInset = MAX(SlateWorkspaceTrailingInsetMinimum(), SlateInspectorRailRightInset());
-        CGFloat tableStartX = NSMinX(layoutBounds) + leadingInset;
+        CGFloat tableStartX = NSMinX(layoutBounds) + SlateWorkspacePrimaryPaneTableAnchorX();
         CGFloat workspaceBottomY = NSMinY(layoutBounds) + SlateInspectorRailEffectiveBottomInsetForHostView([self view]);
-        CGFloat workspaceWidthForLayout = NSWidth(layoutBounds);
-        CGFloat workspaceWidthValue = MAX(SMChapterResponsiveWorkspaceMinimumWidth, workspaceWidthForLayout - leadingInset - trailingInset);
-        workspaceWidthValue = MIN(workspaceWidthValue, workspaceWidthForLayout - leadingInset - SMChapterWorkspaceOuterPadding());
-
         CGFloat sectionLabelHeight = SlateInspectorRailSectionHeaderHeight();
-        CGFloat sectionGap = SlateInspectorRailSectionGap();
         CGFloat designContentTopY = SlateWorkspacePrimaryPaneTableAnchorTopY()
             + sectionLabelHeight
             + SlateInspectorRailSectionHeaderYOffset();
         CGFloat railContentTopY = NSMaxY(layoutBounds) - (NSHeight(defaultRootFrame) - designContentTopY);
-        CGFloat verticalGrowth = MAX(0.0, NSHeight(layoutBounds) - NSHeight(defaultRootFrame));
-        CGFloat desiredTableContentTopY = NSMinY(layoutBounds) + designContentTopY + verticalGrowth;
         CGFloat maxTableContentTopY = workspaceBottomY + SMChapterMaximumTableHeightForVisibleRows();
-        CGFloat tableContentTopY = MIN(MIN(desiredTableContentTopY, maxTableContentTopY),
-                                       railContentTopY);
-        CGFloat readinessTopYAnchor = railContentTopY
-            - sectionLabelHeight
-            - SlateInspectorRailSectionHeaderYOffset();
-        BOOL forceTableOnlyRail = (widthClass == SMWorkspaceWidthClass0 && !_inspectorRailPinned);
-        if (forceTableOnlyRail) {
-            CGFloat tableRightInset = MAX(SlateWorkspaceTrailingInsetMinimum(), SlateInspectorRailRightInset());
-            NSRect tableFrame = NSMakeRect(tableStartX,
-                                           workspaceBottomY,
-                                           MAX(0.0, (NSMaxX(layoutBounds) - tableRightInset) - tableStartX),
-                                           MAX(SlateWorkspaceMinimumContentHeight(), tableContentTopY - workspaceBottomY));
-            [tableScrollView setFrame:tableFrame];
-            [self applyPrimaryChapterTableColumnWidthsForWidthClass:widthClass];
-
-            [self hideChapterInspectorRail];
-            [self hideChapterInspectorEmptyState];
-            [self hideChapterReadinessRail];
-
-            [[_tableView headerView] setNeedsDisplay:YES];
-            [self updateChapterEmptyStatePresentation];
-            return;
+        CGFloat tableContentTopY = MIN(maxTableContentTopY, railContentTopY);
+        CGFloat tableWidth = MAX(0.0, NSMaxX(layoutBounds) - SlateInspectorRailRightInset() - tableStartX);
+        NSRect tableFrame = NSMakeRect(tableStartX,
+                                       workspaceBottomY,
+                                       tableWidth,
+                                       MAX(1.0, tableContentTopY - workspaceBottomY));
+        SlateInspectorRailTableLayout layout = SlateInspectorRailLayoutForTable(layoutBounds, tableFrame, widthClass,
+                                                                                [_readinessPresenter isPinned]);
+        if (!layout.showInspector) {
+            layout.tableFrame.size.height = MAX(SlateWorkspaceMinimumContentHeight(), NSHeight(layout.tableFrame));
         }
-        BOOL forceReadinessOnlyRail = ((widthClass == SMWorkspaceWidthClass0) && _inspectorRailPinned)
-            || (widthClass == SMWorkspaceWidthClass1)
-            || ((widthClass == SMWorkspaceWidthClass2)
-                && (workspaceWidthForLayout <= SlateWorkspaceRailBreakWidthClass2To1()));
-        if (forceReadinessOnlyRail) {
-            CGFloat gutter = SMChapterWorkspaceGutter();
-            CGFloat readinessWidth = SlateInspectorRailFixedWidth();
-            CGFloat readinessRightInset = SlateInspectorRailRightInset();
-            CGFloat readinessBottomY = workspaceBottomY;
-            CGFloat readinessFrameX = NSMaxX(layoutBounds) - readinessRightInset - readinessWidth;
-            NSRect tableFrame = NSMakeRect(tableStartX,
-                                           workspaceBottomY,
-                                           MAX(0.0, readinessFrameX - gutter - tableStartX),
-                                           MAX(SlateWorkspaceMinimumContentHeight(), tableContentTopY - workspaceBottomY));
-            NSRect readinessFrame = NSMakeRect(readinessFrameX,
-                                               readinessBottomY,
-                                               readinessWidth,
-                                               MAX(SlateInspectorRailWarningBlockMinHeight(),
-                                                   railContentTopY - readinessBottomY));
-            [tableScrollView setFrame:tableFrame];
-            [self applyPrimaryChapterTableColumnWidthsForWidthClass:widthClass];
+        [tableScrollView setFrame:layout.tableFrame];
 
-            [self hideChapterInspectorRail];
-            [self hideChapterInspectorEmptyState];
-
-            [self applyChapterReadinessRailFrame:readinessFrame
-                              readinessTopYAnchor:readinessTopYAnchor
-                               sectionLabelHeight:sectionLabelHeight
-                                       sectionGap:sectionGap];
-
-            [[_tableView headerView] setNeedsDisplay:YES];
-            [self updateChapterEmptyStatePresentation];
-            return;
-        }
-
-        CGFloat gutter = SMChapterWorkspaceGutter();
-        CGFloat readinessBottomY = workspaceBottomY;
-        SMChapterFixedRailLayout fixedLayout = SMChapterResolveFixedRailLayout(widthClass,
-                                                                               _inspectorRailPinned,
-                                                                               compactFiveColumnWidth,
-                                                                               layoutBounds,
-                                                                               tableStartX,
-                                                                               workspaceBottomY,
-                                                                               workspaceWidthValue,
-                                                                               tableContentTopY,
-                                                                               railContentTopY);
-        [tableScrollView setFrame:fixedLayout.tableFrame];
-        [self applyPrimaryChapterTableColumnWidthsForWidthClass:widthClass];
-
-        if (!fixedLayout.showInspectorRail) {
-            [self hideChapterInspectorRail];
-            [self hideChapterReadinessRail];
-            [self hideChapterInspectorEmptyState];
+        if (layout.showInspector) {
+            [self applyChapterInspectorRailFrame:layout.inspectorFrame
+                              sectionLabelHeight:sectionLabelHeight];
         } else {
-            [self applyChapterInspectorRailFrame:fixedLayout.inspectorFrame
-                                    layoutBounds:layoutBounds
-                                          gutter:gutter
-                                  readinessBottomY:readinessBottomY
-                                     contentTopY:railContentTopY
-                               sectionLabelHeight:sectionLabelHeight
-                                       widthClass:widthClass
-                                showReadinessRail:fixedLayout.showReadinessRail];
+            [self hideChapterInspectorRail];
+        }
 
-            if (fixedLayout.showReadinessRail) {
-                [self applyChapterReadinessRailFrame:fixedLayout.readinessFrame
-                                  readinessTopYAnchor:readinessTopYAnchor
-                                   sectionLabelHeight:sectionLabelHeight
-                                           sectionGap:sectionGap];
-            } else {
-                [self hideChapterReadinessRail];
-            }
-
+        if (layout.showReadiness) {
+            [_readinessPresenter layoutRailAtX:layout.readinessX
+                                         topY:railContentTopY
+                                      bottomY:workspaceBottomY];
+        } else {
+            [_readinessPresenter hideRail];
         }
     } else {
         [self hideChapterInspectorRail];
-        [self hideChapterReadinessRail];
+        [_readinessPresenter hideRail];
     }
 
     [self applyPrimaryChapterTableColumnWidthsForWidthClass:widthClass];
@@ -2132,7 +1577,7 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
     [layoutProbe setObject:[NSNumber numberWithBool:inspectorVisible] forKey:@"showInspectorRail"];
     [layoutProbe setObject:[NSNumber numberWithBool:readinessVisible] forKey:@"showReadinessRail"];
     [layoutProbe setObject:[NSNumber numberWithBool:pinVisible] forKey:@"pinVisible"];
-    [layoutProbe setObject:[NSNumber numberWithBool:_inspectorRailPinned] forKey:@"pinState"];
+    [layoutProbe setObject:[NSNumber numberWithBool:[_readinessPresenter isPinned]] forKey:@"pinState"];
     [layoutProbe setObject:SMChapterProbeRect(tableFrame) forKey:@"tableFrame"];
     [layoutProbe setObject:SMChapterProbeRect(inspectorFrame) forKey:@"inspectorFrame"];
     [layoutProbe setObject:SMChapterProbeRect(inspectorGroupFrame) forKey:@"inspectorGroupFrame"];
@@ -3078,13 +2523,10 @@ static NSString *SMChapterProbeWidthClassCode(CGFloat workspaceWidth)
 {
     [self stopObservingAppHasMovieIfNeeded];
 
-    [_tableSectionLabel release];
     [_inspectorSectionLabel release];
-    [_advancedSectionLabel release];
     [_readinessPresenter release];
     [_inspectorGroupBox release];
     [_tableEmptyStateLabel release];
-    [_inspectorEmptyStateLabel release];
     [_leadoutLabel release];
     [_canonicalValidationFindings release];
     [_chapterSnapshot release];

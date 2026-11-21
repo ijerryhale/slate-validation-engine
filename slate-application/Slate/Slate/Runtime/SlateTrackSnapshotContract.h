@@ -18,9 +18,8 @@
 
 #import <Foundation/Foundation.h>
 
-// Plain Foundation rows consumed by the track UI adapter.
-// File-observation rows and session-only rows share this shape; sessionIdentity
-// is present on rows projected from the live in-memory session.
+// Plain Foundation rows describing tracks observed in the source movie file.
+// Session-only references are added by the live session projection instead.
 static NSString * const SlateTrackSnapshotSchemaVersion1 = @"trackSnapshot.v1";
 
 // Top-level keys.
@@ -30,7 +29,7 @@ static NSString * const SlateTrackSnapshotKeyRows = @"rows";
 static NSString * const SlateTrackSnapshotKeyTrackCount = @"trackCount";
 static NSString * const SlateTrackSnapshotKeyError = @"error";
 
-// Optional structured error keys when the runtime-backed snapshot is unavailable.
+// Optional error keys when the source-file observation is unavailable.
 static NSString * const SlateTrackSnapshotErrorKeyCode = @"code";
 static NSString * const SlateTrackSnapshotErrorKeyMessage = @"message";
 
@@ -42,6 +41,7 @@ static NSString * const SlateTrackSnapshotRowKeySessionIdentity = @"sessionIdent
 static NSString * const SlateTrackSnapshotRowKeyEnabled = @"enabled";
 static NSString * const SlateTrackSnapshotRowKeyEnabledFlag = @"enabledFlag";
 static NSString * const SlateTrackSnapshotRowKeyReferenceTrack = @"referenceTrack";
+static NSString * const SlateTrackSnapshotRowKeyFakeTrack = @"fakeTrack";
 static NSString * const SlateTrackSnapshotRowKeyAudioTrack = @"audioTrack";
 static NSString * const SlateTrackSnapshotRowKeyVideoTrack = @"videoTrack";
 static NSString * const SlateTrackSnapshotRowKeySubtitleTrack = @"subtitleTrack";

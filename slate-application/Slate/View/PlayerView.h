@@ -25,7 +25,7 @@
     AVPlayerItem        *_observedPlayerItem;
     CALayer             *_backgroundLayer;
     NSView              *_subtitleOverlayView;
-    NSTextField         *_subtitleLabel;
+    NSMutableDictionary *_subtitleRegionLabels;
     NSView              *_timecodeOverlayView;
     NSTextField         *_timecodeLabel;
     NSView              *_messageOverlayView;

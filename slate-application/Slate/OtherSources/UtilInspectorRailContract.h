@@ -17,6 +17,7 @@
 #define UtilInspectorRailContract_h
 
 #import <Cocoa/Cocoa.h>
+#import "UtilLayoutMetrics.h"
 #import "Validation/SMValidationCanonicalDictionaryKeys.h"
 
 static inline CGFloat SlateInspectorRailSectionHeaderHeight(void) { return 16.0; }
@@ -24,10 +25,18 @@ static inline CGFloat SlateInspectorRailSectionHeaderYOffset(void) { return 4.0;
 static inline CGFloat SlateInspectorRailSectionGap(void) { return 6.0; }
 static inline CGFloat SlateInspectorRailDisclosureRowHeight(void) { return 18.0; } // Reserved for disclosure/pin rows.
 static inline CGFloat SlateInspectorRailWarningBlockMinHeight(void) { return 120.0; }
+
+static inline CGFloat SlateInspectorRailReadinessScrollHeight(CGFloat statusBottomY, CGFloat railBottomY)
+{
+    CGFloat availableHeight = statusBottomY - SlateInspectorRailSectionGap() - railBottomY;
+    return MAX(SlateInspectorRailWarningBlockMinHeight(), availableHeight);
+}
+
 static inline CGFloat SlateInspectorRailPinControlWidth(void) { return 108.0; }
 static inline CGFloat SlateInspectorRailFixedWidth(void) { return 360.0; }
 static inline CGFloat SlateInspectorRailModeInspectorFixedWidth(void) { return 352.0; }
 static inline CGFloat SlateInspectorRailWideMiddleColumnInset(void) { return 4.0; }
+static inline CGFloat SlateInspectorRailColumnGap(void) { return 14.0; }
 static inline CGFloat SlateInspectorRailRightInset(void) { return 14.0; }
 static inline CGFloat SlateInspectorRailBottomInset(void) { return 14.0; }
 static inline CGFloat SlateInspectorRailEffectiveBottomInsetForHostView(NSView *hostView)
@@ -40,9 +49,46 @@ static inline CGFloat SlateInspectorRailEffectiveBottomInsetForHostView(NSView *
     }
     return inset;
 }
-static inline CGFloat SlateInspectorRailTrackMinimumHostWidth(void) { return 1120.0; }
-static inline CGFloat SlateInspectorRailChapterMinimumHostWidth(void) { return 1140.0; }
 static inline CGFloat SlateInspectorRailPackageMinimumHostWidth(void) { return 1220.0; }
+
+typedef struct {
+    NSRect tableFrame;
+    NSRect inspectorFrame;
+    CGFloat readinessX;
+    BOOL showReadiness;
+    BOOL showInspector;
+} SlateInspectorRailTableLayout;
+
+static inline SlateInspectorRailTableLayout SlateInspectorRailLayoutForTable(NSRect layoutBounds,
+                                                                             NSRect tableFrame,
+                                                                             SMWorkspaceWidthClass widthClass,
+                                                                             BOOL pinned)
+{
+    SlateInspectorRailTableLayout layout = { .tableFrame = tableFrame };
+    layout.showReadiness = (widthClass != SMWorkspaceWidthClass0 || pinned);
+    layout.showInspector = (widthClass == SMWorkspaceWidthClass2
+                            && NSWidth(layoutBounds) > SlateWorkspaceRailBreakWidthClass2To1());
+    if (!layout.showReadiness) {
+        return layout;
+    }
+
+    CGFloat gap = SlateInspectorRailColumnGap();
+    layout.readinessX = NSMaxX(layoutBounds) - SlateInspectorRailRightInset() - SlateInspectorRailFixedWidth();
+    layout.tableFrame.size.width = MAX(0.0, layout.readinessX - gap - NSMinX(tableFrame));
+    if (layout.showInspector) {
+        CGFloat inspectorWidth = SlateInspectorRailModeInspectorFixedWidth();
+        CGFloat inset = SlateInspectorRailWideMiddleColumnInset();
+        CGFloat inspectorHeight = SlateWorkspacePrimaryPaneTableAnchorTopY()
+            + SlateInspectorRailSectionHeaderHeight() + SlateInspectorRailSectionHeaderYOffset()
+            - SlateInspectorRailBottomInset();
+        layout.tableFrame.size.width -= inspectorWidth + gap;
+        layout.inspectorFrame = NSMakeRect(NSMaxX(layout.tableFrame) + gap + inset,
+                                           NSMinY(tableFrame),
+                                           inspectorWidth - (2.0 * inset),
+                                           inspectorHeight);
+    }
+    return layout;
+}
 
 static inline void SlateInspectorRailApplyToolGroupBoxStyle(NSBox *box)
 {
@@ -438,27 +484,6 @@ static inline NSString *SlateInspectorRailReadinessStatusText(NSArray *findings,
             blockerCount == 1 ? @"" : @"s",
             (unsigned long)warningCount,
             warningCount == 1 ? @"" : @"s"];
-}
-
-static inline NSInteger SlateInspectorRailRowIndexFromEvidence(NSString *evidence)
-{
-    if (!SlateInspectorRailStringHasContent(evidence)) {
-        return NSNotFound;
-    }
-
-    NSRange rowRange = [evidence rangeOfString:@"row " options:NSCaseInsensitiveSearch];
-    if (rowRange.location == NSNotFound) {
-        return NSNotFound;
-    }
-
-    NSString *suffix = [evidence substringFromIndex:(rowRange.location + rowRange.length)];
-    NSScanner *scanner = [NSScanner scannerWithString:suffix];
-    NSInteger rowNumber = NSNotFound;
-    if (![scanner scanInteger:&rowNumber] || rowNumber <= 0) {
-        return NSNotFound;
-    }
-
-    return rowNumber - 1;
 }
 
 static inline NSString *SlateInspectorRailJumpLink(NSString *target, NSInteger rowIndex)

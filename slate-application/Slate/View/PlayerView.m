@@ -12,6 +12,21 @@
 #import "QuadrantView.h"
 
 #import "PlayerView.h"
+#import "Subtitle/SMSubtitleSupport.h"
+#import "Subtitle/SMSubtitleTTMLLayoutContract.h"
+
+@interface SMSubtitleOverlayHostView : NSView
+@end
+
+@implementation SMSubtitleOverlayHostView
+
+- (NSView *)hitTest:(NSPoint)point
+{
+    #pragma unused(point)
+    return nil;
+}
+
+@end
 
 @implementation PlayerView
 
@@ -368,31 +383,21 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
 
 - (void)ensureSubtitleOverlayView
 {
-    if (_subtitleOverlayView != nil) {
-        return;
+    NSView *containerView = self.contentOverlayView ?: self;
+    if (_subtitleOverlayView == nil) {
+        _subtitleOverlayView = [[SMSubtitleOverlayHostView alloc] initWithFrame:NSZeroRect];
+        _subtitleOverlayView.wantsLayer = YES;
+        _subtitleOverlayView.layer.backgroundColor = nil;
+        _subtitleOverlayView.layer.cornerRadius = 0.0;
+        _subtitleOverlayView.layer.masksToBounds = YES;
+        _subtitleOverlayView.hidden = YES;
+        _subtitleRegionLabels = [[NSMutableDictionary alloc] init];
     }
 
-    NSView *containerView = self.contentOverlayView ?: self;
-    _subtitleOverlayView = [[NSView alloc] initWithFrame:NSZeroRect];
-    _subtitleOverlayView.wantsLayer = YES;
-    _subtitleOverlayView.layer.backgroundColor = nil;
-    _subtitleOverlayView.layer.cornerRadius = 0.0;
-    _subtitleOverlayView.hidden = YES;
-
-    _subtitleLabel = [[NSTextField alloc] initWithFrame:NSZeroRect];
-    [_subtitleLabel setBezeled:NO];
-    [_subtitleLabel setBordered:NO];
-    [_subtitleLabel setEditable:NO];
-    [_subtitleLabel setSelectable:NO];
-    [_subtitleLabel setDrawsBackground:YES];
-    [_subtitleLabel setBackgroundColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.35]];
-    [_subtitleLabel setAlignment:NSTextAlignmentCenter];
-    [_subtitleLabel setTextColor:[NSColor whiteColor]];
-    [_subtitleLabel setFont:[NSFont systemFontOfSize:20.0 weight:NSFontWeightMedium]];
-    [_subtitleLabel setLineBreakMode:NSLineBreakByWordWrapping];
-    [_subtitleLabel setUsesSingleLineMode:NO];
-    [_subtitleOverlayView addSubview:_subtitleLabel];
-    [containerView addSubview:_subtitleOverlayView];
+    if (_subtitleOverlayView.superview != containerView) {
+        [_subtitleOverlayView removeFromSuperview];
+        [containerView addSubview:_subtitleOverlayView];
+    }
 }
 
 - (void)ensureMessageOverlayView
@@ -451,20 +456,14 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
         return;
     }
 
-    NSRect bounds = self.bounds;
-    [_subtitleOverlayView setFrame:bounds];
+    NSView *containerView = self.contentOverlayView ?: self;
+    if (_subtitleOverlayView.superview != containerView) {
+        [_subtitleOverlayView removeFromSuperview];
+        [containerView addSubview:_subtitleOverlayView];
+    }
 
-    CGFloat horizontalInset = MAX(20.0, NSWidth(bounds) * 0.08);
-    CGFloat subtitleHeight = MAX(48.0, NSHeight(bounds) * 0.16);
-    CGFloat bottomInset = MAX(18.0, NSHeight(bounds) * 0.06);
-    CGFloat maxSubtitleHeight = MAX(28.0, NSHeight(bounds) - (bottomInset * 1.5));
-    subtitleHeight = MIN(subtitleHeight, maxSubtitleHeight);
-
-    NSRect subtitleLabelFrame = NSMakeRect(horizontalInset,
-                                           bottomInset,
-                                           MAX(0.0, NSWidth(bounds) - (horizontalInset * 2.0)),
-                                           subtitleHeight);
-    [_subtitleLabel setFrame:NSIntegralRect(subtitleLabelFrame)];
+    NSRect overlayFrame = [containerView convertRect:self.bounds fromView:self];
+    [_subtitleOverlayView setFrame:overlayFrame];
 }
 
 - (void)updateMessageOverlayFrame
@@ -521,6 +520,7 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
             [self updateDisabledOverlayFrame];
             [self updateDisabledOverlayVisibility];
         }
+        [self refreshSubtitleOverlay];
         SMTimelineLog(@"Timeline playback playerSetMovie skipped sameMovie=%@", movie);
         return;
     }
@@ -595,13 +595,108 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     }
 }
 
+static NSDictionary *SMSubtitleDefaultTextAttributes(void)
+{
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSFont systemFontOfSize:20.0 weight:NSFontWeightMedium], NSFontAttributeName,
+            [NSColor whiteColor], NSForegroundColorAttributeName,
+            nil];
+}
+
+static NSAttributedString *SMSubtitleAttributedStringFromDisplayItem(NSDictionary *displayItem, NSString *line)
+{
+    NSArray *runs = [displayItem objectForKey:SMSubtitleCueKeyTextRuns];
+    if (![runs isKindOfClass:[NSArray class]] || runs.count == 0) {
+        return [[[NSAttributedString alloc] initWithString:(line ?: @"")
+                                                attributes:SMSubtitleDefaultTextAttributes()] autorelease];
+    }
+
+    NSMutableAttributedString *result = [[[NSMutableAttributedString alloc] init] autorelease];
+    NSFont *baseFont = [NSFont systemFontOfSize:20.0 weight:NSFontWeightMedium];
+    NSFontManager *fontManager = [NSFontManager sharedFontManager];
+    for (id candidate in runs) {
+        if (![candidate isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        NSDictionary *run = candidate;
+        NSString *text = [run objectForKey:SMSubtitleTextRunKeyText];
+        if (![text isKindOfClass:[NSString class]] || text.length == 0) {
+            continue;
+        }
+        NSFontTraitMask traits = 0;
+        if ([[run objectForKey:SMSubtitleTextRunKeyBold] boolValue]) {
+            traits |= NSBoldFontMask;
+        }
+        if ([[run objectForKey:SMSubtitleTextRunKeyItalic] boolValue]) {
+            traits |= NSItalicFontMask;
+        }
+        NSFont *runFont = traits != 0 ? [fontManager convertFont:baseFont toHaveTrait:traits] : baseFont;
+        NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithDictionary:SMSubtitleDefaultTextAttributes()];
+        [attributes setObject:(runFont ?: baseFont) forKey:NSFontAttributeName];
+        if ([[run objectForKey:SMSubtitleTextRunKeyUnderline] boolValue]) {
+            [attributes setObject:[NSNumber numberWithInteger:NSUnderlineStyleSingle] forKey:NSUnderlineStyleAttributeName];
+        }
+        NSAttributedString *attributedRun = [[[NSAttributedString alloc] initWithString:text attributes:attributes] autorelease];
+        [result appendAttributedString:attributedRun];
+    }
+    if (result.length == 0 && line.length > 0) {
+        [result appendAttributedString:[[[NSAttributedString alloc] initWithString:line
+                                                                        attributes:SMSubtitleDefaultTextAttributes()] autorelease]];
+    }
+    return result;
+}
+
+- (NSTextField *)subtitleLabelForKey:(NSString *)key
+{
+    NSTextField *label = [_subtitleRegionLabels objectForKey:key];
+    if (label != nil) {
+        return label;
+    }
+
+    SMSubtitleOverlayHostView *clipView = [[SMSubtitleOverlayHostView alloc] initWithFrame:NSZeroRect];
+    clipView.wantsLayer = YES;
+    clipView.layer.backgroundColor = nil;
+    clipView.layer.masksToBounds = YES;
+    [_subtitleOverlayView addSubview:clipView];
+
+    label = [[NSTextField alloc] initWithFrame:NSZeroRect];
+    [label setBezeled:NO];
+    [label setBordered:NO];
+    [label setEditable:NO];
+    [label setSelectable:NO];
+    [label setDrawsBackground:YES];
+    [label setBackgroundColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.35]];
+    [label setAlignment:NSTextAlignmentCenter];
+    [label setTextColor:[NSColor whiteColor]];
+    [label setFont:[NSFont systemFontOfSize:20.0 weight:NSFontWeightMedium]];
+    [label setLineBreakMode:NSLineBreakByWordWrapping];
+    [label setUsesSingleLineMode:NO];
+    [clipView addSubview:label];
+    [_subtitleRegionLabels setObject:label forKey:key];
+    [label release];
+    [clipView release];
+    return [_subtitleRegionLabels objectForKey:key];
+}
+
+- (void)clearSubtitleRegionLabels
+{
+    for (NSTextField *label in [_subtitleRegionLabels allValues]) {
+        [label setStringValue:@""];
+        [label setHidden:YES];
+        [[label superview] setHidden:YES];
+    }
+    [_subtitleOverlayView setHidden:YES];
+}
+
 - (void)refreshSubtitleOverlay
 {
+    [self ensureSubtitleOverlayView];
+    [self updateSubtitleOverlayFrame];
+
     if (_movie == nil) {
         [_timecodeOverlayView setHidden:YES];
         [_timecodeLabel setStringValue:@""];
-        [_subtitleOverlayView setHidden:YES];
-        [_subtitleLabel setStringValue:@""];
+        [self clearSubtitleRegionLabels];
         return;
     }
 
@@ -615,10 +710,12 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     }
 
     SMTime currentTime = [_movie currentTime];
-    NSMutableArray *activeSubtitleLines = [NSMutableArray array];
+    NSMutableArray *renderEntries = [NSMutableArray array];
+    NSMutableDictionary *entriesByKey = [NSMutableDictionary dictionary];
     BOOL showSubtitles = [appcontroller() subtitleVisible];
     BOOL showClosedCaptions = [appcontroller() closedCaptionVisible];
-    for (SMTrack *track in [_movie subtitleSidecarTracks]) {
+    NSArray *subtitleTracks = [_movie subtitleSidecarTracks];
+    for (SMTrack *track in subtitleTracks) {
         NSString *mediaType = [track attributeForKey:SMTrackMediaTypeAttribute];
         if ([mediaType isEqualToString:SMMediaTypeClosedCaption]) {
             if (!showClosedCaptions) {
@@ -631,20 +728,220 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
         if (![track isEnabled]) {
             continue;
         }
-        NSString *subtitleText = [track subtitleTextAtTime:currentTime];
-        if (subtitleText.length > 0) {
-            [activeSubtitleLines addObject:subtitleText];
+
+        for (NSDictionary *displayItem in [track subtitleDisplayItemsAtTime:currentTime]) {
+            NSString *line = [displayItem objectForKey:SMSubtitleCueKeyLine];
+            if (line.length == 0) {
+                continue;
+            }
+
+            NSNumber *captionRow = [displayItem objectForKey:SMSubtitleSCCCueKeyRow];
+            NSNumber *captionColumn = [displayItem objectForKey:SMSubtitleSCCCueKeyColumn];
+            NSNumber *captionGridRows = [displayItem objectForKey:SMSubtitleSCCCueKeyGridRows];
+            NSNumber *captionGridColumns = [displayItem objectForKey:SMSubtitleSCCCueKeyGridColumns];
+            if (captionRow != nil && captionColumn != nil && captionGridRows != nil && captionGridColumns != nil) {
+                id trackIdentifier = [track attributeForKey:SMTrackIDAttribute];
+                id trackName = [track attributeForKey:SMTrackDisplayNameAttribute];
+                NSDictionary *descriptor = [track attributeForKey:@"__syntheticSidecarDisplayDescriptor"];
+                id channel = [descriptor objectForKey:@"subtitleChannel"];
+                NSString *entryKey = [NSString stringWithFormat:@"cea608:%@:%@",
+                                      trackIdentifier ?: trackName ?: @"caption",
+                                      channel ?: @"1"];
+                NSMutableDictionary *entry = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                              entryKey, @"key",
+                                              line, @"text",
+                                              [NSNumber numberWithBool:YES], @"hasCEA608Geometry",
+                                              captionRow, SMSubtitleSCCCueKeyRow,
+                                              captionColumn, SMSubtitleSCCCueKeyColumn,
+                                              captionGridRows, SMSubtitleSCCCueKeyGridRows,
+                                              captionGridColumns, SMSubtitleSCCCueKeyGridColumns,
+                                              nil];
+                [entriesByKey setObject:entry forKey:entryKey];
+                [renderEntries addObject:entry];
+                continue;
+            }
+
+            NSRect normalizedRect = NSZeroRect;
+            NSTextAlignment textAlignment = NSTextAlignmentCenter;
+            SMSubtitleVerticalAlignment verticalAlignment = SMSubtitleVerticalAlignmentCenter;
+            BOOL hasRegionGeometry = SMSubtitleTTMLResolveDisplayItem(displayItem,
+                                                                      &normalizedRect,
+                                                                      &textAlignment,
+                                                                      &verticalAlignment);
+            NSString *regionID = [displayItem objectForKey:SMSubtitleTTMLCueKeyRegionID];
+            if (!hasRegionGeometry || regionID.length == 0) {
+                hasRegionGeometry = NO;
+            }
+            NSString *entryKey = hasRegionGeometry
+                ? [NSString stringWithFormat:@"region:%@:%0.9f:%0.9f:%0.9f:%0.9f:%ld:%ld",
+                   regionID,
+                   NSMinX(normalizedRect),
+                   NSMinY(normalizedRect),
+                   NSWidth(normalizedRect),
+                   NSHeight(normalizedRect),
+                   (long)textAlignment,
+                   (long)verticalAlignment]
+                : @"fallback";
+
+            NSMutableDictionary *entry = [entriesByKey objectForKey:entryKey];
+            if (entry == nil) {
+                entry = [NSMutableDictionary dictionary];
+                [entry setObject:entryKey forKey:@"key"];
+                [entry setObject:[NSMutableString string] forKey:@"text"];
+                [entry setObject:[[[NSMutableAttributedString alloc] init] autorelease] forKey:@"attributedText"];
+                [entry setObject:[NSNumber numberWithBool:hasRegionGeometry] forKey:@"hasRegionGeometry"];
+                [entry setObject:[NSNumber numberWithInteger:textAlignment] forKey:@"textAlignment"];
+                [entry setObject:[NSNumber numberWithInteger:verticalAlignment] forKey:@"verticalAlignment"];
+                if (hasRegionGeometry) {
+                    [entry setObject:[NSValue valueWithRect:normalizedRect] forKey:@"normalizedRect"];
+                }
+                [entriesByKey setObject:entry forKey:entryKey];
+                [renderEntries addObject:entry];
+            }
+
+            NSMutableString *combinedText = [entry objectForKey:@"text"];
+            if (combinedText.length > 0) {
+                [combinedText appendString:@"\n"];
+                NSMutableAttributedString *attributedText = [entry objectForKey:@"attributedText"];
+                [attributedText appendAttributedString:[[[NSAttributedString alloc] initWithString:@"\n"
+                                                                                        attributes:SMSubtitleDefaultTextAttributes()] autorelease]];
+            }
+            [combinedText appendString:line];
+            NSMutableAttributedString *attributedText = [entry objectForKey:@"attributedText"];
+            [attributedText appendAttributedString:SMSubtitleAttributedStringFromDisplayItem(displayItem, line)];
         }
     }
 
-    if (activeSubtitleLines.count == 0) {
-        [_subtitleOverlayView setHidden:YES];
-        [_subtitleLabel setStringValue:@""];
+    if (renderEntries.count == 0) {
+        [self clearSubtitleRegionLabels];
         return;
     }
 
-    NSString *subtitleText = [activeSubtitleLines componentsJoinedByString:@"\n"];
-    [_subtitleLabel setStringValue:subtitleText];
+    NSRect videoRect = self.movieBounds;
+    if (NSIsEmptyRect(videoRect)) {
+        videoRect = self.bounds;
+    }
+    BOOL playerCoordinatesAreFlipped = [self isFlipped];
+    NSMutableSet *activeKeys = [NSMutableSet set];
+    for (NSDictionary *entry in renderEntries) {
+        NSString *entryKey = [entry objectForKey:@"key"];
+        NSString *text = [entry objectForKey:@"text"];
+        NSTextField *label = [self subtitleLabelForKey:entryKey];
+        NSView *clipView = [label superview];
+        [activeKeys addObject:entryKey];
+        if ([[entry objectForKey:@"hasCEA608Geometry"] boolValue]) {
+            [label setStringValue:text ?: @""];
+        } else {
+            NSAttributedString *attributedText = [entry objectForKey:@"attributedText"];
+            if (attributedText != nil) {
+                [label setAttributedStringValue:attributedText];
+            } else {
+                [label setStringValue:text ?: @""];
+            }
+        }
+        [clipView setHidden:NO];
+        [label setHidden:NO];
+
+        BOOL hasCEA608Geometry = [[entry objectForKey:@"hasCEA608Geometry"] boolValue];
+        BOOL hasRegionGeometry = [[entry objectForKey:@"hasRegionGeometry"] boolValue];
+        NSRect regionRect = NSZeroRect;
+        NSRect clipRect = videoRect;
+        if (hasRegionGeometry) {
+            NSRect normalizedRect = [[entry objectForKey:@"normalizedRect"] rectValue];
+            CGFloat regionWidth = NSWidth(videoRect) * NSWidth(normalizedRect);
+            CGFloat regionHeight = NSHeight(videoRect) * NSHeight(normalizedRect);
+            CGFloat regionX = NSMinX(videoRect) + (NSWidth(videoRect) * NSMinX(normalizedRect));
+            CGFloat regionY = playerCoordinatesAreFlipped
+                ? NSMinY(videoRect) + (NSHeight(videoRect) * NSMinY(normalizedRect))
+                : NSMaxY(videoRect) - (NSHeight(videoRect) * NSMaxY(normalizedRect));
+            regionRect = NSMakeRect(regionX, regionY, regionWidth, regionHeight);
+            clipRect = regionRect;
+        }
+
+        NSRect overlayClipFrame = [_subtitleOverlayView convertRect:clipRect fromView:self];
+        [clipView setFrame:overlayClipFrame];
+        [clipView setBounds:NSMakeRect(0.0, 0.0, NSWidth(overlayClipFrame), NSHeight(overlayClipFrame))];
+        NSRect clipBounds = clipView.bounds;
+        BOOL clipCoordinatesAreFlipped = [clipView isFlipped];
+        NSRect labelFrame = NSZeroRect;
+
+        if (hasCEA608Geometry) {
+            CGFloat cellWidth = NSWidth(clipBounds) * 0.8 / 32.0;
+            CGFloat cellHeight = NSHeight(clipBounds) * 0.8 / 15.0;
+            NSInteger row = [[entry objectForKey:SMSubtitleSCCCueKeyRow] integerValue];
+            NSInteger column = [[entry objectForKey:SMSubtitleSCCCueKeyColumn] integerValue];
+            NSInteger gridRows = [[entry objectForKey:SMSubtitleSCCCueKeyGridRows] integerValue];
+            NSInteger gridColumns = [[entry objectForKey:SMSubtitleSCCCueKeyGridColumns] integerValue];
+            CGFloat labelWidth = cellWidth * MAX(1, MIN(32 - column + 1, gridColumns));
+            CGFloat labelHeight = cellHeight * MAX(1, MIN(15 - row + 1, gridRows));
+            CGFloat labelX = (NSWidth(clipBounds) * 0.1) + ((column - 1) * cellWidth);
+            CGFloat rowOffset = (NSHeight(clipBounds) * 0.1) + ((row - 1) * cellHeight);
+            CGFloat labelY = clipCoordinatesAreFlipped
+                ? NSMinY(clipBounds) + rowOffset
+                : NSMaxY(clipBounds) - rowOffset - labelHeight;
+            CGFloat fontSize = MAX(8.0, cellHeight * 0.72);
+            [label setFont:[NSFont monospacedSystemFontOfSize:fontSize weight:NSFontWeightMedium]];
+            [label setAlignment:NSTextAlignmentLeft];
+            [label setLineBreakMode:NSLineBreakByClipping];
+            [label setUsesSingleLineMode:NO];
+            labelFrame = NSMakeRect(labelX, labelY, labelWidth, labelHeight);
+        } else {
+            [label setFont:[NSFont systemFontOfSize:20.0 weight:NSFontWeightMedium]];
+            [label setLineBreakMode:NSLineBreakByWordWrapping];
+            [label setUsesSingleLineMode:NO];
+
+            if (hasRegionGeometry) {
+                CGFloat horizontalInset = MIN(4.0, NSWidth(clipBounds) / 4.0);
+                CGFloat verticalInset = MIN(3.0, NSHeight(clipBounds) / 4.0);
+                NSRect textRect = NSInsetRect(clipBounds, horizontalInset, verticalInset);
+                NSTextAlignment textAlignment = (NSTextAlignment)[[entry objectForKey:@"textAlignment"] integerValue];
+                SMSubtitleVerticalAlignment verticalAlignment = (SMSubtitleVerticalAlignment)[[entry objectForKey:@"verticalAlignment"] integerValue];
+                [label setAlignment:textAlignment];
+                NSSize fittingSize = [label sizeThatFits:NSMakeSize(NSWidth(textRect), CGFLOAT_MAX)];
+                CGFloat textHeight = MAX(0.0, ceil(fittingSize.height));
+                CGFloat textY = NSMinY(textRect);
+                if (verticalAlignment == SMSubtitleVerticalAlignmentBefore) {
+                    textY = clipCoordinatesAreFlipped
+                        ? NSMinY(textRect)
+                        : NSMaxY(textRect) - textHeight;
+                } else if (verticalAlignment == SMSubtitleVerticalAlignmentCenter) {
+                    textY = NSMidY(textRect) - (textHeight / 2.0);
+                } else if (verticalAlignment == SMSubtitleVerticalAlignmentAfter) {
+                    textY = clipCoordinatesAreFlipped
+                        ? NSMaxY(textRect) - textHeight
+                        : NSMinY(textRect);
+                }
+                // Keep the label at its natural wrapped height so displayAlign decides
+                // which lines remain visible when the region clip cuts off overflow.
+                labelFrame = NSMakeRect(NSMinX(textRect), textY, NSWidth(textRect), textHeight);
+            } else {
+                CGFloat videoWidth = NSWidth(clipBounds);
+                CGFloat videoHeight = NSHeight(clipBounds);
+                CGFloat horizontalInset = MIN(MAX(20.0, videoWidth * 0.08), videoWidth / 4.0);
+                CGFloat subtitleHeight = MIN(MAX(48.0, videoHeight * 0.16), videoHeight);
+                CGFloat bottomInset = MIN(MAX(18.0, videoHeight * 0.06), MAX(0.0, videoHeight - subtitleHeight));
+                CGFloat subtitleY = clipCoordinatesAreFlipped
+                    ? NSMaxY(clipBounds) - bottomInset - subtitleHeight
+                    : NSMinY(clipBounds) + bottomInset;
+                labelFrame = NSMakeRect(NSMinX(clipBounds) + horizontalInset,
+                                        subtitleY,
+                                        MAX(0.0, videoWidth - (horizontalInset * 2.0)),
+                                        subtitleHeight);
+                [label setAlignment:NSTextAlignmentCenter];
+            }
+        }
+
+        [label setFrame:labelFrame];
+    }
+
+    for (NSString *entryKey in _subtitleRegionLabels) {
+        if (![activeKeys containsObject:entryKey]) {
+            NSTextField *staleLabel = [_subtitleRegionLabels objectForKey:entryKey];
+            [staleLabel setStringValue:@""];
+            [staleLabel setHidden:YES];
+            [[staleLabel superview] setHidden:YES];
+        }
+    }
     [_subtitleOverlayView setHidden:NO];
 }
 
@@ -674,6 +971,7 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     [self updateTimecodeOverlayFrame];
     [self updateSubtitleOverlayFrame];
     [self updateMessageOverlayFrame];
+    [self refreshSubtitleOverlay];
 
     if (_cropLayer != nil) {
         SMCropMargins currentMargins = [self sourceCropMarginsFromOverlay];
@@ -1363,7 +1661,7 @@ static CGRect SMOverlayRectFromCropMargins(SMCropMargins margins, CGRect display
     [self stopObservingPlayerItem];
     [_timecodeLabel release];
     [_timecodeOverlayView release];
-    [_subtitleLabel release];
+    [_subtitleRegionLabels release];
     [_subtitleOverlayView release];
     [_messageLabel release];
     [_messageOverlayView release];

@@ -19,3 +19,6 @@ extern NSString * const SMPlaybackReferenceAudioTracksKey;
 extern NSString * const SMPlaybackBaseTrackIDMapKey;
 extern NSString * const SMPlaybackTrackIDAttributeKey;
 extern NSString * const SMPlaybackSourceURLAttributeKey;
+extern NSString * const SMPlaybackSessionReferenceOrdinalAttributeKey;
+
+NSInteger SMNextPlaybackSessionReferenceOrdinal(NSArray *sessionReferenceTracks);

@@ -9,7 +9,6 @@
 #import "PosterArtView.h"
 #import "Runtime/SlatePackageSnapshotContract.h"
 #import "Runtime/SlateReviewSnapshotContract.h"
-#import "Runtime/SlateRuntimeBridge.h"
 #import "Validation/SMValidationCanonicalDictionaryKeys.h"
 #import "UtilInspectorRailContract.h"
 #import "UtilLayoutMetrics.h"
@@ -173,12 +172,10 @@ static const CGFloat SMPackageMetadataColumnMinimumWidth = 160.0;
 static const CGFloat SMPackageSynopsisInterRowGapMinimum = 8.0;
 static const CGFloat SMPackageSynopsisMinimumWidth = 150.0;
 static const CGFloat SMPackageLongSynopsisExtraDrop = 10.0;
-static const CGFloat SMPackageReadinessTextRatio = 0.68;
 static const CGFloat SMPackageMetadataGroupHeaderInsetX = 10.0;
 static const CGFloat SMPackageMetadataGroupHeaderTopInset = 6.0;
 
 static NSString * const SMPackageSectionTitleMetadata = @"Metadata";
-static NSString * const SMPackageSectionTitleReadiness = @"Readiness";
 static NSString * const SMPackageReadinessStatusNoPackageLoaded = @"No package loaded";
 static NSString * const SMPackageReadinessStatusNoFindings = @"No package/metadata findings";
 static NSString * const SMPackageReadinessEmptyMessageNoFindings = @"No package/metadata readiness findings.";
@@ -337,7 +334,7 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
 
 #pragma mark - Private Interface
 
-@interface PackageViewController ()
+@interface PackageViewController () <SMInspectorRailModeAdapter>
 - (void)buildPackageViewHierarchyIfNeeded;
 - (void)initializePackageControllerDataIfNeeded;
 - (NSTextField *)newPackageScalarLabelWithTitle:(NSString *)title frame:(NSRect)frame;
@@ -383,7 +380,6 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
         return;
     }
 
-    _inspectorRailPinned = [[NSUserDefaults standardUserDefaults] boolForKey:SMPackageInspectorRailPinnedDefaultsKey];
     _hasPackageContext = NO;
     _didInitializePackageControllerData = YES;
 }
@@ -832,32 +828,6 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     return [label isKindOfClass:[NSTextField class]] ? label : nil;
 }
 
-- (NSArray *)synopsisScrollViews
-{
-    NSMutableArray *scrollViews = [NSMutableArray array];
-    for (NSDictionary *panel in [self synopsisPanels]) {
-        NSScrollView *scrollView = [panel objectForKey:SMPackageMetadataPanelKeyScrollView];
-        if ([scrollView isKindOfClass:[NSScrollView class]]) {
-            [scrollViews addObject:scrollView];
-        }
-    }
-
-    return scrollViews;
-}
-
-- (NSArray *)synopsisLabels
-{
-    NSMutableArray *labels = [NSMutableArray array];
-    for (NSDictionary *panel in [self synopsisPanels]) {
-        NSTextField *label = [panel objectForKey:SMPackageSynopsisPanelKeyLabel];
-        if ([label isKindOfClass:[NSTextField class]]) {
-            [labels addObject:label];
-        }
-    }
-
-    return labels;
-}
-
 - (void)removeSynopsisPanelsFromHierarchy
 {
     for (NSDictionary *panel in [self synopsisPanels]) {
@@ -1203,65 +1173,6 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
                                            NO);
 }
 
-- (void)restorePackageReadinessSubviewOrderIfNeeded
-{
-    NSView *containerView = [self view];
-    if (containerView == nil) {
-        return;
-    }
-
-    NSMutableArray *orderedViews = [NSMutableArray arrayWithCapacity:4];
-    NSView *readinessSectionLabel = [_readinessPresenter sectionLabel];
-    NSView *readinessStatusLabel = [_readinessPresenter statusLabel];
-    NSView *inspectorPinButton = [_readinessPresenter pinButton];
-    NSView *readinessScrollView = [_readinessPresenter scrollView];
-    if (readinessSectionLabel != nil) {
-        [orderedViews addObject:readinessSectionLabel];
-    }
-    if (readinessStatusLabel != nil) {
-        [orderedViews addObject:readinessStatusLabel];
-    }
-    if (inspectorPinButton != nil) {
-        [orderedViews addObject:inspectorPinButton];
-    }
-    if (readinessScrollView != nil) {
-        [orderedViews addObject:readinessScrollView];
-    }
-    if ([orderedViews count] != 4) {
-        return;
-    }
-
-    NSArray *subviews = [containerView subviews];
-    NSUInteger previousIndex = NSNotFound;
-    BOOL needsReorder = NO;
-    for (NSView *view in orderedViews) {
-        if ([view superview] != containerView) {
-            return;
-        }
-        NSUInteger index = [subviews indexOfObjectIdenticalTo:view];
-        if (index == NSNotFound) {
-            return;
-        }
-        if (previousIndex != NSNotFound && index <= previousIndex) {
-            needsReorder = YES;
-            break;
-        }
-        previousIndex = index;
-    }
-    if (!needsReorder
-        && [subviews indexOfObjectIdenticalTo:[orderedViews lastObject]] != ([subviews count] - 1)) {
-        needsReorder = YES;
-    }
-    if (!needsReorder) {
-        return;
-    }
-
-    for (NSView *view in orderedViews) {
-        [view removeFromSuperview];
-        [containerView addSubview:view];
-    }
-}
-
 - (void)ensurePackageSectionedFlowViews
 {
     if (_metadataGroupBox == nil) {
@@ -1286,55 +1197,15 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     }
 
     if (_readinessPresenter == nil) {
-        _readinessPresenter = [[UtilReadinessRailPresenter alloc] initWithSectionTitle:SMPackageSectionTitleReadiness
-                                                                  findingsToolTipTitle:SMPackageReadinessFindingsToolTipTitle
-                                                                             pinTarget:self
-                                                                             pinAction:@selector(toggleInspectorRailPinned:)
-                                                                      textViewDelegate:(id<NSTextViewDelegate>)self];
+        _readinessPresenter = [[UtilReadinessRailPresenter alloc] initWithFindingsToolTipTitle:SMPackageReadinessFindingsToolTipTitle
+                                                                  pinDefaultsKey:SMPackageInspectorRailPinnedDefaultsKey
+                                                                           owner:self];
     }
     [_readinessPresenter ensureViewsInSuperview:[self view]];
-    [_readinessPresenter setPinState:_inspectorRailPinned];
-    [self restorePackageReadinessSubviewOrderIfNeeded];
+    [_readinessPresenter restoreSubviewOrderWithOverlays:@[]];
 }
 
-#pragma mark - Pinning and Jump Targets
-
-- (void)setInspectorRailPinned:(BOOL)pinned
-{
-    if (_inspectorRailPinned == pinned) {
-        return;
-    }
-
-    _inspectorRailPinned = pinned;
-    [_readinessPresenter setPinState:pinned];
-    [[NSUserDefaults standardUserDefaults] setBool:pinned forKey:SMPackageInspectorRailPinnedDefaultsKey];
-}
-
-- (IBAction)toggleInspectorRailPinned:(id)sender
-{
-    BOOL pinned = ([(NSButton *)sender state] == NSOnState);
-    [self setInspectorRailPinned:pinned];
-    [self applyWorkspaceLayoutForWidth:NSWidth([[self view] bounds])];
-}
-
-- (NSDictionary *)packageReadinessJumpLinksByFindingIdentity
-{
-    NSMutableDictionary *jumpLinkByFindingIdentity = [NSMutableDictionary dictionary];
-    for (NSDictionary *finding in [self canonicalValidationFindings]) {
-        if (![finding isKindOfClass:[NSDictionary class]]) {
-            continue;
-        }
-
-        NSString *target = SMPackageReadinessJumpTargetForFinding(finding);
-        NSString *jumpLink = SlateInspectorRailJumpLink(target, NSNotFound);
-        if (SMPackStringHasContent(jumpLink)) {
-            [jumpLinkByFindingIdentity setObject:jumpLink
-                                          forKey:SlateInspectorRailFindingIdentity(finding)];
-        }
-    }
-
-    return jumpLinkByFindingIdentity;
-}
+#pragma mark - Jump Targets
 
 - (void)focusPackageReadinessTarget:(NSString *)target
 {
@@ -1403,14 +1274,13 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     [self ensurePackageSectionedFlowViews];
     NSString *emptyStatus = _hasPackageContext ? SMPackageReadinessStatusNoFindings : SMPackageReadinessStatusNoPackageLoaded;
     NSString *emptyMessage = _hasPackageContext ? SMPackageReadinessEmptyMessageNoFindings : @"";
-    NSDictionary *jumpLinkByFindingIdentity = [self packageReadinessJumpLinksByFindingIdentity];
-    NSDictionary *reviewPaneSnapshot = [SlateRuntimeBridge reviewPaneSnapshotWithPaneKey:SlateReviewPaneKeyPackage
-                                                                                title:SMPackageSectionTitleReadiness
-                                                                             findings:[self canonicalValidationFindings]
-                                                                          emptyStatus:emptyStatus
-                                                                         emptyMessage:emptyMessage
-                                                           jumpLinksByFindingIdentity:jumpLinkByFindingIdentity];
-    [_readinessPresenter updateWithReviewPaneSnapshot:reviewPaneSnapshot];
+    [_readinessPresenter presentFindings:[self canonicalValidationFindings]
+                                 paneKey:SlateReviewPaneKeyPackage
+                             emptyStatus:emptyStatus
+                            emptyMessage:emptyMessage
+                      jumpLinkForFinding:^NSString *(NSDictionary *finding) {
+        return SlateInspectorRailJumpLink(SMPackageReadinessJumpTargetForFinding(finding), NSNotFound);
+    }];
 }
 
 #pragma mark - NIB Compatibility
@@ -1529,18 +1399,14 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     NSTextField *longSynopsisLabel = [self synopsisLabelForTarget:SlatePackageSnapshotTargetSynopsisLong];
     NSArray *metadataPanels = [self metadataCollectionScrollViews];
     NSArray *metadataLabels = [self metadataCollectionLabels];
-    NSTextField *readinessSectionLabel = [_readinessPresenter sectionLabel];
-    NSTextField *readinessStatusLabel = [_readinessPresenter statusLabel];
-    NSScrollView *readinessScrollView = [_readinessPresenter scrollView];
     NSUInteger metadataPanelCount = [metadataPanels count];
     if (metadataPanelCount != [SMPackageMetadataPanelSpecs() count] ||
         [metadataLabels count] != metadataPanelCount ||
         shortSynopsisScroll == nil || longSynopsisScroll == nil ||
         shortSynopsisLabel == nil || longSynopsisLabel == nil ||
-        _metadataSectionLabel == nil || readinessSectionLabel == nil ||
-        readinessStatusLabel == nil || readinessScrollView == nil) {
+        _metadataSectionLabel == nil) {
         [_metadataGroupBox setHidden:YES];
-        [_readinessPresenter setRailHidden:YES];
+        [_readinessPresenter hideRail];
         return;
     }
 
@@ -1566,12 +1432,11 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     CGFloat minimumContentRailWidth = compactRailMode
         ? SMPackageCompactPinnedContentRailMinimumWidth
         : SMPackageContentRailMinimumWidth;
-    BOOL readinessAllowedByMode = !compactRailMode || _inspectorRailPinned;
-    BOOL readinessAllowedByWidth = _inspectorRailPinned || (workspaceWidthForLayout >= SlateInspectorRailPackageMinimumHostWidth());
+    BOOL readinessAllowedByMode = !compactRailMode || [_readinessPresenter isPinned];
+    BOOL readinessAllowedByWidth = [_readinessPresenter isPinned] || (workspaceWidthForLayout >= SlateInspectorRailPackageMinimumHostWidth());
     BOOL showReadinessRail = (readinessAllowedByMode
                               && readinessAllowedByWidth
                               && ((contentRailRightXWithReadiness - contentRailLeftX) >= minimumContentRailWidth));
-    CGFloat railWidth = showReadinessRail ? fixedRailWidth : 0.0;
     CGFloat contentRailRightX = showReadinessRail ? contentRailRightXWithReadiness : (NSMaxX(layoutBounds) - outerMargin);
 
     NSRect shortSynopsisFrame = [shortSynopsisScroll frame];
@@ -1620,8 +1485,6 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     CGFloat longSynopsisLabelYOffset = NSMinY(longSynopsisDefaultLabelFrame) - NSMaxY(longSynopsisDefaultScrollFrame);
     CGFloat defaultSynopsisBottomY = MIN(NSMinY(shortSynopsisDefaultScrollFrame), NSMinY(longSynopsisDefaultScrollFrame));
     CGFloat titleHeight = SlateInspectorRailSectionHeaderHeight();
-    CGFloat statusHeight = SlateInspectorRailDisclosureRowHeight();
-    CGFloat titleGap = SlateInspectorRailSectionGap();
     CGFloat defaultContentTopY = SlateWorkspacePrimaryPaneTableAnchorTopY()
         + titleHeight
         + SlateInspectorRailSectionHeaderYOffset();
@@ -1636,14 +1499,13 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     CGFloat assetStackVerticalOffset = (NSMinY(layoutBounds) - NSMinY(defaultRootFrame)) - SMPackageAssetStackDownshift;
     [self applyAssetStackVerticalOffset:assetStackVerticalOffset];
 
-    CGFloat readinessTopY = contentTopY - titleHeight - SlateInspectorRailSectionHeaderYOffset();
     CGFloat sharedContentTopY = contentTopY;
 
     CGFloat synopsisTopY = contentTopY;
     CGFloat metadataTopY = sharedContentTopY;
     CGFloat metadataBottomY = contentBottomY;
     CGFloat readinessBottomY = NSMinY(layoutBounds) + readinessBottomInset;
-    BOOL suppressMetadataRailForPinnedReadiness = (_inspectorRailPinned
+    BOOL suppressMetadataRailForPinnedReadiness = ([_readinessPresenter isPinned]
                                                    && showReadinessRail
                                                    && workspaceWidthForLayout < SlateInspectorRailPackageMinimumHostWidth());
     BOOL showMetadataRail = (!suppressMetadataRailForPinnedReadiness && sharedContentTopY > readinessBottomY);
@@ -1741,38 +1603,11 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
                                                titleHeight)];
 
     if (!showReadinessRail) {
-        [_readinessPresenter setRailHidden:YES];
+        [_readinessPresenter hideRail];
     } else {
-        NSRect readinessSectionFrame = NSMakeRect(rightRailX,
-                                                  readinessTopY + SlateInspectorRailSectionHeaderYOffset(),
-                                                  railWidth,
-                                                  titleHeight);
-        CGFloat readinessStatusY = readinessTopY - statusHeight - 2.0;
-        NSRect readinessStatusFrame = NSMakeRect(rightRailX, readinessStatusY, railWidth, statusHeight);
-
-        CGFloat readinessTextTopLimitY = readinessTopY - statusHeight - titleGap;
-        CGFloat availableForReadinessText = MAX(0.0, readinessTextTopLimitY - readinessBottomY);
-        CGFloat minimumReadinessTextHeight = titleHeight + titleGap + SlateInspectorRailWarningBlockMinHeight();
-        CGFloat desiredReadinessTextHeight = floor(availableForReadinessText * SMPackageReadinessTextRatio);
-        CGFloat readinessScrollHeight = MAX(minimumReadinessTextHeight, desiredReadinessTextHeight);
-        readinessScrollHeight = MIN(availableForReadinessText, readinessScrollHeight);
-        if (readinessScrollHeight < minimumReadinessTextHeight) {
-            readinessScrollHeight = availableForReadinessText;
-        }
-
-        NSRect readinessScrollFrame = NSMakeRect(rightRailX,
-                                                 readinessBottomY,
-                                                 railWidth,
-                                                 readinessScrollHeight);
-        NSRect pinFrame = NSMakeRect((rightRailX + railWidth) - SlateInspectorRailPinControlWidth(),
-                                     NSMinY(readinessSectionFrame),
-                                     SlateInspectorRailPinControlWidth(),
-                                     SlateInspectorRailDisclosureRowHeight());
-        [_readinessPresenter applySectionFrame:readinessSectionFrame
-                                   statusFrame:readinessStatusFrame
-                                   scrollFrame:readinessScrollFrame
-                                      pinFrame:pinFrame
-                                    pinVisible:YES];
+        [_readinessPresenter layoutRailAtX:rightRailX
+                                     topY:contentTopY
+                                  bottomY:readinessBottomY];
     }
 
     CGFloat metadataHeaderInsetX = SMPackageMetadataGroupHeaderInsetX;
@@ -1946,7 +1781,7 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
     [layoutProbe setObject:[NSNumber numberWithBool:metadataVisible] forKey:@"showMetadataRail"];
     [layoutProbe setObject:[NSNumber numberWithBool:readinessVisible] forKey:@"showReadinessRail"];
     [layoutProbe setObject:[NSNumber numberWithBool:pinVisible] forKey:@"pinVisible"];
-    [layoutProbe setObject:[NSNumber numberWithBool:_inspectorRailPinned] forKey:@"pinState"];
+    [layoutProbe setObject:[NSNumber numberWithBool:[_readinessPresenter isPinned]] forKey:@"pinState"];
     [layoutProbe setObject:SMPackageProbeRect(shortSynopsisFrame) forKey:@"synopsisFrame"];
     [layoutProbe setObject:SMPackageProbeRect(metadataGroupFrame) forKey:@"metadataGroupFrame"];
     [layoutProbe setObject:SMPackageProbeRect(readinessFrame) forKey:@"readinessFrame"];

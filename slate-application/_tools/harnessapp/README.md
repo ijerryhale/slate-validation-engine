@@ -2,7 +2,7 @@
 
 Standalone macOS harness app target that loads the production `Slate.app` adapter classes from a sibling app bundle and hosts the bottom-pane C/T/P controllers in a simple segmented-control test shell.
 
-The public harness target depends on `Slate.app`, so building or running `paneharness` from the public Xcode project builds the sibling app first. At launch, the harness checks for `Slate.app` and all six Slate runtime executables beside `paneharness.app`; it alerts and exits if any are missing. It does not need to locate a repository checkout. Package/chapter fixture data comes from sibling Slate runtime executables instead of app-owned package-session classes. `SLATSNAP` reports adapter and runtime health/status.
+The harness target depends on `Slate.app`, so building or running `paneharness` from the Xcode project builds the sibling app first. At launch, the harness checks for `Slate.app` and all six Slate runtime executables beside `paneharness.app`; it alerts and exits if any are missing. It does not need to locate a repository checkout. Package/chapter fixture data comes from sibling Slate runtime executables instead of app-owned package-session classes. `SLATSNAP` reports adapter and runtime health/status.
 
 ## What it includes
 
@@ -18,7 +18,7 @@ The public harness target depends on `Slate.app`, so building or running `paneha
   - `SLATFPTH` (load fixture path)
   - `SLATTDET` (Track + Movie inspector details for the loaded movie)
   - `SLATCDET` (Chapter + Image inspector details for the loaded package)
-  - `SLATSNAP` (operator envelope with `paneharnessStatus.v1` health/status result)
+  - `SLATSNAP` (operator envelope with `paneharnessStatus.v1` health/status result). `SLATSNAP "probe"` also includes the active controller's `layoutProbe`.
 
 ## File pickers and fixtures
 

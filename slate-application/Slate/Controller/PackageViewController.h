@@ -36,7 +36,6 @@
     UtilReadinessRailPresenter  *_readinessPresenter;
 
     NSArray                     *_canonicalValidationFindings;
-    BOOL                        _inspectorRailPinned;
     BOOL                        _hasPackageContext;
     BOOL                        _didInitializePackageControllerData;
 }

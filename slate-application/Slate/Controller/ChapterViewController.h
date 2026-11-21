@@ -34,17 +34,13 @@
     IBOutlet NSTextField        *_chapterCnt;
     IBOutlet NSPopUpButton      *_cropModePopup;
     NSTextField                 *_chapterCountLabel;
-    NSTextField                 *_tableSectionLabel;
     NSTextField                 *_inspectorSectionLabel;
-    NSTextField                 *_advancedSectionLabel;
     UtilReadinessRailPresenter  *_readinessPresenter;
     NSBox                       *_inspectorGroupBox;
     NSTextField                 *_tableEmptyStateLabel;
-    NSTextField                 *_inspectorEmptyStateLabel;
     NSTextField                 *_leadoutLabel;
 
     BOOL                        _hasPackageContext;
-    BOOL                        _inspectorRailPinned;
     BOOL                        _isObservingHasMovie;
     BOOL                        _suppressChapterSelectionJump;
 }

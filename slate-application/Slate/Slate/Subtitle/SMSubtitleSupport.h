@@ -14,6 +14,7 @@
 //
 
 #import "Movie/SMMovie.h"
+#import "SMSubtitleParsing.h"
 
 // Synthetic sidecar display runtime helpers.
 //
@@ -36,5 +37,24 @@
 // Reached indirectly from controller import wrappers and subtitle-row reloads through SMMovie.
 NSDictionary *SMSyntheticSidecarDisplayTrackRepresentationFromDescriptor(NSDictionary *descriptor, SMTime fallbackDuration);
 
-// Reached indirectly when controller-visible subtitle tracks are rendered/queried by time.
-NSString *SMSyntheticSidecarDisplayTextAtTime(NSArray *displayItems, SMTime time);
+// Returns every active cue in source order. Each returned cue is a copy with
+// line endings normalized and may include `regionDefinition` when its TTML
+// region reference resolves against the supplied inventory.
+NSArray *SMSyntheticSidecarDisplayItemsAtTime(NSArray *displayItems,
+                                              NSDictionary *ttmlLayoutInventory,
+                                              SMTime time);
+
+typedef NS_ENUM(NSInteger, SMSubtitleVerticalAlignment) {
+    SMSubtitleVerticalAlignmentBefore = 0,
+    SMSubtitleVerticalAlignmentCenter = 1,
+    SMSubtitleVerticalAlignmentAfter = 2
+};
+
+// Resolves percentage-only TTML region geometry into a normalized rectangle
+// whose origin is top-left. Returns NO for absent, malformed, unsupported, or
+// unresolved geometry. Alignment outputs default to centered when geometry
+// cannot be used.
+BOOL SMSubtitleTTMLResolveDisplayItem(NSDictionary *displayItem,
+                                     NSRect *normalizedRect,
+                                     NSTextAlignment *textAlignment,
+                                     SMSubtitleVerticalAlignment *verticalAlignment);

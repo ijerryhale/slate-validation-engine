@@ -1405,7 +1405,20 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
             setReply(replyEvent, result: NSAppleEventDescriptor(string: chapterDetailsJSONString()))
 
         case HarnessAppleEvent.snapshot:
-            setOperatorReply(replyEvent, eventID: eventID, result: paneharnessStatusPayload())
+            var snapshot = paneharnessStatusPayload()
+            if descriptorString(direct)?.lowercased() == "probe" {
+                guard let activeController = controller(for: activeMode),
+                      let layout = invokeNoArgs(activeController, selectorName: "layoutProbeSnapshot")?.takeUnretainedValue() as? [String: Any] else {
+                    setOperatorErrorReply(replyEvent,
+                                          eventID: eventID,
+                                          errorNo: Int16(errAENoSuchObject),
+                                          code: "layoutProbeUnavailable",
+                                          message: "The active pane has no layout probe.")
+                    return
+                }
+                snapshot["layoutProbe"] = layout
+            }
+            setOperatorReply(replyEvent, eventID: eventID, result: snapshot)
 
         default:
             setOperatorErrorReply(replyEvent,

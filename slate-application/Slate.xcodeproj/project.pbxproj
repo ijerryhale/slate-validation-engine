@@ -46,7 +46,6 @@
 		BC13B7CA19326B2C0057565C /* audiopreset.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC13B7C819326B2C0057565C /* audiopreset.plist */; };
 		BC6B2766190C5933001FA46B /* crop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BC6B2765190C5933001FA46B /* crop.tiff */; };
 		BC88F3EB18CE9B920097DBE0 /* CheckBoxTableColumn.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88F3EA18CE9B920097DBE0 /* CheckBoxTableColumn.m */; };
-		BC8EB95C18DE531C003073C4 /* SplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = BC8EB95B18DE531C003073C4 /* SplitView.m */; };
 		BCF81C5E1918313A00400A79 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF81C5D1918313A00400A79 /* AppController.m */; };
 		C12000022FCC000100000001 /* libSlateRuntime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C12000012FCC000100000001 /* libSlateRuntime.a */; };
 		E10000112FB5000100000001 /* paneharness.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000012FB5000100000001 /* paneharness.swift */; };
@@ -187,8 +186,6 @@
 		BC6B2765190C5933001FA46B /* crop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = crop.tiff; sourceTree = "<group>"; };
 		BC88F3E918CE9B920097DBE0 /* CheckBoxTableColumn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckBoxTableColumn.h; sourceTree = "<group>"; };
 		BC88F3EA18CE9B920097DBE0 /* CheckBoxTableColumn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CheckBoxTableColumn.m; sourceTree = "<group>"; };
-		BC8EB95A18DE531C003073C4 /* SplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitView.h; sourceTree = "<group>"; };
-		BC8EB95B18DE531C003073C4 /* SplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitView.m; sourceTree = "<group>"; };
 		BCF81C5C1918313A00400A79 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		BCF81C5D1918313A00400A79 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
 		C10000012FC9000100000001 /* SlatePackageContextContract.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SlatePackageContextContract.h; sourceTree = "<group>"; };
@@ -413,8 +410,6 @@
 		2C76CBC817F91BFF007B0CD8 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				BC8EB95A18DE531C003073C4 /* SplitView.h */,
-				BC8EB95B18DE531C003073C4 /* SplitView.m */,
 				FAD4A90B185925870089F675 /* PosterArtView.h */,
 				FAD4A90C185925870089F675 /* PosterArtView.m */,
 				2CDE13B118133BD100E96567 /* QuadrantView.h */,
@@ -658,7 +653,6 @@
 				FA3C470F1864D3600007A17A /* SplitViewController.m in Sources */,
 				2C82006F2F74C639004B22C4 /* TimelineState.m in Sources */,
 				BC88F3EB18CE9B920097DBE0 /* CheckBoxTableColumn.m in Sources */,
-				BC8EB95C18DE531C003073C4 /* SplitView.m in Sources */,
 				BCF81C5E1918313A00400A79 /* AppController.m in Sources */,
 				2D1000072F90000300000001 /* AppController+Timeline.m in Sources */,
 				AEE100172FB7000100000001 /* AppController+Focus.m in Sources */,

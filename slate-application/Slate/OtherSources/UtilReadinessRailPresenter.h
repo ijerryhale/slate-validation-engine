@@ -14,6 +14,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "UtilInspectorRailCoord.h"
 
 @interface UtilReadinessRailPresenter : NSObject
 {
@@ -23,46 +24,32 @@
     NSTextView *_textView;
     NSButton *_pinButton;
 
-    NSString *_sectionTitle;
     NSString *_findingsToolTipTitle;
-    NSArray *_canonicalFindings;
-    NSDictionary *_jumpLinkByFindingIdentity;
-
-    id _pinTarget;
-    SEL _pinAction;
-    id<NSTextViewDelegate> _textViewDelegate;
+    NSString *_pinDefaultsKey;
+    id<SMInspectorRailModeAdapter, NSTextViewDelegate> _owner;
+    BOOL _pinned;
 }
 
 @property (readonly) NSTextField *sectionLabel;
-@property (readonly) NSTextField *statusLabel;
 @property (readonly) NSScrollView *scrollView;
-@property (readonly) NSTextView *textView;
 @property (readonly) NSButton *pinButton;
+@property (readonly, getter=isPinned) BOOL pinned;
 
-- (id)initWithSectionTitle:(NSString *)sectionTitle
-      findingsToolTipTitle:(NSString *)findingsToolTipTitle
-                 pinTarget:(id)pinTarget
-                 pinAction:(SEL)pinAction
-          textViewDelegate:(id<NSTextViewDelegate>)textViewDelegate;
+- (id)initWithFindingsToolTipTitle:(NSString *)findingsToolTipTitle
+                   pinDefaultsKey:(NSString *)pinDefaultsKey
+                            owner:(id<SMInspectorRailModeAdapter, NSTextViewDelegate>)owner;
 
 - (void)ensureViewsInSuperview:(NSView *)superview;
-- (void)setPinTarget:(id)target action:(SEL)action;
-- (void)setPinState:(BOOL)pinned;
-- (void)setTextViewDelegate:(id<NSTextViewDelegate>)delegate;
-- (void)setSectionTitle:(NSString *)sectionTitle;
+- (void)restoreSubviewOrderWithOverlays:(NSArray<NSView *> *)overlays;
 
-- (void)updateWithFindings:(NSArray *)findings
-               emptyStatus:(NSString *)emptyStatus
-              emptyMessage:(NSString *)emptyMessage
-jumpLinksByFindingIdentity:(NSDictionary *)jumpLinkByFindingIdentity;
-- (void)updateWithReviewPaneSnapshot:(NSDictionary *)reviewPaneSnapshot;
+- (void)presentFindings:(NSArray *)findings
+                paneKey:(NSString *)paneKey
+            emptyStatus:(NSString *)emptyStatus
+           emptyMessage:(NSString *)emptyMessage
+     jumpLinkForFinding:(NSString *(^)(NSDictionary *finding))jumpLinkForFinding;
 
-- (void)setRailHidden:(BOOL)hidden;
-- (void)applySectionFrame:(NSRect)sectionFrame
-              statusFrame:(NSRect)statusFrame
-              scrollFrame:(NSRect)scrollFrame
-                 pinFrame:(NSRect)pinFrame
-               pinVisible:(BOOL)pinVisible;
+- (void)hideRail;
+- (void)layoutRailAtX:(CGFloat)x topY:(CGFloat)topY bottomY:(CGFloat)bottomY;
 
 - (BOOL)ownsTextView:(NSTextView *)textView;
 

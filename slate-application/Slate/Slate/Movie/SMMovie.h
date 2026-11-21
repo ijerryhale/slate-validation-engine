@@ -150,7 +150,7 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 - (float)audioGain;
 - (void)setAudioGain:(float)audioGain;
 - (NSTimeInterval)displayDurationSeconds;
-- (NSString *)subtitleTextAtTime:(SMTime)time;
+- (NSArray *)subtitleDisplayItemsAtTime:(SMTime)time;
 @end
 
 @interface SMMovie : NSObject
@@ -209,6 +209,13 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 @interface SMMovie (PlaybackSupport)
 - (void)addPlaybackReferenceAudioTrack:(SMTrack *)track;
 - (NSArray *)addPlaybackReferenceAudioTracksFromURL:(NSURL *)url error:(NSError **)error;
+// Playback-only audio references stay outside the source movie's embedded tracks.
+- (NSArray *)playbackReferenceAudioTracks;
+@end
+
+@interface SMMovie (SessionReferenceSupport)
+// Returns all in-memory audio and subtitle references in their session import order.
+- (NSArray *)sessionReferenceTracks;
 @end
 
 @interface SMMovie (ExportSupport)
@@ -222,10 +229,10 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 - (NSArray *)subtitleSidecarTracks;
 - (BOOL)hasSubtitleSidecarTrackForSourceURL:(NSURL *)sourceURL;
 - (SMTrack *)addSyntheticSidecarDisplayTextTrackWithItems:(NSArray *)displayItems langCode:(short)langCode mediaType:(NSString *)mediaType formatLabel:(NSString *)formatLabel sourceURL:(NSURL *)sourceURL;
-- (SMTrack *)addSidecarITTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error;
-- (SMTrack *)addSidecarSRTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error;
-- (SMTrack *)addSidecarTTMLSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error;
-- (SMTrack *)addSidecarSCCSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error;
+- (SMTrack *)addSidecarITTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
+- (SMTrack *)addSidecarSRTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
+- (SMTrack *)addSidecarTTMLSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
+- (SMTrack *)addSidecarSCCSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
 @end
 
 @interface SMMovie (FullLoad)
@@ -236,7 +243,6 @@ extern NSString *SMMediaSampleException;
 
 @interface SMMedia (Sample)
 - (NSData *)sampleAtTime:(SMTime)time;
-- (NSString *)textSampleAtTime:(SMTime)time;
 @end
 
 extern NSString *SMMovieNoSuchFileException;

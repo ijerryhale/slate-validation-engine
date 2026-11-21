@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24765" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="25408" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24765"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="25408"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -30,12 +31,12 @@
                 <rect key="frame" x="0.0" y="0.0" width="1280" height="880"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <splitView identifier="SplitView" fixedFrame="YES" autosaveName="SLATE_SPLIT_VIEW" dividerStyle="paneSplitter" translatesAutoresizingMaskIntoConstraints="NO" id="288" customClass="SplitView">
+                    <customView id="288" userLabel="Split View Host">
                         <rect key="frame" x="0.0" y="29" width="1280" height="851"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <customView fixedFrame="YES" id="289">
-                                <rect key="frame" x="0.0" y="0.0" width="1280" height="441"/>
+                            <customView id="289">
+                                <rect key="frame" x="0.0" y="410" width="1280" height="441"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <view id="vJw-Ng-WYL">
@@ -299,19 +300,12 @@ IA
                                     </view>
                                 </subviews>
                             </customView>
-                            <customView fixedFrame="YES" id="290">
-                                <rect key="frame" x="0.0" y="451" width="1280" height="400"/>
+                            <customView id="290">
+                                <rect key="frame" x="0.0" y="0.0" width="1280" height="400"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </customView>
                         </subviews>
-                        <holdingPriorities>
-                            <real value="600"/>
-                            <real value="250"/>
-                        </holdingPriorities>
-                        <connections>
-                            <outlet property="delegate" destination="394" id="449"/>
-                        </connections>
-                    </splitView>
+                    </customView>
                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="285">
                         <rect key="frame" x="1051" y="2" width="24" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
@@ -380,7 +374,7 @@ IA
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="352">
-                        <rect key="frame" x="56" y="5" width="716" height="18"/>
+                        <rect key="frame" x="56" y="5" width="683" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="355">
                             <font key="font" metaFont="system"/>
@@ -388,7 +382,7 @@ IA
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" controlSize="small" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="351">
+                    <progressIndicator hidden="YES" wantsLayer="YES" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" controlSize="small" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="351">
                         <rect key="frame" x="901" y="8" width="140" height="12"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                     </progressIndicator>
@@ -660,6 +654,7 @@ IA
                 <outlet property="_rawCropLeft" destination="hGy-B0-Dud" id="ZHi-uE-HRJ"/>
                 <outlet property="_rawCropRght" destination="7CK-Zf-CFT" id="bsb-pb-jN2"/>
                 <outlet property="_rawCropTop" destination="a9R-zb-w31" id="XhW-v7-Q9q"/>
+                <outlet property="_splitViewController" destination="394" id="slate-split-controller"/>
                 <outlet property="_status" destination="352" id="435"/>
                 <outlet property="_timecodeOverlayButton" destination="Eab-hq-2h7" id="8Vw-mq-F2B"/>
                 <outlet property="_timelineView" destination="07N-IM-Aci" id="aIv-tu-9v9"/>
@@ -671,7 +666,7 @@ IA
         </customObject>
         <customObject id="394" userLabel="SplitViewController" customClass="SplitViewController">
             <connections>
-                <outlet property="_splitView" destination="288" id="425"/>
+                <outlet property="_splitViewHost" destination="288" id="425"/>
             </connections>
         </customObject>
         <userDefaultsController representsSharedInstance="YES" id="276"/>
