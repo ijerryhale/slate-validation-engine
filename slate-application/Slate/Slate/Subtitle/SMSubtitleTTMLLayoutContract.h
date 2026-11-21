@@ -16,10 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-// TTML and ITT sidecar descriptor payload contract. Existing displayItems
-// remain an array of cue dictionaries with line, begin, and end. Cues may also
-// have regionID and regionResolved when the nearest explicit region on <p>,
-// <div>, or <body> names a region. A <p> reference overrides its ancestors.
+// TTML and ITT sidecar descriptor payload contract. XML element names are
+// matched by local name, independent of namespace prefixes. Existing
+// displayItems remain an array of cue dictionaries with line, begin, and end.
+// Cues may also have regionID and regionResolved when the nearest explicit
+// region on <p>, <div>, or <body> names a region. A <p> reference overrides
+// its ancestors.
 // regionID is the source reference, not a resolved region object;
 // regionResolved reports whether that ID matches a declaration in the
 // document's inventory. Both fields are absent when none of those elements
@@ -45,8 +47,10 @@
 //   }
 // }
 //
-// Region geometry and alignment values are the source XML attribute strings.
-// Consumers must not assume that units have been converted or normalized.
+// Region geometry and alignment values are the source XML attribute strings:
+// xml:id supplies id, and tts:origin, tts:extent, tts:displayAlign, and
+// tts:textAlign supply the optional properties. Consumers must not assume
+// that units have been converted or normalized.
 // The active-cue projection may add a resolved regionDefinition to a returned
 // cue copy; it does not mutate displayItems or the source inventory.
 // A region dictionary includes id when the source declares xml:id; it may omit

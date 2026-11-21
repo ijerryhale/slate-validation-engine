@@ -60,6 +60,10 @@ NSError *SMSubtitleFatalParsingError(NSInteger code, NSString *description, NSEr
 // which use these helpers to normalize ITT/TTML/SRT/SCC content into cue payload arrays.
 
 // ITT parsing path, reached from TrackViewController -importITTSubtitleFromURL:.
+// XML element names are matched by local name, independent of namespace
+// prefixes. ITT paragraphs require explicit begin/end times; the first body
+// div begin supplies the common timeline offset. The document frame rate
+// defaults to 25 and may be adjusted by ttp:frameRateMultiplier.
 BOOL SMMillisecondsForITTTimestamp(NSString *timestamp,
                                    double frameDurationInMilliseconds,
                                    SMSubtitleMilliseconds *outMilliseconds);
@@ -69,8 +73,14 @@ NSArray *SMSerializedSubtitleItemsFromITTDocument(NSXMLDocument *xmlDoc,
                                                   NSArray **outDiagnostics);
 
 // TTML parsing path, reached from TrackViewController -importTTMLSubtitleFromURL:.
-// A negative media duration means unknown. Unsupported timeContainer values and
-// invalid TTML timing parameters are reported through outError.
+// XML element names are matched by local name, independent of namespace
+// prefixes. Clock, frame-clock, and offset expressions use the document's
+// frameRate, frameRateMultiplier, and tickRate parameters. body/div/p begin,
+// end, and dur intervals inherit through their parents; nested timed spans and
+// breaks contribute to the resulting cue intervals. Parent and known media
+// ends bound descendant timing. A negative media duration means unknown.
+// Unsupported timeContainer values and invalid TTML timing parameters are
+// reported through outError.
 NSArray *SMSerializedSubtitleItemsFromTTMLDocument(NSXMLDocument *xmlDoc,
                                                    short *outLanguageCode,
                                                    SMSubtitleMilliseconds mediaDurationMilliseconds,
