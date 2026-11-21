@@ -3,20 +3,19 @@
 The standalone validation tool is `slate`.
 
 ```sh
-slate <analyze|readiness|report> [--package <path>] [package-path]
+slate <analyze|readiness|report> --observed-state <path|-> [--package <path>]
 ```
 
 `--package <path>` and a positional `package-path` are equivalent. Provide
-only one package path.
+only one package path. The preview ignores package declarations.
 
 ## Inputs
 
-- package JSON files
-- Apple manifest XML files, normally `metadata.xml`
-- paths using `~`
-
-Movie comparison is not part of the standalone public CLI contract. Package-only
-findings remain valid without a loaded movie.
+Supply observed movie state as JSON from a file or stdin (`-`). For a working
+example with both tracks and chapters see `fixtures/observed/movie.json`.
+The preview checks the supplied observations. Package-only input returns a
+`preview.movie_observations_required` blocker. A pass applies to the observed
+checks identified in the report title.
 
 ## Commands
 
@@ -48,14 +47,13 @@ findings remain valid without a loaded movie.
 | 65 | Input could not be loaded or parsed. |
 | 66 | Output could not be written. |
 | 67 | Internal report contract validation failed. |
-| 68 | Public preview usage cap exhausted or preview ledger invalid. |
 
 ## Examples
 
 ```sh
-slate report --package fixtures/media_pkg/valid/source-basic.itmsp/metadata.xml
-slate analyze fixtures/media_json/valid/source-basic.json
-slate readiness -p fixtures/media_pkg/invalid/source-missing-path.itmsp/metadata.xml
+./Runtime/slate report --observed-state fixtures/observed/movie.json
+./Runtime/slate analyze --observed-state fixtures/observed/movie-issues.json
+./Runtime/slate readiness --observed-state fixtures/observed/movie-issues.json
 ```
 
 Expected stdout lives in `fixtures/golden`.

@@ -5,7 +5,7 @@
   "root": "fixtures",
   "sizeBudget": {
     "maxBytes": 31457280,
-    "currentBytes": 22528424,
+    "currentBytes": 22451908,
     "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for app adapter smoke tests and subtitle timing coverage."
   },
   "exampleManifest": "examples/examples.json",
@@ -33,8 +33,8 @@
         "exitCode": 2,
         "status": "blocker",
         "blockers": 1,
-        "warnings": 10,
-        "total": 11
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Minimal XML package fixture. The referenced movie is intentionally omitted from the public set."
     },
@@ -51,9 +51,9 @@
       "expected": {
         "exitCode": 2,
         "status": "blocker",
-        "blockers": 2,
-        "warnings": 5,
-        "total": 7
+        "blockers": 1,
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Minimal JSON package fixture. The referenced movie is intentionally omitted from the public set."
     },
@@ -69,8 +69,8 @@
         "exitCode": 2,
         "status": "blocker",
         "blockers": 1,
-        "warnings": 10,
-        "total": 11
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Chapter XML fixture with tiny generated chapter images."
     },
@@ -100,9 +100,9 @@
       "expected": {
         "exitCode": 2,
         "status": "blocker",
-        "blockers": 2,
-        "warnings": 5,
-        "total": 7
+        "blockers": 1,
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Chapter JSON fixture with tiny generated chapter images."
     },
@@ -118,8 +118,8 @@
         "exitCode": 2,
         "status": "blocker",
         "blockers": 1,
-        "warnings": 11,
-        "total": 12
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Text-role fixture with tiny subtitle and caption sidecars."
     },
@@ -135,8 +135,8 @@
         "exitCode": 2,
         "status": "blocker",
         "blockers": 1,
-        "warnings": 10,
-        "total": 11
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Invalid XML fixture with no declared source path."
     },
@@ -151,9 +151,9 @@
       "expected": {
         "exitCode": 2,
         "status": "blocker",
-        "blockers": 2,
-        "warnings": 4,
-        "total": 6
+        "blockers": 1,
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Invalid JSON fixture with no declared source path."
     },
@@ -166,11 +166,11 @@
         "report"
       ],
       "expected": {
-        "exitCode": 1,
-        "status": "warning",
-        "blockers": 0,
-        "warnings": 11,
-        "total": 11
+        "exitCode": 2,
+        "status": "blocker",
+        "blockers": 1,
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Invalid XML fixture with a URL-like source path."
     },
@@ -186,10 +186,30 @@
         "exitCode": 2,
         "status": "blocker",
         "blockers": 1,
-        "warnings": 6,
-        "total": 7
+        "warnings": 0,
+        "total": 1
       },
       "notes": "Invalid JSON fixture with a URL-like source path."
+    },
+    {
+      "id": "movie",
+      "kind": "observedMovieState",
+      "path": "observed/movie.json",
+      "commands": [
+        "analyze",
+        "readiness",
+        "report"
+      ]
+    },
+    {
+      "id": "movie-issues",
+      "kind": "observedMovieState",
+      "path": "observed/movie-issues.json",
+      "commands": [
+        "analyze",
+        "readiness",
+        "report"
+      ]
     }
   ],
   "applicationFixtures": [

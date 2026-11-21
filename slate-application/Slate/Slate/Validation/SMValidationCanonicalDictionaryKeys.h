@@ -29,6 +29,8 @@ static NSString * const SMValidationFindingKeyFallbackUsed = @"fallbackUsed";
 static NSString * const SMValidationFindingKeyIdentitySource = @"identitySource";
 
 // Canonical report dictionary keys.
+static NSString * const SMValidationReportKeyAlertTitle = @"alertTitle";
+static NSString * const SMValidationReportKeyValidationScope = @"validationScope";
 static NSString * const SMValidationReportKeySchemaVersion = @"schemaVersion";
 static NSString * const SMValidationReportKeyStatus = @"status";
 static NSString * const SMValidationReportKeySummary = @"summary";

@@ -14,8 +14,4 @@ Runtime deliverables expose the documented CLI and report contracts.
 They do not expose private validation engine internals or validation engine
 implementation source.
 
-The public preview `slate` binary is intentionally usage-capped: 60 validation
-runs total, with 20 runs available for each validation endpoint (`analyze`,
-`report`, and `readiness`). Exhausted or invalid preview ledgers fail closed
-with exit `68`; `analyze`/`report` emit JSON and `readiness` emits a plain
-operator message.
+The public preview runs unlimited checks on observed movie tracks and chapter timing. Package metadata, declaration comparisons, and overall package readiness require the full build.

@@ -1,0 +1,28 @@
+{
+  "hasMovie": true,
+  "hasObservedTrackState": true,
+  "observedTrackRows": [
+    {
+      "videoTrack": true
+    },
+    {
+      "audioTrack": true,
+      "audioChannelLayoutResolved": true,
+      "audioChannelCount": 2,
+      "language": "English"
+    }
+  ],
+  "hasObservedChapterState": true,
+  "observedMovieTimeScale": 600,
+  "observedMovieDurationTimeValue": 6000,
+  "observedChapterRows": [
+    {
+      "chapterTimeValue": 0,
+      "imageTimeValue": 10
+    },
+    {
+      "chapterTimeValue": 3000,
+      "imageTimeValue": 3020
+    }
+  ]
+}

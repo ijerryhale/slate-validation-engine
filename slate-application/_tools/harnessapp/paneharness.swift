@@ -42,13 +42,6 @@ private enum HarnessConfig {
     ]
     static let movieFixtureRelativeDirectory = "media_mov/valid"
 
-    static let smallFixtureRelativePathCandidates = [
-        "media_pkg/valid/source-basic.itmsp/metadata.xml",
-        "media_pkg/valid/source-basic-01.itmsp/metadata.xml"
-    ]
-    static let bigFixtureRelativePathCandidates = [
-        "media_pkg/valid/source-chapters-crop.itmsp/metadata.xml"
-    ]
 }
 
 private enum HarnessValidation {
@@ -282,7 +275,14 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         Bundle.main.bundleURL.deletingLastPathComponent()
     }
     private var fixtureRootURL: URL {
-        applicationDirectoryURL.appendingPathComponent("fixtures", isDirectory: true)
+        let adjacent = applicationDirectoryURL.appendingPathComponent("fixtures", isDirectory: true)
+        let buildDirectory = applicationDirectoryURL.deletingLastPathComponent()
+        guard buildDirectory.lastPathComponent == "build",
+              !FileManager.default.fileExists(atPath: adjacent.path) else { return adjacent }
+
+        let project = buildDirectory.deletingLastPathComponent()
+        let root = project.lastPathComponent == "slate-application" ? project.deletingLastPathComponent() : project
+        return root.appendingPathComponent("fixtures", isDirectory: true)
     }
     private var currentFixtureURL: URL?
     private var currentPackageContext: [String: Any]?
@@ -609,23 +609,11 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     @objc private func loadDailyFixture(_ sender: Any?) {
-        let url = fixtureURL(for: HarnessConfig.smallFixtureRelativePathCandidates)
-        _ = loadFixture(at: url)
+        loadFixture(at: fixtureRootURL.appendingPathComponent("media_pkg/valid/ui-small.itmsp/metadata.xml"))
     }
 
     @objc private func loadBigFixture(_ sender: Any?) {
-        let url = fixtureURL(for: HarnessConfig.bigFixtureRelativePathCandidates)
-        _ = loadFixture(at: url)
-    }
-
-    private func fixtureURL(for relativePathCandidates: [String]) -> URL {
-        for relativePath in relativePathCandidates {
-            let url = fixtureRootURL.appendingPathComponent(relativePath)
-            if FileManager.default.fileExists(atPath: url.path) {
-                return url
-            }
-        }
-        return fixtureRootURL.appendingPathComponent(relativePathCandidates[0])
+        loadFixture(at: fixtureRootURL.appendingPathComponent("media_pkg/valid/ui-large.itmsp/metadata.xml"))
     }
 
     private func runtimeJSONPayload(executableName: String, arguments: [String]) -> [String: Any]? {
@@ -910,7 +898,7 @@ final class PaneHarnessApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         refreshCanonicalValidationFindings()
         applyResponsiveLayout()
-        updateStatus("fixture=\(url.lastPathComponent)")
+        updateStatus("fixture=\(url.deletingLastPathComponent().lastPathComponent)/\(url.lastPathComponent)")
         return true
     }
 

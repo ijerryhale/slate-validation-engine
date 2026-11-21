@@ -50,6 +50,8 @@ static NSString * const SlateValidationObservedStateKeyObservedTimelineSelection
 static NSString * const SlateValidationObservedStateKeyObservedMovieCurrentTimeValue = @"observedMovieCurrentTimeValue";
 static NSString * const SlateValidationObservedStateKeyObservedMovieDurationTimeValue = @"observedMovieDurationTimeValue";
 static NSString * const SlateValidationObservedStateKeyObservedMovieTimeScale = @"observedMovieTimeScale";
+// Embedded chapter starts from the movie. Pane rows may come from a package.
+static NSString * const SlateValidationObservedStateKeyMovieChapterRows = @"movieChapterRows";
 static NSString * const SlateValidationObservedStateKeyObservedChapterRows = @"observedChapterRows";
 
 #endif

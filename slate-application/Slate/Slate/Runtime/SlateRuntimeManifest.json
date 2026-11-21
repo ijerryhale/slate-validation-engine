@@ -24,8 +24,8 @@
         "installPath": "SlateValidationRuntime",
         "packagePath": "Runtime/SlateValidationRuntime",
         "committedToGit": true,
-        "sha256": "1be225dda3a9413aac7f52fa4b273c10b258c6a73a7ec99643a810decf62539b",
-        "sizeBytes": 682800
+        "sha256": "44fa47fee3d581f3e9f5e56de485804d1fd05dd3a23c29798351e4281b0aad1b",
+        "sizeBytes": 449232
       }
     },
     {

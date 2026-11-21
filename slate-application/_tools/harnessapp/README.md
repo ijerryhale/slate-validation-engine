@@ -22,7 +22,7 @@ The harness target depends on `Slate.app`, so building or running `paneharness` 
 
 ## File pickers and fixtures
 
-The file pickers start in a `fixtures` directory beside the app bundles when it exists, or in the directory containing the app bundles otherwise. The `Load Daily` and `Load Big` buttons expect package fixtures under that adjacent `fixtures` directory.
+Load Daily opens `ui-small.itmsp` and Load Big opens `ui-large.itmsp`, both under `fixtures/media_pkg/valid`. The harness uses the fixtures beside the app bundles when present. In a checkout build, it uses the repository’s fixtures. The file pickers use the same fixture root.
 
 Sweep scripts also support:
 

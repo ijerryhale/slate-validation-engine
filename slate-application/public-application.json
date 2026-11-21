@@ -1,10 +1,10 @@
 {
   "schemaVersion": "slatePublicApplicationPackage.v1",
-  "generatedAt": "2026-11-21T18:44:10Z",
+  "generatedAt": "2026-11-21T19:39:44Z",
   "source": {
     "repository": "Slate",
     "branch": "codex/public-subtitle-corpus",
-    "commit": "d579f049d3209b7add82a1e0b9f8110c1482143d",
+    "commit": "35ca74f11420479e8705142eb96bca3af206f11d",
     "trackedChangesPresent": true
   },
   "publicProject": "Slate.xcodeproj",
@@ -16,11 +16,11 @@
     "manifest": {
       "path": "../Runtime/manifest.json",
       "publicRepoPath": "Runtime/manifest.json",
-      "sha256": "55d52e7f539a456ca5d99881ff808c02c9bac7ede43981ad11fec20ad986c20e",
+      "sha256": "75ed7b09e077494c08b7900fe12aa8e045f4a128b7ab01edff8bb8af62901ab8",
       "sizeBytes": 987
     },
-    "sha256": "bb44d18b87538b10c30ea9ef07f969ecdd26ee9d244dde3e5a7b32e4f3c38c34",
-    "sizeBytes": 682768,
+    "sha256": "9697dcc1990538e1eac258afcca05b11c367b3859cbdaed2898846c3113d1bca",
+    "sizeBytes": 449200,
     "architectures": [
       "x86_64",
       "arm64"
@@ -49,8 +49,8 @@
       "buildOutputPathByConfiguration": {
         "Release": "build/Release/SlateValidationRuntime"
       },
-      "sha256": "1be225dda3a9413aac7f52fa4b273c10b258c6a73a7ec99643a810decf62539b",
-      "sizeBytes": 682800,
+      "sha256": "44fa47fee3d581f3e9f5e56de485804d1fd05dd3a23c29798351e4281b0aad1b",
+      "sizeBytes": 449232,
       "architectures": [
         "x86_64",
         "arm64"

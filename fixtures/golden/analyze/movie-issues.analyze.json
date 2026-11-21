@@ -1,0 +1,22 @@
+[
+  {
+    "category" : "chapters",
+    "evidence" : "Observed chapter row 2 has chapter time value 6500, but current movie duration is 6000 time units.",
+    "fallbackUsed" : false,
+    "code" : "chapters.observed_chapter_time_exceeds_current_movie_duration",
+    "scope" : "chapter-row:2",
+    "title" : "Observed chapter time exceeds current movie duration",
+    "identitySource" : "rule-contract",
+    "severity" : "blocker"
+  },
+  {
+    "category" : "roles",
+    "evidence" : "No non-reference audio track is present in Tracks view.",
+    "fallbackUsed" : false,
+    "code" : "roles.primary_audio_track_is_missing",
+    "scope" : "track-state",
+    "title" : "Primary audio track is missing",
+    "identitySource" : "rule-contract",
+    "severity" : "blocker"
+  }
+]

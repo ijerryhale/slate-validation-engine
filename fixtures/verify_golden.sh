@@ -65,28 +65,14 @@ run_case()
 
 failures=0
 
-run_case report-xml-source-basic 2 golden/report/xml-source-basic.report.json \
-    report --package "$ROOT_DIR/media_pkg/valid/source-basic.itmsp/metadata.xml" || failures=$((failures + 1))
-run_case report-json-source-basic 2 golden/report/json-source-basic.report.json \
+run_case report-movie 0 golden/report/movie.report.json \
+    report --observed-state "$ROOT_DIR/observed/movie.json" || failures=$((failures + 1))
+run_case analyze-movie-issues 2 golden/analyze/movie-issues.analyze.json \
+    analyze --observed-state "$ROOT_DIR/observed/movie-issues.json" || failures=$((failures + 1))
+run_case readiness-movie-issues 2 golden/readiness/movie-issues.readiness.txt \
+    readiness --observed-state "$ROOT_DIR/observed/movie-issues.json" || failures=$((failures + 1))
+run_case report-package-only 2 golden/report/package-only.report.json \
     report --package "$ROOT_DIR/media_json/valid/source-basic.json" || failures=$((failures + 1))
-run_case report-xml-chapter-basic 2 golden/report/xml-chapter-basic.report.json \
-    report --package "$ROOT_DIR/media_pkg/valid/chapter-basic.itmsp/metadata.xml" || failures=$((failures + 1))
-run_case report-json-chapter-basic 2 golden/report/json-chapter-basic.report.json \
-    report --package "$ROOT_DIR/media_json/valid/chapter-basic.json" || failures=$((failures + 1))
-run_case report-xml-asset-role-text 2 golden/report/xml-asset-role-text.report.json \
-    report --package "$ROOT_DIR/media_pkg/valid/asset-role-text.itmsp/metadata.xml" || failures=$((failures + 1))
-run_case report-xml-source-missing-path 2 golden/report/xml-source-missing-path.report.json \
-    report --package "$ROOT_DIR/media_pkg/invalid/source-missing-path.itmsp/metadata.xml" || failures=$((failures + 1))
-run_case report-json-source-missing-path 2 golden/report/json-source-missing-path.report.json \
-    report --package "$ROOT_DIR/media_json/invalid/source-missing-path.json" || failures=$((failures + 1))
-run_case report-xml-source-nonlocal-url 1 golden/report/xml-source-nonlocal-url.report.json \
-    report --package "$ROOT_DIR/media_pkg/invalid/source-nonlocal-url.itmsp/metadata.xml" || failures=$((failures + 1))
-run_case report-json-source-nonlocal-url 2 golden/report/json-source-nonlocal-url.report.json \
-    report --package "$ROOT_DIR/media_json/invalid/source-nonlocal-url.json" || failures=$((failures + 1))
-run_case analyze-json-source-basic 2 golden/analyze/json-source-basic.analyze.json \
-    analyze "$ROOT_DIR/media_json/valid/source-basic.json" || failures=$((failures + 1))
-run_case readiness-xml-source-missing-path 2 golden/readiness/xml-source-missing-path.readiness.txt \
-    readiness -p "$ROOT_DIR/media_pkg/invalid/source-missing-path.itmsp/metadata.xml" || failures=$((failures + 1))
 
 if [ "$failures" -ne 0 ]; then
     echo "$failures golden output check(s) failed." >&2

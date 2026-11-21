@@ -206,6 +206,9 @@ static NSUInteger SMPackageValidationSummaryCount(NSDictionary *report, NSString
 
 static NSString *SMPackageValidationAlertTitle(NSDictionary *report)
 {
+    NSString *title = [report objectForKey:SMValidationReportKeyAlertTitle];
+    if ([title isKindOfClass:[NSString class]] && [title length]) return title;
+
     NSUInteger blockerCount = SMPackageValidationSummaryCount(report, SMValidationSummaryKeyBlockers);
     NSUInteger warningCount = SMPackageValidationSummaryCount(report, SMValidationSummaryKeyWarnings);
 

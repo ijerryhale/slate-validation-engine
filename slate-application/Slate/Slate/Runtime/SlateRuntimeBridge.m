@@ -29,7 +29,6 @@ static NSString * const SlateRuntimeProcessResultStdoutDataKey = @"stdoutData";
 static NSString * const SlateRuntimeProcessResultStderrDataKey = @"stderrData";
 static NSString * const SlateRuntimeProcessResultTerminationStatusKey = @"terminationStatus";
 static NSString * const SlateRuntimeProcessResultExceptionReasonKey = @"exceptionReason";
-static NSString * const SlateRuntimeValidationUsageErrorSchemaVersion = @"slate.validationUsageError.v1";
 
 static BOOL SlateRuntimeStringHasContent(NSString *value)
 {
@@ -632,56 +631,6 @@ static NSDictionary *SlateRuntimeValidationUnavailableReport(NSString *code, NSS
                                             message);
 }
 
-static NSString *SlateRuntimeValidationUsageEvidenceFromPayload(NSDictionary *payload)
-{
-    NSDictionary *error = SlateRuntimeDictionaryOrEmpty([payload objectForKey:@"error"]);
-    NSDictionary *limits = SlateRuntimeDictionaryOrEmpty([payload objectForKey:@"limits"]);
-    NSString *message = SlateRuntimeStringOrEmpty([error objectForKey:@"message"]);
-    NSString *command = SlateRuntimeStringOrEmpty([payload objectForKey:@"command"]);
-    NSNumber *totalLimit = [limits objectForKey:@"totalValidationLimit"];
-    NSNumber *perCommandLimit = [limits objectForKey:@"perCommandValidationLimit"];
-
-    NSMutableArray *parts = [NSMutableArray array];
-    [parts addObject:(SlateRuntimeStringHasContent(message) ? message : @"This public preview binary could not run validation.")];
-    if (SlateRuntimeStringHasContent(command)) {
-        [parts addObject:[NSString stringWithFormat:@"Command: %@.", command]];
-    }
-    if ([perCommandLimit respondsToSelector:@selector(integerValue)] || [totalLimit respondsToSelector:@selector(integerValue)]) {
-        NSMutableArray *limitParts = [NSMutableArray array];
-        if ([perCommandLimit respondsToSelector:@selector(integerValue)]) {
-            [limitParts addObject:[NSString stringWithFormat:@"%ld per command", (long)[perCommandLimit integerValue]]];
-        }
-        if ([totalLimit respondsToSelector:@selector(integerValue)]) {
-            [limitParts addObject:[NSString stringWithFormat:@"%ld total", (long)[totalLimit integerValue]]];
-        }
-        [parts addObject:[NSString stringWithFormat:@"Limit: %@.", [limitParts componentsJoinedByString:@", "]]];
-    }
-
-    return [parts componentsJoinedByString:@" "];
-}
-
-static NSDictionary *SlateRuntimeValidationUsageGateReport(NSDictionary *payload)
-{
-    if (![payload isKindOfClass:[NSDictionary class]]
-        || ![[payload objectForKey:@"schemaVersion"] isEqualToString:SlateRuntimeValidationUsageErrorSchemaVersion]) {
-        return nil;
-    }
-
-    NSDictionary *error = SlateRuntimeDictionaryOrEmpty([payload objectForKey:@"error"]);
-    NSString *runtimeCode = SlateRuntimeStringOrEmpty([error objectForKey:@"code"]);
-    NSString *reportCode = @"runtime.validation_preview_limit";
-    if ([runtimeCode isEqualToString:@"previewLedgerInvalid"]) {
-        reportCode = @"runtime.validation_preview_ledger_invalid";
-    } else if ([runtimeCode isEqualToString:@"previewLedgerUnavailable"]) {
-        reportCode = @"runtime.validation_preview_ledger_unavailable";
-    }
-
-    NSString *title = SlateRuntimeStringOrEmpty([error objectForKey:@"title"]);
-    return SlateRuntimeValidationIssueReport(reportCode,
-                                            SlateRuntimeStringHasContent(title) ? title : @"Preview validation limit reached",
-                                            SlateRuntimeValidationUsageEvidenceFromPayload(payload));
-}
-
 static BOOL SlateRuntimeValidationReportIsUsable(NSDictionary *report)
 {
     if (![report isKindOfClass:[NSDictionary class]]) {
@@ -743,11 +692,6 @@ static NSDictionary *SlateRuntimeValidationReportFromExecutable(NSString *packag
     }
 
     NSDictionary *report = (NSDictionary *)jsonObject;
-    NSDictionary *usageGateReport = SlateRuntimeValidationUsageGateReport(report);
-    if (usageGateReport != nil) {
-        return usageGateReport;
-    }
-
     if (!SlateRuntimeValidationReportIsUsable(report)) {
         return SlateRuntimeValidationUnavailableReport(@"runtime.validation_bad_contract",
                                                    @"SlateValidationRuntime report did not satisfy validation report contract.");

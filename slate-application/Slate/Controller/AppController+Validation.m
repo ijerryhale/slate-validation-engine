@@ -245,6 +245,9 @@ static NSUInteger SMValidationReportSummaryCount(NSDictionary *report, NSString 
 
 static NSString *SMValidationAlertTitleForCanonicalReport(NSDictionary *report)
 {
+    NSString *title = [report objectForKey:SMValidationReportKeyAlertTitle];
+    if ([title isKindOfClass:[NSString class]] && [title length]) return title;
+
     NSUInteger blockerCount = SMValidationReportSummaryCount(report, SMValidationSummaryKeyBlockers);
     NSUInteger warningCount = SMValidationReportSummaryCount(report, SMValidationSummaryKeyWarnings);
 
@@ -319,6 +322,16 @@ static NSString *SMValidationOperatorTextForCanonicalReport(NSDictionary *report
             [payload setObject:(SMValidationJSONSafeObject(trackRows) ?: [NSArray array]) forKey:SlateValidationObservedStateKeyObservedTrackRows];
             [payload setObject:[NSNumber numberWithInteger:[_trackViewController selectedAssetTypeID]] forKey:SlateValidationObservedStateKeyObservedAssetTypeID];
         }
+
+        AVAsset *asset = [[_movie playerItem] asset];
+        NSArray *groups = [asset chapterMetadataGroupsBestMatchingPreferredLanguages:[NSLocale preferredLanguages]];
+        NSMutableArray *movieChapterRows = [NSMutableArray arrayWithCapacity:[groups count]];
+        for (AVTimedMetadataGroup *group in groups) {
+            CMTime start = CMTimeConvertScale(group.timeRange.start, [_movie timeScale], kCMTimeRoundingMethod_Default);
+            NSDictionary *row = CMTIME_IS_NUMERIC(start) ? @{@"chapterTimeValue": @(start.value)} : @{};
+            [movieChapterRows addObject:row];
+        }
+        [payload setObject:movieChapterRows forKey:SlateValidationObservedStateKeyMovieChapterRows];
 
         if (_chapterViewController != nil) {
             NSArray *chapterRows = [_chapterViewController validationObservedChapterRows];

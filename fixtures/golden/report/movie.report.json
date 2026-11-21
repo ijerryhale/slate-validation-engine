@@ -1,0 +1,22 @@
+{
+  "status" : "pass",
+  "alertTitle" : "Movie track and chapter timing checks passed.",
+  "schemaVersion" : "1",
+  "summary" : {
+    "blockers" : 0,
+    "total" : 0,
+    "warnings" : 0
+  },
+  "validationScope" : "movieTracksAndChapterTiming",
+  "nextFinding" : null,
+  "findings" : [
+
+  ],
+  "operatorText" : "Movie track and chapter timing checks passed.",
+  "validationResultPayload" : {
+    "findings" : [
+
+    ],
+    "schemaVersion" : "1"
+  }
+}

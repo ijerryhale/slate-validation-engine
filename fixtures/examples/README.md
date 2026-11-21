@@ -12,9 +12,9 @@ test -x Runtime/slate
 Then run:
 
 ```sh
-./Runtime/slate report --package fixtures/media_pkg/valid/source-basic.itmsp/metadata.xml
-./Runtime/slate analyze fixtures/media_json/valid/source-basic.json
-./Runtime/slate readiness -p fixtures/media_pkg/invalid/source-missing-path.itmsp/metadata.xml
+./Runtime/slate report --observed-state fixtures/observed/movie.json
+./Runtime/slate analyze --observed-state fixtures/observed/movie-issues.json
+./Runtime/slate readiness --observed-state fixtures/observed/movie-issues.json
 ```
 
 Expected stdout lives under `golden`. JSON examples are intentionally

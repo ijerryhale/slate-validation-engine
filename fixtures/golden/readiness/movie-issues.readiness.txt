@@ -1,0 +1,13 @@
+Movie track and chapter timing checks: 2 blockers
+Summary:
+- Blockers: 2
+- Warnings: 0
+
+Next:
+- Chapters / Observed chapter time exceeds current movie duration
+
+Blockers:
+- Chapters: Observed chapter time exceeds current movie duration
+  Observed chapter row 2 has chapter time value 6500, but current movie duration is 6000 time units.
+- Roles: Primary audio track is missing
+  No non-reference audio track is present in Tracks view.
