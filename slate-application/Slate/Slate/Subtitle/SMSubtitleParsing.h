@@ -17,8 +17,9 @@
 #import "SMSubtitleTTMLLayoutContract.h"
 
 // Shared normalized subtitle cue contract. `begin` and `end` are nonnegative
-// integer milliseconds; `line` uses LF (`\n`) line endings. TTML cues may also
-// carry regionID/regionResolved. Timed spans split paragraph text into cue
+// integer milliseconds describing the half-open active interval [begin, end);
+// `line` uses LF (`\n`) line endings. TTML cues may also carry
+// regionID/regionResolved. Timed spans split paragraph text into cue
 // intervals. `textRuns` is reserved for safe inline
 // formatting such as SRT bold, italic, and underline; each run has `text` and
 // optional boolean traits. `line` remains the plain-text projection of runs.

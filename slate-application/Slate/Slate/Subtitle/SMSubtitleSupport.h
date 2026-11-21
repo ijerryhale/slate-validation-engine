@@ -37,9 +37,11 @@
 // Reached indirectly from controller import wrappers and subtitle-row reloads through SMMovie.
 NSDictionary *SMSyntheticSidecarDisplayTrackRepresentationFromDescriptor(NSDictionary *descriptor, SMTime fallbackDuration);
 
-// Returns every active cue in source order. Each returned cue is a copy with
-// line endings normalized and may include `regionDefinition` when its TTML
-// region reference resolves against the supplied inventory.
+// Returns cues active on [begin, end) in source order. Each returned cue is a
+// copy with line endings normalized and may include `regionDefinition` when
+// its TTML region reference resolves against the supplied inventory. The
+// cue keys and optional text-run/layout metadata are defined by
+// SMSubtitleParsing.h and SMSubtitleTTMLLayoutContract.h.
 NSArray *SMSyntheticSidecarDisplayItemsAtTime(NSArray *displayItems,
                                               NSDictionary *ttmlLayoutInventory,
                                               SMTime time);

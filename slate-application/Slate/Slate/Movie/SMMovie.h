@@ -150,6 +150,9 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 - (float)audioGain;
 - (void)setAudioGain:(float)audioGain;
 - (NSTimeInterval)displayDurationSeconds;
+// Returns active subtitle sidecar cue copies for the requested time. Cues use
+// the shared line/begin/end contract and may retain richer text-run or TTML
+// region metadata from their source payload.
 - (NSArray *)subtitleDisplayItemsAtTime:(SMTime)time;
 @end
 
@@ -226,8 +229,14 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 @end
 
 @interface SMMovie (SubtitleSupport)
+// Subtitle sidecars are synthetic, session-only reference tracks; importing
+// or removing them does not write subtitle data into the source movie.
 - (NSArray *)subtitleSidecarTracks;
+// Uses the standardized absolute source URL identity. Any imported channel
+// from an SCC source counts as that source already being present.
 - (BOOL)hasSubtitleSidecarTrackForSourceURL:(NSURL *)sourceURL;
+// displayItems contains normalized subtitle cue dictionaries. sourceURL is
+// used for session identity and duplicate-import detection.
 - (SMTrack *)addSyntheticSidecarDisplayTextTrackWithItems:(NSArray *)displayItems langCode:(short)langCode mediaType:(NSString *)mediaType formatLabel:(NSString *)formatLabel sourceURL:(NSURL *)sourceURL;
 - (SMTrack *)addSidecarITTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
 - (SMTrack *)addSidecarSRTSubtitleTrackFromURL:(NSURL *)url error:(NSError **)error diagnostics:(NSArray **)diagnostics;
