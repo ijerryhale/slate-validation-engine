@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="1.0" identifier="chapter-readiness-errors" xmlns="http://apple.com/itunes/importer" default_locale="en-US">
+    <provider>Slate Fixtures</provider>
+
+    <locale name="en-US" display_name="English (US)" />
+    <locale name="fr-FR" display_name="French (France)" />
+
+    <metadata locale="en-US">
+        <title>Chapter Readiness Errors</title>
+        <short_synopsis>Invalid chapter package for readiness rail testing.</short_synopsis>
+        <long_synopsis>Includes chapter times beyond the reference movie, missing chapter images, and incomplete localized chapter titles.</long_synopsis>
+        <release_date>2026-11-22</release_date>
+        <rating system="MPAA">PG</rating>
+    </metadata>
+
+    <metadata locale="fr-FR">
+        <title>Erreurs de preparation des chapitres</title>
+        <short_synopsis>Paquet de chapitres invalide pour tester les resultats de preparation.</short_synopsis>
+        <long_synopsis>Ce paquet contient des temps de chapitre hors duree, des images manquantes et des titres de chapitre incomplets.</long_synopsis>
+        <release_date>2026-11-22</release_date>
+        <rating system="CSA">13</rating>
+    </metadata>
+
+    <chapters>
+        <chapter time="00:01:40:00" thumbnail_time="00:01:40:10">
+            <thumbnail_file>chapter_img/missing-chapter-01.png</thumbnail_file>
+            <localized_info locale="en-US" title="Near the End" />
+        </chapter>
+        <chapter time="00:02:00:00" thumbnail_time="00:02:00:12">
+            <thumbnail_file>chapter_img/missing-chapter-02.png</thumbnail_file>
+            <localized_info locale="en-US" title="Past the End" />
+        </chapter>
+        <chapter time="00:02:10:00" thumbnail_time="00:02:10:12">
+            <thumbnail_file>chapter_img/missing-chapter-03.png</thumbnail_file>
+            <localized_info locale="en-US" title="Last Light" />
+        </chapter>
+    </chapters>
+
+    <assets media_type="video" vendor_id="VEND-CHAPTER-READINESS-ERRORS">
+        <asset type="full" width="1280" height="720" frame_rate="29.970">
+            <data_file role="source">
+                <file_name>../../../media_mov/valid/source-chapters-crop.mov</file_name>
+            </data_file>
+            <locale name="en-US" />
+        </asset>
+    </assets>
+</package>

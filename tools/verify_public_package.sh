@@ -65,6 +65,7 @@ fixtures/media_json/valid/source-basic.json
 fixtures/media_mov/valid/source-chapters-crop.mov
 fixtures/media_pkg/invalid/source-missing-path.itmsp/metadata.xml
 fixtures/media_pkg/invalid/source-nonlocal-url.itmsp/metadata.xml
+fixtures/media_pkg/invalid/chapter-readiness-errors.itmsp/metadata.xml
 fixtures/media_pkg/valid/asset-role-text.itmsp/metadata.xml
 fixtures/media_pkg/valid/asset-role-mixed.itmsp/metadata.xml
 fixtures/media_pkg/valid/chapter-basic.itmsp/metadata.xml

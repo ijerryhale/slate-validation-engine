@@ -30,7 +30,7 @@ The machine-readable package and subtitle fixture inventory is `fixtures.json`.
 
 ## Application package fixtures
 
-`fixtures.json` lists five additional packages under `applicationFixtures`:
+`fixtures.json` lists six additional packages under `applicationFixtures`:
 
 - `asset-role-mixed.itmsp` combines video, audio, text, and image role cues.
 - `reconcile-mixed-role.itmsp` exercises declared asset roles that conflict
@@ -40,6 +40,10 @@ The machine-readable package and subtitle fixture inventory is `fixtures.json`.
 - `ui-small.itmsp` provides a daily-size, two-locale package for UI inspection.
 - `ui-large.itmsp` provides a dense, eight-locale package with larger chapter,
   cast, crew, platform, and poster sections.
+- `chapter-readiness-errors.itmsp` uses the public reference movie to exercise
+  chapter timing, missing-image, and localized-title findings in the full
+  Debug app. The Release preview intentionally omits declared-package chapter
+  comparisons.
 
 These inputs are not CLI golden-output cases. Their supplied subtitle and
 image dependencies are listed in `supportFiles`; private movie and sound
