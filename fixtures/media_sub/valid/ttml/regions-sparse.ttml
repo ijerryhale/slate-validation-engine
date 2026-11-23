@@ -13,7 +13,7 @@
     <div>
       <p begin="0s" end="3s" region="caption">Sparse region cue.</p>
       <p begin="3s" end="5s">Unassigned cue stays distinct.</p>
-      <p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for regions sparse.<br/>Clock reads 00:01:44.000.</p>
+      <p begin="00:01:44.000" end="00:01:45.005">EN: Mara: Final picture cue for regions sparse.<br/>Clock reads 00:01:44.000.</p>
     </div>
   </body>
 </tt>

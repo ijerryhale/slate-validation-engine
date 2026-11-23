@@ -23,7 +23,7 @@
       <tt:p begin="0s" end="2s" region="upper">Upper region cue.</tt:p>
       <tt:p begin="2s" end="4s" region="lower">Lower region cue.</tt:p>
       <tt:p begin="4s" end="5s">Cue without an explicit region.</tt:p>
-      <tt:p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for regions multizone.<tt:br/>Clock reads 00:01:44.000.</tt:p>
+      <tt:p begin="00:01:44.000" end="00:01:45.005">EN: Mara: Final picture cue for regions multizone.<tt:br/>Clock reads 00:01:44.000.</tt:p>
     </tt:div>
   </tt:body>
 </tt:tt>

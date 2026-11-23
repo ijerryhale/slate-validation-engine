@@ -4,7 +4,7 @@
   <body>
     <div>
       <p begin="0s" end="12s">BASE <span begin="2s" end="8s">FIRST </span><span begin="5s" end="10s">SECOND </span>TAIL</p>
-      <p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for timed spans playback.<br/>Clock reads 00:01:44.000.</p>
+      <p begin="00:01:44.000" end="00:01:45.005">EN: Mara: Final picture cue for timed spans playback.<br/>Clock reads 00:01:44.000.</p>
     </div>
   </body>
 </tt>

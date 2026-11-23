@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:s="http://www.w3.org/ns/ttml#styling"
+    xml:lang="en" s:extent="320px 180px">
+  <head>
+    <layout>
+      <!-- No cue ever uses the left region. -->
+      <region xml:id="empty" s:origin="16px 30px" s:extent="84px 100px"
+              s:backgroundColor="teal" s:showBackground="always"/>
+      <region xml:id="active" s:origin="116px 30px" s:extent="84px 100px" s:padding="8px"
+              s:backgroundColor="#FF000080" s:showBackground="whenActive"/>
+      <!-- The default showBackground value is always. -->
+      <region xml:id="persistent" s:origin="216px 30px" s:extent="84px 100px"
+              s:backgroundColor="#000080"/>
+    </layout>
+  </head>
+  <body s:fontFamily="monospace" s:fontSize="14px">
+    <div>
+      <p region="active" begin="00:00:02.000" end="00:00:07.000">ONE</p>
+      <p region="active" begin="00:00:04.000" end="00:00:09.000">TWO</p>
+      <p region="persistent" begin="00:00:04.000" end="00:00:09.000" s:backgroundColor="silver" s:color="black">ON</p>
+      <p region="active" begin="00:00:12.000" end="00:00:15.000">BACK</p>
+      <p region="persistent" begin="00:01:44.000" end="00:01:45.005">END</p>
+    </div>
+  </body>
+</tt>

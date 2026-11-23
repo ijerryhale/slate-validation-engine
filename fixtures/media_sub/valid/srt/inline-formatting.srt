@@ -5,6 +5,6 @@ continues</i> <b>Bold</b> <u>Underline</u>
 <b>Bold <i>both</i></b> plain
 
 2
-00:01:44,000 --> 00:01:45,900
+00:01:44,000 --> 00:01:45,005
 EN: Mara: Final picture cue for inline formatting.
 Clock reads 00:01:44.000.

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml"
+    xmlns:stylex="http://www.w3.org/ns/ttml#styling"
+    xmlns:paramx="http://www.w3.org/ns/ttml#parameter"
+    xmlns:xml="http://www.w3.org/XML/1998/namespace"
+    paramx:timeBase="media"
+    paramx:profile="http://www.w3.org/ns/ttml/profile/ttml2-presentation"
+    paramx:cellResolution="32 15"
+    xml:lang="en-US">
+  <head>
+    <styling>
+      <style xml:id="base" stylex:fontFamily="sansSerif" stylex:fontSize="5c" stylex:lineHeight="120%" stylex:color="#FFFFFFFF" />
+      <style xml:id="bodyStyle" style="base" stylex:textAlign="center" />
+      <style xml:id="emphasis" style="bodyStyle" stylex:fontWeight="bold" stylex:color="#FFFF00" />
+      <style xml:id="regionBase" stylex:displayAlign="after" stylex:backgroundColor="#00000080" />
+    </styling>
+    <layout>
+      <region xml:id="subtitleRegion" style="regionBase bodyStyle" stylex:origin="10% 76%" stylex:extent="80% 18%" stylex:textAlign="center" />
+    </layout>
+  </head>
+  <body style="bodyStyle" region="subtitleRegion">
+    <div>
+      <p begin="00:00:02.000" end="00:00:07.000">
+        A base cue with <span style="emphasis">a chained style and <span stylex:fontStyle="italic" begin="00:00:01.000" end="00:00:04.000">a nested timed span</span></span>.
+      </p>
+      <p begin="00:01:40.000" end="00:01:45.005" style="bodyStyle">
+        The final cue reaches the reference movie end with <span style="emphasis">a styled run</span>.
+      </p>
+    </div>
+  </body>
+</tt>

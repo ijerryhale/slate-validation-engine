@@ -3,6 +3,6 @@
 Sidecar source identity B.
 
 2
-00:01:44,000 --> 00:01:45,900
+00:01:44,000 --> 00:01:45,005
 EN: Mara: Final picture cue for identity-b.
 Clock reads 00:01:44.000.

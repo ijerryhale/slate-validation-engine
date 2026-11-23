@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:s="http://www.w3.org/ns/ttml#styling"
+    xml:lang="en" s:extent="320px 180px">
+  <head>
+    <styling>
+      <style xml:id="type" s:fontFamily="Menlo, monospace" s:fontSize="20px" s:lineHeight="28px"/>
+      <style xml:id="band" s:backgroundColor="#00800080"/>
+      <style xml:id="highlight" s:color="yellow" s:backgroundColor="rgba(255, 0, 0, 128)"/>
+    </styling>
+    <layout>
+      <region xml:id="sample" s:origin="8px 12px" s:extent="142px 134px" s:padding="8px"
+              s:backgroundColor="navy" s:showBackground="whenActive"/>
+      <region xml:id="columns" s:origin="176px 12px" s:extent="124px 154px" s:padding="8px"
+              s:writingMode="tbrl" s:backgroundColor="navy" s:showBackground="whenActive"/>
+    </layout>
+  </head>
+  <body style="type">
+    <div>
+      <!-- One highlight wraps around a transparent four-letter nested span.
+           Its blue background overlays the outer red. Z has half-opacity white ink. -->
+      <p region="sample" begin="00:00:02.000" end="00:00:12.000" style="band">AA <span style="highlight">HHHH <span s:backgroundColor="#0000FF80" s:color="transparent">MMMM</span> HHHH</span> <span s:color="rgba(255,255,255,128)">Z</span></p>
+      <!-- The unhighlighted Latin F and highlighted kanji share a column.
+           The second column contains only unhighlighted text. -->
+      <p region="columns" begin="00:00:12.000" end="00:00:20.000" style="band">F<span s:backgroundColor="rgb(0, 128, 128)" s:color="#ffffff">東京</span><br/>L大阪</p>
+      <p region="sample" begin="00:01:44.000" end="00:01:45.005">END</p>
+    </div>
+  </body>
+</tt>

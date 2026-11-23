@@ -27,7 +27,7 @@
         <p begin="00:00:06" end="00:00:08">UNRESOLVED DIV REGION</p>
       </div>
       <p begin="00:00:08" end="00:00:10" region="missingParagraph">UNRESOLVED PARAGRAPH REGION</p>
-      <p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for region layout.<br/>Clock reads 00:01:44.000.</p>
+      <p begin="00:01:44.000" end="00:01:45.005">EN: Mara: Final picture cue for region layout.<br/>Clock reads 00:01:44.000.</p>
     </div>
   </body>
 </tt>

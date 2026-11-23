@@ -20,8 +20,13 @@ The set proves:
 - valid subtitle timing through the full reference movie duration
 
 Most package fixtures deliberately omit movie or sound media. The single
-public movie is the timing reference for `media_sub`; see
-`media_sub/README.md` for its frame-based duration contract.
+public movie is the timing reference for the [subtitle corpus](media_sub/README.md).
+
+For TTML color and background checks, open the reference movie and enable one
+sidecar at a time. Use [colors-wrapped-spans.ttml](media_sub/valid/ttml/colors-wrapped-spans.ttml)
+to inspect highlights across a line break and [region-background-lifetime.ttml](media_sub/valid/ttml/region-background-lifetime.ttml)
+to see which backgrounds remain after a cue ends. The [TTML playback guide](media_sub/valid/ttml/README.md#color-and-background-playback-checks)
+gives pause times and expected results.
 
 `valid` means the fixture is parseable and intentionally shaped. It does not
 mean the current validation result exits `0`.

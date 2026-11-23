@@ -7,12 +7,16 @@ case exercised, using lowercase kebab-case.
 
 ## Reference movie and timing
 
-Valid timed sidecars target
-`../media_mov/valid/source-chapters-crop.mov`, whose timeline duration is
-`01:45:27` at 29.970 fps (`MM:SS:FF`). Each valid subtitle file has a final cue
-ending at `00:01:45.900`; valid SCC files add a final caption event at
-`00:01:44:00`, which remains visible through the end of the movie. The packet
-decoder case retains its drop-frame separator as `00:01:44;00`.
+The [reference movie](../media_mov/valid/source-chapters-crop.mov) contains
+3,147 video frames at exactly 30000/1001 fps (about 29.970 fps). Its non-drop
+timecode starts at `00:00:00:00`. The last picture frame is `00:01:44:26`
+and the exclusive out is `00:01:44:27`.
+
+The video stream lasts 105.0049 seconds. The MOV duration is 105.005 seconds,
+so the valid SRT, iTT, and TTML fixtures end their final cue at elapsed clock
+time `00:01:45.005` (`00:01:45,005` in SRT). Valid SCC files start their final
+caption event at `00:01:44:00` and hold it through the movie out. The packet
+decoder case uses the drop-frame label `00:01:44;00`.
 
 Invalid fixtures cover malformed input, cues that begin after the reference
 movie ends, and files that contain cues beyond its duration. Their content is
@@ -21,6 +25,13 @@ intentionally left outside the valid timeline contract.
 `valid/srt/identity-a/` and `identity-b/` intentionally contain the same
 basename. They exercise path-based identity for same-named sidecars.
 
-`valid/ttml/README.md` describes the accompanying TTML layout inventory
-payloads. The complete machine-readable inventory lives in
-`../fixtures.json` under `subtitleCorpus`.
+## TTML playback
+
+Open the [reference movie](../media_mov/valid/source-chapters-crop.mov) and enable
+one TTML sidecar at a time. The TTML guide includes
+[writing-mode comparisons](valid/ttml/README.md#writing-mode-playback-checks)
+and [color and background checks](valid/ttml/README.md#color-and-background-playback-checks)
+for wrapped spans, alpha blending, and region visibility between cues.
+
+The [fixture manifest](../fixtures.json) lists the sidecars and accompanying
+layout payloads under `subtitleCorpus`.

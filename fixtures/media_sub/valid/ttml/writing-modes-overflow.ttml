@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:s="http://www.w3.org/ns/ttml#styling"
+    xml:lang="und" s:extent="1280px 720px">
+  <head>
+    <styling>
+      <style xml:id="sample" s:fontFamily="Hiragino Sans, sansSerif" s:fontSize="32px" s:lineHeight="40px"/>
+      <style xml:id="rows" s:extent="144px 80px" s:overflow="hidden"/>
+      <style xml:id="columns" s:extent="80px 144px" s:overflow="hidden"/>
+    </styling>
+    <layout>
+      <region xml:id="ltr" style="rows" s:origin="240px 100px" s:writingMode="lrtb"/>
+      <region xml:id="rtl" style="rows" s:origin="880px 100px" s:writingMode="rltb"/>
+      <region xml:id="leftward" style="columns" s:origin="240px 370px" s:writingMode="tbrl"/>
+      <region xml:id="rightward" style="columns" s:origin="880px 370px" s:writingMode="tblr"/>
+    </layout>
+  </head>
+  <body style="sample">
+    <div>
+      <!-- Each region has room for two 40px rows or columns. C is the
+           sentinel on the third. Pause and resize during either interval. -->
+      <p region="ltr" begin="0s" end="10s">A東<br/>B京<br/>C山</p>
+      <p region="rtl" begin="0s" end="10s">A東<br/>B京<br/>C山</p>
+      <p region="leftward" begin="0s" end="10s">A東<br/>B京<br/>C山</p>
+      <p region="rightward" begin="0s" end="10s">A東<br/>B京<br/>C山</p>
+
+      <!-- No forced breaks. Four 32px ideographs fit in 144px of inline
+           space. Nine and ten fall on the clipped third row or column. -->
+      <p region="ltr" begin="10s" end="20s">一二三四五六七八九十</p>
+      <p region="rtl" begin="10s" end="20s">一二三四五六七八九十</p>
+      <p region="leftward" begin="10s" end="20s">一二三四五六七八九十</p>
+      <p region="rightward" begin="10s" end="20s">一二三四五六七八九十</p>
+
+      <p region="ltr" begin="00:01:44.000" end="00:01:45.005">END</p>
+    </div>
+  </body>
+</tt>

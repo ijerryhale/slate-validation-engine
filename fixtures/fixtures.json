@@ -5,7 +5,7 @@
   "root": "fixtures",
   "sizeBudget": {
     "maxBytes": 31457280,
-    "currentBytes": 22455182,
+    "currentBytes": 22469717,
     "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for app adapter smoke tests and subtitle timing coverage."
   },
   "exampleManifest": "examples/examples.json",
@@ -330,12 +330,12 @@
   "subtitleCorpus": {
     "referenceMovie": {
       "path": "media_mov/valid/source-chapters-crop.mov",
-      "durationTimecode": "01:45:27",
+      "durationTimecode": "01:44:27",
       "timecodeFormat": "MM:SS:FF",
       "frameRate": "29.970"
     },
     "validTimingContract": {
-      "clockTimeCueEnd": "00:01:45.900",
+      "clockTimeCueEnd": "00:01:45.005",
       "sccFinalCueStart": "00:01:44:00",
       "sccDropFrameCueStart": "00:01:44;00",
       "description": "Every valid timed fixture reaches the end of the reference movie; invalid fixtures remain malformed or outside its timeline."
@@ -558,6 +558,14 @@
         "expected": "parseableWithinReferenceMovie"
       },
       {
+        "id": "valid-ttml-colors-wrapped-spans",
+        "path": "media_sub/valid/ttml/colors-wrapped-spans.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "colors-wrapped-spans",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
         "id": "valid-ttml-dialogue-basic",
         "path": "media_sub/valid/ttml/dialogue-basic.ttml",
         "format": "ttml",
@@ -571,6 +579,14 @@
         "format": "ttml",
         "classification": "valid",
         "scenario": "dialogue-sdh",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-region-background-lifetime",
+        "path": "media_sub/valid/ttml/region-background-lifetime.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "region-background-lifetime",
         "expected": "parseableWithinReferenceMovie"
       },
       {
@@ -606,11 +622,35 @@
         "expected": "parseableWithinReferenceMovie"
       },
       {
+        "id": "valid-ttml-style-cascade-nested-runs",
+        "path": "media_sub/valid/ttml/style-cascade-nested-runs.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "style-cascade-nested-runs",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
         "id": "valid-ttml-timed-spans-playback",
         "path": "media_sub/valid/ttml/timed-spans-playback.ttml",
         "format": "ttml",
         "classification": "valid",
         "scenario": "timed-spans-playback",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-writing-modes-overflow",
+        "path": "media_sub/valid/ttml/writing-modes-overflow.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "writing-modes-overflow",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-ttml-writing-modes-playback",
+        "path": "media_sub/valid/ttml/writing-modes-playback.ttml",
+        "format": "ttml",
+        "classification": "valid",
+        "scenario": "writing-modes-playback",
         "expected": "parseableWithinReferenceMovie"
       }
     ],

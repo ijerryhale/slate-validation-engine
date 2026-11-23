@@ -23,8 +23,8 @@
          cues stay positioned in the upper-right and middle-right regions.
   28.75  Only the final lower-left cue remains.
   29.5   All captions are clear again. Seek back to 2.75 to restore four labels.
-  104.0  A final marker appears near the shared movie out at 01:45:27.
-         It clears at 00:01:45.900.
+  104.0  A final marker appears near the shared movie out at non-drop timecode 01:44:27.
+         It clears at 00:01:45.005.
 -->
 <tt:tt xmlns:tt="http://www.w3.org/ns/ttml"
        xmlns:parameter="http://www.w3.org/ns/ttml#parameter"
@@ -105,7 +105,10 @@
       <tt:p begin="4s" end="7s" region="middleRight">MID-RIGHT · final positioned cue.</tt:p>
       <tt:p begin="4750ms" dur="1750ms" region="upperRight">UPPER RIGHT · brief return.</tt:p>
       <tt:p begin="5.5s" end="7.5s" region="lowerLeft">LOWER LEFT · final cue.</tt:p>
-      <tt:p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for regions playback.<tt:br/>Clock reads 00:01:44.000.</tt:p>
+    </tt:div>
+
+    <tt:div>
+      <tt:p begin="00:01:44.000" end="00:01:45.005">EN: Mara: Final picture cue for regions playback.<tt:br/>Clock reads 00:01:44.000.</tt:p>
     </tt:div>
   </tt:body>
 </tt:tt>

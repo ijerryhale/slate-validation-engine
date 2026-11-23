@@ -107,8 +107,10 @@ fixtures/media_sub/valid/srt/identity-a/same-name.srt
 fixtures/media_sub/valid/srt/identity-b/same-name.srt
 fixtures/media_sub/valid/srt/inline-formatting.srt
 fixtures/media_sub/valid/ttml/README.md
+fixtures/media_sub/valid/ttml/colors-wrapped-spans.ttml
 fixtures/media_sub/valid/ttml/dialogue-basic.ttml
 fixtures/media_sub/valid/ttml/dialogue-sdh.ttml
+fixtures/media_sub/valid/ttml/region-background-lifetime.ttml
 fixtures/media_sub/valid/ttml/region-inheritance.ttml
 fixtures/media_sub/valid/ttml/regions-duplicate-inventory.payload.json
 fixtures/media_sub/valid/ttml/regions-multizone.payload.json
@@ -116,7 +118,10 @@ fixtures/media_sub/valid/ttml/regions-multizone.ttml
 fixtures/media_sub/valid/ttml/regions-playback.ttml
 fixtures/media_sub/valid/ttml/regions-sparse.payload.json
 fixtures/media_sub/valid/ttml/regions-sparse.ttml
+fixtures/media_sub/valid/ttml/style-cascade-nested-runs.ttml
 fixtures/media_sub/valid/ttml/timed-spans-playback.ttml
+fixtures/media_sub/valid/ttml/writing-modes-overflow.ttml
+fixtures/media_sub/valid/ttml/writing-modes-playback.ttml
 fixtures/verify_golden.sh
 public-repo.json
 schemas/runtime-manifest.schema.json

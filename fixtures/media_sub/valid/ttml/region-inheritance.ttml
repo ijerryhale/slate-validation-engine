@@ -30,7 +30,7 @@
       <tt:div region="missingDivRegion">
         <tt:p begin="5s" end="6s">Unresolved div inheritance</tt:p>
       </tt:div>
-      <tt:p begin="00:01:44.000" end="00:01:45.900">EN: Mara: Final picture cue for region inheritance.<tt:br/>Clock reads 00:01:44.000.</tt:p>
+      <tt:p begin="00:01:44.000" end="00:01:45.005">EN: Mara: Final picture cue for region inheritance.<tt:br/>Clock reads 00:01:44.000.</tt:p>
     </tt:div>
   </tt:body>
 </tt:tt>

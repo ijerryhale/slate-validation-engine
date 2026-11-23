@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:s="http://www.w3.org/ns/ttml#styling"
+    xml:lang="und" s:extent="1280px 720px">
+  <head>
+    <styling>
+      <style xml:id="sample" s:fontFamily="Hiragino Sans, sansSerif" s:fontSize="36px" s:lineHeight="52px"/>
+    </styling>
+    <layout>
+      <region xml:id="ltr" s:origin="6% 8%" s:extent="38% 32%" s:writingMode="lrtb"/>
+      <region xml:id="rtl" s:origin="56% 8%" s:extent="38% 32%" s:writingMode="rltb"/>
+      <region xml:id="leftward" s:origin="6% 52%" s:extent="38% 40%" s:writingMode="tbrl"/>
+      <region xml:id="rightward" s:origin="56% 52%" s:extent="38% 40%" s:writingMode="tblr"/>
+    </layout>
+  </head>
+  <body style="sample">
+    <div>
+      <!-- Same source text in each horizontal region. The forced break in
+           the vertical pair makes L the first glyph of the second column. -->
+      <p region="ltr" begin="0s" end="10s">F東京 אבג<br/>L大阪 123</p>
+      <p region="rtl" begin="0s" end="10s">F東京 אבג<br/>L大阪 123</p>
+      <p region="leftward" begin="0s" end="10s">F東京<br/>L大阪</p>
+      <p region="rightward" begin="0s" end="10s">F東京<br/>L大阪</p>
+
+      <!-- Compare horizontal end alignment and a scoped RTL override.
+           Each vertical column contains the same F and single-stroke kanji. -->
+      <p region="ltr" begin="10s" end="20s" s:textAlign="end">F東京 <span s:direction="rtl" s:unicodeBidi="bidiOverride">ABC</span></p>
+      <p region="rtl" begin="10s" end="20s" s:textAlign="end">F東京 <span s:direction="rtl" s:unicodeBidi="bidiOverride">ABC</span></p>
+      <p region="leftward" begin="10s" end="20s">F一<br/><span s:textOrientation="upright">F一</span><br/><span s:textOrientation="sideways">F一</span></p>
+      <p region="rightward" begin="10s" end="20s">F一<br/><span s:textOrientation="upright">F一</span><br/><span s:textOrientation="sideways">F一</span></p>
+
+      <p region="ltr" begin="00:01:44.000" end="00:01:45.005">END</p>
+    </div>
+  </body>
+</tt>

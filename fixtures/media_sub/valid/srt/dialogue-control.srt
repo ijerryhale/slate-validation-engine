@@ -24,6 +24,6 @@ Clock reads 00:00:28.000.
 Clock reads 00:00:36.000.
 
 6
-00:01:44,000 --> 00:01:45,900
+00:01:44,000 --> 00:01:45,005
 EN: Mara: Final picture cue for dialogue control.
 Clock reads 00:01:44.000.
