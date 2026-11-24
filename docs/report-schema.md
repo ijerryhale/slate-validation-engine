@@ -7,7 +7,7 @@ The `report` command writes one JSON object to stdout.
 | Key | Type | Notes |
 | --- | --- | --- |
 | `schemaVersion` | string | Current value is `"1"`. |
-| `validationScope` | string | Public preview rule set, `movieTracksAndChapterTiming`. |
+| `validationScope` | string | `packageScalarMetadata`, `movieTracksAndChapterTiming`, or `packageScalarMetadataAndMovieTracksAndChapterTiming`, depending on supplied inputs. |
 | `alertTitle` | string | Operator heading for the supplied observations. |
 | `status` | string | `pass`, `warning`, or `blocker`. |
 | `summary` | object | Counts for blockers, warnings, and total findings. |

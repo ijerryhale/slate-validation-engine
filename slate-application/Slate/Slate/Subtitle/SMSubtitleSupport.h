@@ -46,17 +46,41 @@ NSArray *SMSyntheticSidecarDisplayItemsAtTime(NSArray *displayItems,
                                               NSDictionary *ttmlLayoutInventory,
                                               SMTime time);
 
-typedef NS_ENUM(NSInteger, SMSubtitleVerticalAlignment) {
-    SMSubtitleVerticalAlignmentBefore = 0,
-    SMSubtitleVerticalAlignmentCenter = 1,
-    SMSubtitleVerticalAlignmentAfter = 2
+typedef NS_ENUM(NSInteger, SMSubtitleBlockAlignment) {
+    SMSubtitleBlockAlignmentBefore = 0,
+    SMSubtitleBlockAlignmentCenter = 1,
+    SMSubtitleBlockAlignmentAfter = 2
 };
 
-// Resolves percentage-only TTML region geometry into a normalized rectangle
-// whose origin is top-left. Returns NO for absent, malformed, unsupported, or
-// unresolved geometry. Alignment outputs default to centered when geometry
-// cannot be used.
-BOOL SMSubtitleTTMLResolveDisplayItem(NSDictionary *displayItem,
-                                     NSRect *normalizedRect,
-                                     NSTextAlignment *textAlignment,
-                                     SMSubtitleVerticalAlignment *verticalAlignment);
+typedef struct {
+    NSRect regionRect;
+    NSRect contentRect;
+    BOOL overflowVisible;
+    NSInteger columnProgression; // 0 for horizontal lines, -1 for leftward columns, +1 for rightward.
+    NSTextAlignment textAlignment;
+    SMSubtitleBlockAlignment blockAlignment;
+} SMSubtitleTTMLGeometry;
+
+// Both rectangles use the supplied video rectangle's coordinate system.
+// Returns NO with empty boxes and centered alignment for fallback placement.
+BOOL SMSubtitleTTMLResolveDisplayItem(NSDictionary *displayItem, NSRect video, BOOL flipped,
+                                      SMSubtitleTTMLGeometry *geometry);
+
+@interface SMSubtitleBackgroundFill : NSObject
+- (void)drawInContext:(CGContextRef)context;
+@end
+
+// Ordered region paint for one enabled track, including regions with no cue.
+NSArray<SMSubtitleBackgroundFill *> *SMSubtitleTTMLRegionBackgrounds(NSDictionary *inventory, NSArray *activeItems,
+                                                                     NSRect video, BOOL flipped);
+
+// Returns nil for display items outside the TTML text contract.
+NSAttributedString *SMSubtitleTTMLText(NSDictionary *item, NSSize videoSize, SMSubtitleTTMLGeometry geometry);
+
+// Shapes the complete block at its final inline extent, before the view clips it.
+@interface SMSubtitleTextLayout : NSObject
+- (instancetype)initWithText:(NSAttributedString *)text contentSize:(NSSize)size;
+@property (nonatomic, readonly) CGFloat blockExtent;
+- (NSRect)blockInFlippedRect:(NSRect)content alignment:(SMSubtitleBlockAlignment)alignment;
+- (void)drawInFlippedContext:(CGContextRef)context;
+@end

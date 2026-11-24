@@ -37,6 +37,7 @@
 
     NSArray                     *_canonicalValidationFindings;
     BOOL                        _hasPackageContext;
+    BOOL                        _previewScalarChecksEnabled;
     BOOL                        _didInitializePackageControllerData;
 }
 
@@ -45,7 +46,7 @@
 - (void)clearPackagePresentation;
 
 #pragma mark - Validation
-- (void)applyCanonicalValidationFindings:(NSArray *)findings;
+- (void)applyCanonicalValidationFindings:(NSArray *)findings validationScope:(NSString *)validationScope;
 - (NSArray *)canonicalValidationFindings;
 
 #pragma mark - Layout and Probe

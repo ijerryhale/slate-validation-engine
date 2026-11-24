@@ -1,44 +1,21 @@
 {
-  "status" : "blocker",
-  "alertTitle" : "Movie track and chapter timing checks: 1 blocker",
+  "status" : "pass",
+  "alertTitle" : "Package scalar metadata checks passed.",
   "schemaVersion" : "1",
   "summary" : {
-    "blockers" : 1,
-    "total" : 1,
+    "blockers" : 0,
+    "total" : 0,
     "warnings" : 0
   },
-  "validationScope" : "movieTracksAndChapterTiming",
-  "nextFinding" : {
-    "category" : "tracks",
-    "evidence" : "Load a movie or supply observed track or chapter state to run the preview checks.",
-    "fallbackUsed" : false,
-    "code" : "preview.movie_observations_required",
-    "scope" : "movie",
-    "title" : "Movie observations required",
-    "identitySource" : "rule-contract",
-    "severity" : "blocker"
-  },
+  "validationScope" : "packageScalarMetadata",
+  "nextFinding" : null,
   "findings" : [
-    {
-      "category" : "tracks",
-      "evidence" : "Load a movie or supply observed track or chapter state to run the preview checks.",
-      "fallbackUsed" : false,
-      "code" : "preview.movie_observations_required",
-      "scope" : "movie",
-      "title" : "Movie observations required",
-      "identitySource" : "rule-contract",
-      "severity" : "blocker"
-    }
+
   ],
-  "operatorText" : "Movie track and chapter timing checks: 1 blocker\nSummary:\n- Blockers: 1\n- Warnings: 0\n\nNext:\n- Tracks \/ Movie observations required\n\nBlockers:\n- Tracks: Movie observations required\n  Load a movie or supply observed track or chapter state to run the preview checks.",
+  "operatorText" : "Package scalar metadata checks passed.",
   "validationResultPayload" : {
     "findings" : [
-      {
-        "code" : "preview.movie_observations_required",
-        "scope" : "movie",
-        "evidence" : "Load a movie or supply observed track or chapter state to run the preview checks.",
-        "fallbackUsed" : false
-      }
+
     ],
     "schemaVersion" : "1"
   }

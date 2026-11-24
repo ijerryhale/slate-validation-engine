@@ -71,7 +71,7 @@ run_case analyze-movie-issues 2 golden/analyze/movie-issues.analyze.json \
     analyze --observed-state "$ROOT_DIR/observed/movie-issues.json" || failures=$((failures + 1))
 run_case readiness-movie-issues 2 golden/readiness/movie-issues.readiness.txt \
     readiness --observed-state "$ROOT_DIR/observed/movie-issues.json" || failures=$((failures + 1))
-run_case report-package-only 2 golden/report/package-only.report.json \
+run_case report-package-only 0 golden/report/package-only.report.json \
     report --package "$ROOT_DIR/media_json/valid/source-basic.json" || failures=$((failures + 1))
 
 if [ "$failures" -ne 0 ]; then

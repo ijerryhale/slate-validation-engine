@@ -1,10 +1,10 @@
 {
   "schemaVersion": "slatePublicApplicationPackage.v1",
-  "generatedAt": "2026-11-21T19:39:44Z",
+  "generatedAt": "2026-11-24T03:54:38Z",
   "source": {
     "repository": "Slate",
-    "branch": "codex/public-subtitle-corpus",
-    "commit": "35ca74f11420479e8705142eb96bca3af206f11d",
+    "branch": "main",
+    "commit": "f843c0b7d4b12de66b00598216ec4c56daf2ae83",
     "trackedChangesPresent": true
   },
   "publicProject": "Slate.xcodeproj",
@@ -16,11 +16,11 @@
     "manifest": {
       "path": "../Runtime/manifest.json",
       "publicRepoPath": "Runtime/manifest.json",
-      "sha256": "75ed7b09e077494c08b7900fe12aa8e045f4a128b7ab01edff8bb8af62901ab8",
+      "sha256": "fab8bad5f8936cf3561687daacbf5de2871bbac6b0e495471b8dfa309c9d92b6",
       "sizeBytes": 987
     },
-    "sha256": "9697dcc1990538e1eac258afcca05b11c367b3859cbdaed2898846c3113d1bca",
-    "sizeBytes": 449200,
+    "sha256": "83b5493fd1f69aa90a62a63e4d227f3245d34d2458d0af49061b729bc8b06056",
+    "sizeBytes": 483184,
     "architectures": [
       "x86_64",
       "arm64"
@@ -31,8 +31,8 @@
     "kind": "static-archive",
     "configuration": "Release",
     "sourceBuildProductPath": "build/Release/libSlateRuntime.a",
-    "sha256": "628bd166d9fd90feda26ddf49f59e01526be15904ca860e12aa5e5c9ef9a2964",
-    "sizeBytes": 1129904,
+    "sha256": "32c7a14a8a9b447c989e4187b2cf1e50e37d32428fc571267f7042e0db87d498",
+    "sizeBytes": 1451848,
     "architectures": [
       "x86_64",
       "arm64"
@@ -49,8 +49,8 @@
       "buildOutputPathByConfiguration": {
         "Release": "build/Release/SlateValidationRuntime"
       },
-      "sha256": "44fa47fee3d581f3e9f5e56de485804d1fd05dd3a23c29798351e4281b0aad1b",
-      "sizeBytes": 449232,
+      "sha256": "b3fda6924ce0ce1e53e56f8315546b6467eab256c55ae8e07bbd18c7e8bcd383",
+      "sizeBytes": 483216,
       "architectures": [
         "x86_64",
         "arm64"
@@ -83,8 +83,8 @@
       "buildOutputPathByConfiguration": {
         "Release": "build/Release/SlateTrackRuntime"
       },
-      "sha256": "1d1a51a9c499f2f87992ad6dc5ce790ea3a92a422b1dbf1e99d8a26c48055599",
-      "sizeBytes": 535296,
+      "sha256": "77203969110fd4c80800729c463d29a147388b04a540bfc81365c0dc4707bff0",
+      "sizeBytes": 629376,
       "architectures": [
         "x86_64",
         "arm64"
@@ -100,8 +100,8 @@
       "buildOutputPathByConfiguration": {
         "Release": "build/Release/SlateChapterRuntime"
       },
-      "sha256": "4a9a1e48866c33d3fc7853050713269adb288be259455a56b3d09455b9d53edb",
-      "sizeBytes": 687376,
+      "sha256": "ca0004a3bfaaec92c97a44e99ea391ffdbd9fe29894b999d7bfaa2717d6268d1",
+      "sizeBytes": 797824,
       "architectures": [
         "x86_64",
         "arm64"

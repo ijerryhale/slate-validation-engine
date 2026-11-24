@@ -1,5 +1,5 @@
 //
-//  QuadrentView.m
+//  QuadrantView.m
 //  Slate
 //
 //  Created by Jerry Hale on 3/20/26
@@ -27,7 +27,6 @@ typedef NS_ENUM(NSInteger, SMQuadrantCorner) {
     SMQuadrantCornerBottomRight = 3,
 };
 
-static const CGFloat SMQuadrantInterQuadGap = 4.0;
 static const CGFloat SMQuadrantDisabledOverlayAlpha = 0.18;
 static const CGFloat SMQuadrantDisabledQuadAlpha = 0.42;
 static const CGFloat SMQuadrantEnabledQuadAlpha = 1.0;
@@ -98,41 +97,6 @@ static NSImage *SMQuadrantCornerImage(NSImage *image, NSImageView *imageView, SM
              fraction:1.0];
     [cropped unlockFocus];
     return cropped;
-}
-
-- (void)layoutQuadrantImageViews
-{
-    if (_quad0 == nil || _quad1 == nil || _quad2 == nil || _quad3 == nil) {
-        return;
-    }
-
-    NSRect bounds = NSIntegralRect([self bounds]);
-    CGFloat availableWidth = MAX(0.0, NSWidth(bounds) - SMQuadrantInterQuadGap);
-    CGFloat availableHeight = MAX(0.0, NSHeight(bounds) - SMQuadrantInterQuadGap);
-    CGFloat quadSide = floor(MIN(availableWidth / 2.0, availableHeight / 2.0));
-
-    if (quadSide <= 0.0) {
-        [_quad0 setFrame:NSZeroRect];
-        [_quad1 setFrame:NSZeroRect];
-        [_quad2 setFrame:NSZeroRect];
-        [_quad3 setFrame:NSZeroRect];
-        return;
-    }
-
-    CGFloat gridWidth = (quadSide * 2.0) + SMQuadrantInterQuadGap;
-    CGFloat gridHeight = (quadSide * 2.0) + SMQuadrantInterQuadGap;
-    CGFloat originX = floor(NSMinX(bounds) + ((NSWidth(bounds) - gridWidth) / 2.0));
-    CGFloat originY = floor(NSMinY(bounds) + ((NSHeight(bounds) - gridHeight) / 2.0));
-
-    NSRect bottomLeft = NSMakeRect(originX, originY, quadSide, quadSide);
-    NSRect bottomRight = NSMakeRect(originX + quadSide + SMQuadrantInterQuadGap, originY, quadSide, quadSide);
-    NSRect topLeft = NSMakeRect(originX, originY + quadSide + SMQuadrantInterQuadGap, quadSide, quadSide);
-    NSRect topRight = NSMakeRect(originX + quadSide + SMQuadrantInterQuadGap, originY + quadSide + SMQuadrantInterQuadGap, quadSide, quadSide);
-
-    [_quad0 setFrame:NSIntegralRect(topLeft)];
-    [_quad1 setFrame:NSIntegralRect(topRight)];
-    [_quad2 setFrame:NSIntegralRect(bottomLeft)];
-    [_quad3 setFrame:NSIntegralRect(bottomRight)];
 }
 
 - (void)setBackgroundColor:(NSColor *)backgroundColor
@@ -269,29 +233,6 @@ static NSColor *StoredBackgroundColor(NSUserDefaults *defaults)
 
     SMQuadrantEnsureDisabledMaskView(self);
     [self setDisabledAppearanceEnabled:YES];
-    [self layoutQuadrantImageViews];
-}
-
-- (void)setFrameSize:(NSSize)newSize
-{
-    [super setFrameSize:newSize];
-    NSView *maskView = _disabledMaskView;
-    if (maskView != nil) {
-        [maskView setFrame:[self bounds]];
-        [self addSubview:maskView positioned:NSWindowAbove relativeTo:nil];
-    }
-    [self layoutQuadrantImageViews];
-}
-
-- (void)layout
-{
-    [super layout];
-    NSView *maskView = _disabledMaskView;
-    if (maskView != nil) {
-        [maskView setFrame:[self bounds]];
-        [self addSubview:maskView positioned:NSWindowAbove relativeTo:nil];
-    }
-    [self layoutQuadrantImageViews];
 }
 
 - (BOOL) acceptsFirstMouse:(NSEvent *)event

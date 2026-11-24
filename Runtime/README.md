@@ -14,4 +14,4 @@ Runtime deliverables expose the documented CLI and report contracts.
 They do not expose private validation engine internals or validation engine
 implementation source.
 
-The public preview runs unlimited checks on observed movie tracks and chapter timing. Package metadata, declaration comparisons, and overall package readiness require the full build.
+The public preview checks package type, vendor ID, primary locale name, primary locale rating system and value, and theatrical release date. It also checks observed movie tracks and chapter timing plus declared chapter image paths that point to missing files. It does not perform package declaration comparisons or overall package readiness checks.

@@ -17,6 +17,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "MediaSupport/SMCropGeometry.h"
 
+@class SMSubtitleOverlayHostView;
+
 @interface PlayerView : AVPlayerView <CALayerDelegate>
 {
     double              _scaleFactor;
@@ -24,7 +26,7 @@
     SMMovie             *_movie;
     AVPlayerItem        *_observedPlayerItem;
     CALayer             *_backgroundLayer;
-    NSView              *_subtitleOverlayView;
+    SMSubtitleOverlayHostView *_subtitleOverlayView;
     NSMutableDictionary *_subtitleRegionLabels;
     NSView              *_timecodeOverlayView;
     NSTextField         *_timecodeLabel;

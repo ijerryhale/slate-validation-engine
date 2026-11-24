@@ -20,9 +20,8 @@
 // integer milliseconds describing the half-open active interval [begin, end);
 // `line` uses LF (`\n`) line endings. TTML cues may also carry
 // regionID/regionResolved. Timed spans split paragraph text into cue
-// intervals. `textRuns` is reserved for safe inline
-// formatting such as SRT bold, italic, and underline; each run has `text` and
-// optional boolean traits. `line` remains the plain-text projection of runs.
+// intervals. Each textRuns entry has text, with optional SRT boolean traits
+// or TTML runStyle properties. Concatenating the run text reproduces line.
 static NSString * const SMSubtitleCueKeyLine = @"line";
 static NSString * const SMSubtitleCueKeyBegin = @"begin";
 static NSString * const SMSubtitleCueKeyEnd = @"end";
@@ -59,6 +58,12 @@ NSError *SMSubtitleFatalParsingError(NSInteger code, NSString *description, NSEr
 // Those controller wrappers call SMMovie's addSidecar...SubtitleTrackFromURL: methods,
 // which use these helpers to normalize ITT/TTML/SRT/SCC content into cue payload arrays.
 
+// Read TTML/iTT XML while retaining whitespace-only inline text nodes.
+NSXMLDocument *SMSubtitleTTMLDocumentFromData(NSData *data, BOOL validate, NSError **error);
+
+// On success the XML importers can return the ordered layout inventory used
+// to resolve these cues. A failed import clears outLayoutInventory.
+//
 // ITT parsing path, reached from TrackViewController -importITTSubtitleFromURL:.
 // XML element names are matched by local name, independent of namespace
 // prefixes. ITT paragraphs require explicit begin/end times; the first body
@@ -70,7 +75,8 @@ BOOL SMMillisecondsForITTTimestamp(NSString *timestamp,
 NSArray *SMSerializedSubtitleItemsFromITTDocument(NSXMLDocument *xmlDoc,
                                                   short *outLanguageCode,
                                                   NSError **outError,
-                                                  NSArray **outDiagnostics);
+                                                  NSArray **outDiagnostics,
+                                                  NSDictionary **outLayoutInventory);
 
 // TTML parsing path, reached from TrackViewController -importTTMLSubtitleFromURL:.
 // XML element names are matched by local name, independent of namespace
@@ -85,9 +91,8 @@ NSArray *SMSerializedSubtitleItemsFromTTMLDocument(NSXMLDocument *xmlDoc,
                                                    short *outLanguageCode,
                                                    SMSubtitleMilliseconds mediaDurationMilliseconds,
                                                    NSError **outError,
-                                                   NSArray **outDiagnostics);
-// Returns ttmlLayoutInventory.v1 when an ITT/TTML head/layout is present; otherwise nil.
-NSDictionary *SMSerializedTTMLLayoutInventoryFromDocument(NSXMLDocument *xmlDoc);
+                                                   NSArray **outDiagnostics,
+                                                   NSDictionary **outLayoutInventory);
 // Returns the first matching declaration, preserving the inventory's source order.
 NSDictionary *SMSubtitleTTMLRegionDefinitionForID(NSString *regionID, NSDictionary *inventory);
 

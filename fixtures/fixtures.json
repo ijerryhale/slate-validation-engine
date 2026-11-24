@@ -5,7 +5,7 @@
   "root": "fixtures",
   "sizeBudget": {
     "maxBytes": 31457280,
-    "currentBytes": 22469717,
+    "currentBytes": 22468510,
     "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for app adapter smoke tests and subtitle timing coverage."
   },
   "exampleManifest": "examples/examples.json",

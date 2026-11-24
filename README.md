@@ -51,7 +51,7 @@ part of the public package history. Runtime executables live in
 
 ## Public preview validation
 
-The public preview runs unlimited checks on observed movie tracks and chapter timing. Package metadata, declaration comparisons, and overall package readiness require the full build.
+The public preview checks package type, vendor ID, primary locale name, primary locale rating system and value, and theatrical release date. It also checks observed movie tracks and chapter timing plus declared chapter image paths that point to missing files. The package pane displays its scalar metadata, and the readiness rail reports findings from those limited scalar checks. Synopsis, poster, other locale metadata, cast/crew, platform, genre, asset, declaration-comparison, and overall package readiness checks require the full build.
 
 ## License Posture
 

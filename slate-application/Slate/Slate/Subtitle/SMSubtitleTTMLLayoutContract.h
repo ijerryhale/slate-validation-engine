@@ -16,48 +16,29 @@
 
 #import <Foundation/Foundation.h>
 
-// TTML and ITT sidecar descriptor payload contract. XML element names are
-// matched by local name, independent of namespace prefixes. Existing
-// displayItems remain an array of cue dictionaries with line, begin, and end.
-// Cues may also have regionID and regionResolved when the nearest explicit
-// region on <p>, <div>, or <body> names a region. A <p> reference overrides
-// its ancestors.
-// regionID is the source reference, not a resolved region object;
-// regionResolved reports whether that ID matches a declaration in the
-// document's inventory. Both fields are absent when none of those elements
-// has a region attribute. The track descriptor may carry a separate
-// ttmlLayoutInventory:
+// Fresh TTML/iTT imports use one JSON-serializable descriptor. displayItems
+// contains line, begin/end (milliseconds), optional regionID/regionResolved,
+// optional paragraphStyle, and optional textRuns. A run contains text and may
+// carry runStyle. Paragraph and run dictionaries contain effective content
+// properties keyed by TTML local name, including applicable initial values.
+// The importer resolves named references and content inheritance before
+// emission. Relative lengths retain their units for playback measurement.
+// Paragraph and span styles with enclosing backgrounds carry the ordered
+// ancestorBackgrounds color strings for compositing beneath their own paint.
+// A run in a bidi scope carries its ordered enclosing scopes so playback can
+// shape nested embeddings, overrides and isolates while preserving cue text.
 //
-// {
-//   "displayItems": [
-//     {"line": "Hello", "begin": 0, "end": 1200,
-//      "regionID": "lower", "regionResolved": true}
-//   ],
-//   "ttmlLayoutInventory": {
-//     "schemaVersion": "ttmlLayoutInventory.v1",
-//     "regions": [
-//       {
-//         "id": "lower",
-//         "origin": "10% 75%",
-//         "extent": "80% 20%",
-//         "displayAlign": "after",
-//         "textAlign": "center"
-//       }
-//     ]
-//   }
-// }
-//
-// Region geometry and alignment values are the source XML attribute strings:
-// xml:id supplies id, and tts:origin, tts:extent, tts:displayAlign, and
-// tts:textAlign supply the optional properties. Consumers must not assume
-// that units have been converted or normalized.
-// The active-cue projection may add a resolved regionDefinition to a returned
-// cue copy; it does not mutate displayItems or the source inventory.
-// A region dictionary includes id when the source declares xml:id; it may omit
-// id if the source region has none. Optional region properties are omitted
-// when absent. Region declarations retain document order, including repeated
-// IDs. A cue without regionID has no explicit region reference; this contract
-// does not synthesize a default region or define rendering behavior.
+// ttmlLayoutInventory has schemaVersion, regions in declaration order, and an
+// optional document dictionary. Document keys are the authored parameter names
+// profile, cellResolution, and root styling extent. Absence means unspecified.
+// Region dictionaries preserve declaration order, id and ordered styleRefs.
+// Referenced, nested and inline styles are merged on each region. Active cues may include document and regionDefinition.
+// None of these dictionaries contains XML nodes, fonts, colors, or view objects.
+
+static NSString * const SMSubtitleTTMLDocumentKey = @"document";
+static NSString * const SMSubtitleTTMLStyleRefsKey = @"styleRefs";
+static NSString * const SMSubtitleTTMLParagraphStyleKey = @"paragraphStyle";
+static NSString * const SMSubtitleTTMLRunStyleKey = @"runStyle";
 
 static NSString * const SMSubtitleTTMLLayoutInventoryDescriptorKey = @"ttmlLayoutInventory";
 static NSString * const SMSubtitleTTMLLayoutInventorySchemaVersion1 = @"ttmlLayoutInventory.v1";

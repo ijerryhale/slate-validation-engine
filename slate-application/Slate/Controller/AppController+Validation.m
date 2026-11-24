@@ -284,7 +284,8 @@ static NSString *SMValidationOperatorTextForCanonicalReport(NSDictionary *report
     [_chapterViewController applyCanonicalValidationFindings:SMCanonicalFindingsForCategories(canonicalFindings,
                                                                                                [NSArray arrayWithObject:SMValidationCategoryCodeChapters])];
     [_packageViewController applyCanonicalValidationFindings:SMCanonicalFindingsForCategories(canonicalFindings,
-                                                                                               [NSArray arrayWithObjects:SMValidationCategoryCodePackage, SMValidationCategoryCodeMetadata, nil])];
+                                                                                               [NSArray arrayWithObjects:SMValidationCategoryCodePackage, SMValidationCategoryCodeMetadata, nil])
+                                                   validationScope:[canonicalReport objectForKey:SMValidationReportKeyValidationScope]];
 }
 
 - (NSDictionary *)currentValidationObservedStatePayload

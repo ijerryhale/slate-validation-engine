@@ -179,6 +179,8 @@ static NSString * const SMPackageSectionTitleMetadata = @"Metadata";
 static NSString * const SMPackageReadinessStatusNoPackageLoaded = @"No package loaded";
 static NSString * const SMPackageReadinessStatusNoFindings = @"No package/metadata findings";
 static NSString * const SMPackageReadinessEmptyMessageNoFindings = @"No package/metadata readiness findings.";
+static NSString * const SMPackageReadinessPreviewPassedStatus = @"Preview scalar checks passed";
+static NSString * const SMPackageReadinessPreviewPassedMessage = @"Primary locale name and vendor ID checks passed. Full package readiness still requires the full build.";
 static NSString * const SMPackageReadinessFindingsToolTipTitle = @"Readiness findings (package + metadata)";
 
 static SMPackageRailMode SMPackageRailModeForWidth(CGFloat workspaceWidth)
@@ -502,8 +504,9 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
 
 #pragma mark - Validation
 
-- (void)applyCanonicalValidationFindings:(NSArray *)findings
+- (void)applyCanonicalValidationFindings:(NSArray *)findings validationScope:(NSString *)validationScope
 {
+    _previewScalarChecksEnabled = [validationScope containsString:@"packageScalarMetadata"];
     NSArray *canonicalFindings = SlateInspectorRailCanonicalFindingsArray(findings);
     [_canonicalValidationFindings release];
     _canonicalValidationFindings = [canonicalFindings copy];
@@ -1272,8 +1275,11 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
 - (void)updateReadinessPanelPresentation
 {
     [self ensurePackageSectionedFlowViews];
-    NSString *emptyStatus = _hasPackageContext ? SMPackageReadinessStatusNoFindings : SMPackageReadinessStatusNoPackageLoaded;
-    NSString *emptyMessage = _hasPackageContext ? SMPackageReadinessEmptyMessageNoFindings : @"";
+    BOOL showPreviewPass = _hasPackageContext && _previewScalarChecksEnabled && [[self canonicalValidationFindings] count] == 0;
+    NSString *emptyStatus = showPreviewPass ? SMPackageReadinessPreviewPassedStatus
+        : (_hasPackageContext ? SMPackageReadinessStatusNoFindings : SMPackageReadinessStatusNoPackageLoaded);
+    NSString *emptyMessage = showPreviewPass ? SMPackageReadinessPreviewPassedMessage
+        : (_hasPackageContext ? SMPackageReadinessEmptyMessageNoFindings : @"");
     [_readinessPresenter presentFindings:[self canonicalValidationFindings]
                                  paneKey:SlateReviewPaneKeyPackage
                              emptyStatus:emptyStatus
@@ -1361,6 +1367,7 @@ static NSString *SMPackageProbeRailModeName(CGFloat workspaceWidth)
 - (void)clearPackagePresentation
 {
     _hasPackageContext = NO;
+    _previewScalarChecksEnabled = NO;
 
     [_typeField setStringValue:@""];
     [[self synopsisTextViewForTarget:SlatePackageSnapshotTargetSynopsisShort] setString:@""];
