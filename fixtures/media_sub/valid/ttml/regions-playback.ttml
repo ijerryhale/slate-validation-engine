@@ -8,7 +8,8 @@
    3-5   Those four labels clear individually in the same order.
    5.5   All captions are clear.
    8.5   CONTROL has a forced line break. The middle-right sentence wraps
-         within its region. The long cue in the small left region is clipped
+         within its region and its last word, "visible.", stays on screen.
+         The long cue in the small left region is clipped
          at its bottom edge; OVERFLOW NEIGHBOR remains readable to its right.
          Pause and resize the player so the video letterboxes. All labels
          should follow the picture as it moves and stay inside their regions.
@@ -55,7 +56,7 @@
                  style:textAlign="start"/>
       <tt:region xml:id="overflowNeighbor"
                  style:origin="24% 34%"
-                 style:extent="24% 20%"
+                 style:extent="28% 36%"
                  style:displayAlign="before"
                  style:textAlign="start"/>
       <tt:region xml:id="lowerLeft"
@@ -78,13 +79,13 @@
       <tt:p begin="2.5s" end="5s" region="lowerLeft">LOWER LEFT · last to clear.</tt:p>
 
       <!-- Automatic wrapping and an explicit line break on screen together. -->
-      <tt:p begin="6.5s" end="12.5s" region="middleRight">
+      <tt:p begin="6.5s" end="12.5s" region="middleRight" style:fontSize="75%">
         This sentence should wrap inside the middle-right region as the player gets narrower. Keep the last word visible.
       </tt:p>
       <tt:p begin="6.5s" end="12.5s" region="overflowSmall">
         This deliberately long subtitle wraps to many lines inside a short region. Its lower lines must be clipped at the region edge so they cannot cover another subtitle or spill into the picture below. The rest of this passage makes the overflow visible even when the player is large: the words keep wrapping, the region remains short, and the visible lines stay inside the box. This last sentence adds several more lines to check that the clip holds until the cue expires.
       </tt:p>
-      <tt:p begin="6.5s" end="12.5s" region="overflowNeighbor">
+      <tt:p begin="6.5s" end="12.5s" region="overflowNeighbor" style:fontSize="75%">
         OVERFLOW NEIGHBOR · this separate cue must remain readable beside the clipped long cue.
       </tt:p>
       <tt:p begin="7s" end="10.5s" region="upperLeft"><tt:span>CONTROL:</tt:span> Line one.<tt:br/>Line two &amp; still here.</tt:p>
