@@ -17,7 +17,8 @@
 
 @interface AppController (Validation)
 
-- (NSDictionary *)currentValidationReport;
+- (void)requestValidationReportWithCompletion:(void (^)(NSDictionary *report))completion;
+- (void)clearValidationViewAdapters;
 - (void)refreshValidationViewAdapters;
 - (IBAction)showValidationReadiness:(id)sender;
 

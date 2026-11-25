@@ -353,30 +353,85 @@ static NSString *SMValidationOperatorTextForCanonicalReport(NSDictionary *report
     return payload;
 }
 
-- (NSDictionary *)currentValidationReport
+- (void)schedulePendingValidation
 {
-    NSDictionary *report = [SlateRuntimeBridge validationReportForPackagePath:_packagePath
-                                                             observedState:[self currentValidationObservedStatePayload]];
-    [self applyCanonicalValidationFindingsFromReport:report];
-    return report;
+    if (_validationRunning || !_validationRefreshPending) {
+        return;
+    }
+
+    _validationRunning = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _validationRefreshPending = NO;
+        NSUInteger generation = _validationGeneration;
+        NSArray *completions = [_validationCompletions autorelease];
+        _validationCompletions = nil;
+        NSString *packagePath = [[_packagePath copy] autorelease];
+        NSDictionary *observedState = (_movie != nil || _packageContext != nil)
+            ? [self currentValidationObservedStatePayload] : nil;
+
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+            @autoreleasepool {
+                NSDictionary *report = observedState == nil ? nil
+                    : [SlateRuntimeBridge validationReportForPackagePath:packagePath observedState:observedState];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    BOOL isCurrent = generation == _validationGeneration;
+                    if (isCurrent) {
+                        [self applyCanonicalValidationFindingsFromReport:report];
+                    }
+                    for (void (^completion)(NSDictionary *) in completions) {
+                        completion(isCurrent ? report : nil);
+                    }
+                    _validationRunning = NO;
+                    [self schedulePendingValidation];
+                });
+            }
+        });
+    });
+}
+
+- (void)requestValidationReportWithCompletion:(void (^)(NSDictionary *report))completion
+{
+    if (completion != nil) {
+        if (_validationCompletions == nil) {
+            _validationCompletions = [[NSMutableArray alloc] init];
+        }
+        NSUInteger generation = _validationGeneration;
+        void (^request)(NSDictionary *) = [^(NSDictionary *report) {
+            completion(generation == _validationGeneration ? report : nil);
+        } copy];
+        [_validationCompletions addObject:request];
+        [request release];
+    }
+    _validationRefreshPending = YES;
+    [self schedulePendingValidation];
+}
+
+- (void)clearValidationViewAdapters
+{
+    ++_validationGeneration;
+    [self applyCanonicalValidationFindingsFromReport:nil];
 }
 
 - (void)refreshValidationViewAdapters
 {
-    [self currentValidationReport];
+    ++_validationGeneration;
+    [self requestValidationReportWithCompletion:nil];
 }
 
 - (IBAction)showValidationReadiness:(id)sender
 {
     #pragma unused(sender)
-    NSDictionary *report = [self currentValidationReport];
-
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:SMValidationAlertTitleForCanonicalReport(report)];
-    [alert setAccessoryView:SMReadinessReportDialogBodyView(SMValidationOperatorTextForCanonicalReport(report))];
-    [alert setAlertStyle:(SMValidationReportSummaryCount(report, SMValidationSummaryKeyBlockers) > 0) ? NSCriticalAlertStyle : NSInformationalAlertStyle];
-    [alert beginSheetModalForWindow:_window modalDelegate:self didEndSelector:nil contextInfo:nil];
+    [self requestValidationReportWithCompletion:^(NSDictionary *report) {
+        if (report == nil) {
+            return;
+        }
+        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+        [alert addButtonWithTitle:@"OK"];
+        [alert setMessageText:SMValidationAlertTitleForCanonicalReport(report)];
+        [alert setAccessoryView:SMReadinessReportDialogBodyView(SMValidationOperatorTextForCanonicalReport(report))];
+        [alert setAlertStyle:(SMValidationReportSummaryCount(report, SMValidationSummaryKeyBlockers) > 0) ? NSCriticalAlertStyle : NSInformationalAlertStyle];
+        [alert beginSheetModalForWindow:_window modalDelegate:self didEndSelector:nil contextInfo:nil];
+    }];
 }
 
 @end

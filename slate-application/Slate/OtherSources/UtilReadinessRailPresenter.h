@@ -28,6 +28,8 @@
     NSString *_pinDefaultsKey;
     id<SMInspectorRailModeAdapter, NSTextViewDelegate> _owner;
     BOOL _pinned;
+    NSDictionary *_projectionRequest;
+    BOOL _projectionRunning;
 }
 
 @property (readonly) NSTextField *sectionLabel;

@@ -58,6 +58,11 @@ target.
 | `CDET` | none | Chapter and image inspector details for the loaded package |
 | `SNAP` | `status` or `health` for `Slate.app`; optional for `paneharness.app` | Health/status snapshot |
 
+In `Slate.app`, `FPTH` returns success after the movie or package is loaded.
+It returns `openFailed` for an existing file Slate cannot load and
+`unsavedMovieChanges` if the current movie has unsaved changes. The current
+session stays active in both cases.
+
 ## Slate.app Events
 
 `Slate.app` also exposes the full operator surface below.

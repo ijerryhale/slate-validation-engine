@@ -645,7 +645,6 @@ static NSString *SMTransportSizeValue(CGSize size)
         [_trackViewController refreshTrackData];
         [self syncSidecarVisibilityState];
         [_trackViewController.tracks selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
-        [self refreshValidationViewAdapters];
 
         // set the movie into the view
         SMTimelineLog(@"Timeline movieLoadStateDidChange attaching playerView appMovie=%@ playerView=%@", _movie, _playerView);
@@ -653,7 +652,6 @@ static NSString *SMTransportSizeValue(CGSize size)
         SMTimelineLog(@"Timeline movieLoadStateDidChange attached playerView appMovie=%@ playerView=%@", _movie, _playerView);
         if (_packageContext != nil && _chapterViewController != nil) {
             [self refreshPackageAdaptersFromCurrentContext];
-            [self refreshValidationViewAdapters];
         }
             [_timelineState resetForDuration:[self effectivePlaybackDuration]];
             [_timelineState setFrameRate:_movieFrameRate];
@@ -678,6 +676,7 @@ static NSString *SMTransportSizeValue(CGSize size)
             [_volume setFloatValue:[_movie volume]];
             
         [self autoloadReferenceSidecarsIfNeeded];
+        [self refreshValidationViewAdapters];
         SMMovie *loadedMovie = [_movie retain];
         LoadPlaybackStateForMovie(loadedMovie, ^(BOOL unsupported) {
             if (_movie != loadedMovie) {
@@ -702,6 +701,7 @@ static NSString *SMTransportSizeValue(CGSize size)
                     [self setHasMovie:NO];
                     [self rebuildTransportTimelineKeyViewLoop];
                     [self refreshBottomPaneStatusGuidance];
+                    [self refreshValidationViewAdapters];
                 }
 
             [loadedMovie release];
@@ -972,6 +972,7 @@ static NSString *SMTransportSizeValue(CGSize size)
 
     [_packageContext release];
     [_packagePath release];
+    [_validationCompletions release];
     if (_movie) [_movie release];
     [_timelineState release];
 
@@ -1003,11 +1004,7 @@ static NSString *SMTransportSizeValue(CGSize size)
     else
     {
         NSString *path = (NSString *)[dict objectForKey:kKeyFilePath];
-        if ([self pathLooksLikePackageInput:path]) {
-            [self openPackageContextFromURL:[NSURL fileURLWithPath:path] presentErrors:YES];
-        } else {
-            [self openMovie:path];
-        }
+        [self openInputAtPath:path presentErrors:YES];
     }
     
     [dict release];
@@ -1050,11 +1047,19 @@ static NSString *SMTransportSizeValue(CGSize size)
             return;
         }
 
-        [self openMovie:[url path]];
+        [self openMovie:[url path] presentErrors:YES];
     }
 }
 
--(void)openMovie:(NSString *)path
+- (BOOL)openInputAtPath:(NSString *)path presentErrors:(BOOL)presentErrors
+{
+    if ([self pathLooksLikePackageInput:path]) {
+        return [self openPackageContextFromURL:[NSURL fileURLWithPath:path] presentErrors:presentErrors];
+    }
+    return [self openMovie:path presentErrors:presentErrors];
+}
+
+- (BOOL)openMovie:(NSString *)path presentErrors:(BOOL)presentErrors
 {
     SMTimelineLog(@"Timeline openMovie begin path=%@ hasMovie=%d movie=%@ playerView=%@ slider=%@ sliderFrame=%@ sliderHidden=%d windowVisible=%d",
           path,
@@ -1065,6 +1070,20 @@ static NSString *SMTransportSizeValue(CGSize size)
           NSStringFromRect([_timelineView frame]),
           [_timelineView isHidden],
           [_window isVisible]);
+
+    NSError *error = nil;
+    SMMovie *candidate = [SMMovie movieWithFile:path error:&error];
+    if ([candidate URL] == nil || error != nil) {
+        if (presentErrors) {
+            if (error == nil) {
+                error = [NSError errorWithDomain:NSCocoaErrorDomain
+                                            code:NSFileReadUnknownError
+                                        userInfo:@{NSLocalizedDescriptionKey: @"The movie could not be opened."}];
+            }
+            [[NSAlert alertWithError:error] runModal];
+        }
+        return NO;
+    }
 
     BOOL retainedPackageContextForOpenedMovie = [self shouldRetainPackageContextWhenOpeningMoviePath:path];
     if (retainedPackageContextForOpenedMovie) {
@@ -1110,47 +1129,21 @@ static NSString *SMTransportSizeValue(CGSize size)
     SMTimelineLog(@"Timeline openMovie clearing playerView movie before load playerView=%@", _playerView);
     [_playerView setMovie:nil];
     [_playerView clearMessage];
-    [self refreshValidationViewAdapters];
-
-    NSError *error = nil;
-
     _autoloadedSidecarMovie = nil;
-    _movie = [SMMovie movieWithFile:path error:&error];
+    _movie = [candidate retain];
+    [self clearValidationViewAdapters];
+    [self setMovieIsDirty:NO];
     SMTimelineLog(@"Timeline openMovie created appMovie=%@ path=%@", _movie, path);
 
-    if (_movie != nil && error == nil)
-    {
-        [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:[NSURL fileURLWithPath:path]];
+    [[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:[NSURL fileURLWithPath:path]];
 
-        if (!_hasMovie) //  this should only be false once, when the app is first opened
-            [_trackViewController.tracks registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, nil]];
-
-        [self  setHasMovie:YES];
-        [self refreshBottomPaneStatusGuidance];
-        [_movie retain];
-        SMTimelineLog(@"Timeline openMovie postingLoadState path=%@ movie=%@ playerView=%@ sliderFrame=%@ sliderHidden=%d",
-              path,
-              TimelinePointerString(_movie),
-              TimelinePointerString(_playerView),
-              NSStringFromRect([_timelineView frame]),
-              [_timelineView isHidden]);
-        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:@"SMMovieLoadStateDidChangeNotification" object:nil]];
+    if (!_hasMovie) {
+        [_trackViewController.tracks registerForDraggedTypes:@[NSFilenamesPboardType]];
     }
-    else
-    {
-        [_format setStringValue:@"No movie loaded"];
-        [_frameRate setStringValue:SMTransportFrameRateValue(0.0)];
-        [_currentSize setStringValue:SMTransportSizeValue(CGSizeZero)];
-        if (error == nil) {
-            error = [NSError errorWithDomain:NSCocoaErrorDomain
-                                        code:NSFileReadUnknownError
-                                    userInfo:[NSDictionary dictionaryWithObject:@"The movie could not be opened."
-                                                                         forKey:NSLocalizedDescriptionKey]];
-        }
-        NSAlert *alert = [NSAlert alertWithError:error];
-
-        [alert runModal];
-    }
+    [self setHasMovie:YES];
+    [self refreshBottomPaneStatusGuidance];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"SMMovieLoadStateDidChangeNotification" object:nil];
+    return YES;
 }
 
 #pragma mark - Application Delegate
@@ -1181,7 +1174,8 @@ static NSString *SMTransportSizeValue(CGSize size)
           TimelinePointerString(_playerView),
           TimelinePointerString(_movie),
           TimelinePointerString(_timelineState));
-    // load the file
+
+    BOOL accepted = YES;
 	if (_movie && _movieIsDirty)
     {
 		NSAlert *alert = [NSAlert alertWithMessageText:@"Do you want to Save the File?"
@@ -1200,11 +1194,7 @@ static NSString *SMTransportSizeValue(CGSize size)
     }
     else
     {
-        if ([self pathLooksLikePackageInput:filename]) {
-            [self openPackageContextFromURL:[NSURL fileURLWithPath:filename] presentErrors:YES];
-        } else {
-            [self openMovie:filename];
-        }
+        accepted = [self openInputAtPath:filename presentErrors:YES];
     }
 
     SMTimelineLog(@"Timeline startup openFile end filename=%@ windowVisible=%d sliderFrame=%@ sliderHidden=%d movie=%@ playerView=%@",
@@ -1215,7 +1205,7 @@ static NSString *SMTransportSizeValue(CGSize size)
           TimelinePointerString(_movie),
           TimelinePointerString(_playerView));
 
-    return (YES);
+    return accepted;
 }
 
 -(void)applicationDidFinishLaunching:(NSNotification *)notif

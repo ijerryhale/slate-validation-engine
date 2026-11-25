@@ -554,74 +554,28 @@ static NSAppleEventDescriptor *SMAutomationExtensionSnapshotDescriptor(id target
     return context;
 }
 
-- (NSDictionary *)automationCurrentValidationReport
+- (NSDictionary *)automationReadinessPayloadForReport:(NSDictionary *)report
+                                             context:(NSDictionary *)context
+                                          activePane:(NSString *)activePane
+                                          fullReport:(BOOL)fullReport
 {
-    if (_movie == nil && _packageContext == nil) {
-        return nil;
-    }
-
-    return [self currentValidationReport];
-}
-
-- (NSDictionary *)automationReadinessReportPayload
-{
-    NSDictionary *report = [self automationCurrentValidationReport];
-    if (report == nil) {
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                @"noValidationContext", @"error",
-                SMAutomationErrorNoValidationContext, @"message",
-                nil];
-    }
-
-    NSDictionary *context = [self automationReadinessContextPayload];
     NSDictionary *reviewSnapshot = [SlateRuntimeBridge reviewSnapshotWithContext:context
                                                                canonicalReport:report
-                                                                    activePane:[self currentModeAutomationString]];
-    NSMutableDictionary *payload = [NSMutableDictionary dictionary];
-    [payload setObject:@"readinessReport.v1" forKey:@"schemaVersion"];
-    [payload setObject:context forKey:@"context"];
-    [payload setObject:reviewSnapshot forKey:@"reviewSnapshot"];
-    [payload setObject:([report objectForKey:SMValidationReportKeyStatus] ?: SMValidationStatusPass)
-                forKey:SMValidationReportKeyStatus];
-    [payload setObject:([report objectForKey:SMValidationReportKeySummary] ?: [NSDictionary dictionary])
-                forKey:SMValidationReportKeySummary];
-    [payload setObject:([report objectForKey:SMValidationReportKeyNextFinding] ?: [NSNull null])
-                forKey:SMValidationReportKeyNextFinding];
-    [payload setObject:([report objectForKey:SMValidationReportKeyFindings] ?: [NSArray array])
-                forKey:SMValidationReportKeyFindings];
-    [payload setObject:([report objectForKey:SMValidationReportKeyOperatorText] ?: @"")
-                forKey:SMValidationReportKeyOperatorText];
-    [payload setObject:([report objectForKey:SMValidationReportKeyValidationResultPayload] ?: [NSDictionary dictionary])
-                forKey:SMValidationReportKeyValidationResultPayload];
-    return payload;
-}
-
-- (NSDictionary *)automationReadinessSummaryPayload
-{
-    NSDictionary *report = [self automationCurrentValidationReport];
-    if (report == nil) {
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                @"noValidationContext", @"error",
-                SMAutomationErrorNoValidationContext, @"message",
-                nil];
+                                                                    activePane:activePane];
+    NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:@{
+        @"schemaVersion": fullReport ? @"readinessReport.v1" : @"readinessSummary.v1",
+        @"context": context,
+        @"reviewSnapshot": reviewSnapshot,
+        SMValidationReportKeyStatus: [report objectForKey:SMValidationReportKeyStatus],
+        SMValidationReportKeySummary: [report objectForKey:SMValidationReportKeySummary],
+        SMValidationReportKeyNextFinding: [report objectForKey:SMValidationReportKeyNextFinding] ?: [NSNull null],
+        SMValidationReportKeyOperatorText: [report objectForKey:SMValidationReportKeyOperatorText],
+    }];
+    if (fullReport) {
+        [payload setObject:[report objectForKey:SMValidationReportKeyFindings] forKey:SMValidationReportKeyFindings];
+        [payload setObject:([report objectForKey:SMValidationReportKeyValidationResultPayload] ?: @{})
+                    forKey:SMValidationReportKeyValidationResultPayload];
     }
-
-    NSDictionary *context = [self automationReadinessContextPayload];
-    NSDictionary *reviewSnapshot = [SlateRuntimeBridge reviewSnapshotWithContext:context
-                                                               canonicalReport:report
-                                                                    activePane:[self currentModeAutomationString]];
-    NSMutableDictionary *payload = [NSMutableDictionary dictionary];
-    [payload setObject:@"readinessSummary.v1" forKey:@"schemaVersion"];
-    [payload setObject:context forKey:@"context"];
-    [payload setObject:reviewSnapshot forKey:@"reviewSnapshot"];
-    [payload setObject:([report objectForKey:SMValidationReportKeyStatus] ?: SMValidationStatusPass)
-                forKey:SMValidationReportKeyStatus];
-    [payload setObject:([report objectForKey:SMValidationReportKeySummary] ?: [NSDictionary dictionary])
-                forKey:SMValidationReportKeySummary];
-    [payload setObject:([report objectForKey:SMValidationReportKeyNextFinding] ?: [NSNull null])
-                forKey:SMValidationReportKeyNextFinding];
-    [payload setObject:([report objectForKey:SMValidationReportKeyOperatorText] ?: @"")
-                forKey:SMValidationReportKeyOperatorText];
     return payload;
 }
 
@@ -646,7 +600,7 @@ static NSAppleEventDescriptor *SMAutomationExtensionSnapshotDescriptor(id target
          "SSEC <seconds> -> result playback seconds\n"
          "GRAT -> result playback rate\n"
          "TPLY -> result playback rate after toggle\n"
-         "FPTH <path> -> result opened path\n"
+         "FPTH <path> -> result opened path, or an error if it could not be opened\n"
          "TDET -> result Track + Movie inspector details for loaded movie tracks\n"
          "CDET -> result Chapter + Image inspector details for loaded package chapters\n"
          "RRPT -> result full readiness report for loaded movie/package context\n"
@@ -951,7 +905,23 @@ static NSAppleEventDescriptor *SMAutomationExtensionSnapshotDescriptor(id target
         return;
     }
 
-    [self application:[NSApplication sharedApplication] openFile:path];
+    if ([self movieIsDirty]) {
+        [self populateOperatorErrorReplyEvent:replyEvent
+                                      eventID:kSlateAppleEventOpenPath
+                                  errorNumber:errAEEventNotHandled
+                                         code:@"unsavedMovieChanges"
+                                      message:@"Resolve the current movie’s unsaved changes before opening another file."];
+        return;
+    }
+
+    if (![self openInputAtPath:path presentErrors:NO]) {
+        [self populateOperatorErrorReplyEvent:replyEvent
+                                      eventID:kSlateAppleEventOpenPath
+                                  errorNumber:paramErr
+                                         code:@"openFailed"
+                                      message:[NSString stringWithFormat:@"Slate could not open %@.", path]];
+        return;
+    }
     NSDictionary *payload = [NSDictionary dictionaryWithObject:path forKey:SlateRuntimeCommandKeyPath];
     NSDictionary *commandResult = [SlateRuntimeBridge commandResultWithCommand:SlateRuntimeCommandOpenPath
                                                                     payload:payload
@@ -1002,44 +972,74 @@ static NSAppleEventDescriptor *SMAutomationExtensionSnapshotDescriptor(id target
                           resultObject:payload];
 }
 
+- (void)replyToReadinessEvent:(AEEventID)eventID replyEvent:(NSAppleEventDescriptor *)replyEvent
+{
+    if (_movie == nil && _packageContext == nil) {
+        [self populateOperatorErrorReplyEvent:replyEvent
+                                      eventID:eventID
+                                  errorNumber:errAENoSuchObject
+                                         code:@"noValidationContext"
+                                      message:SMAutomationErrorNoValidationContext];
+        return;
+    }
+
+    NSAppleEventManager *manager = [NSAppleEventManager sharedAppleEventManager];
+    NSAppleEventManagerSuspensionID suspensionID = [manager suspendCurrentAppleEvent];
+    if (suspensionID == NULL) {
+        [self populateOperatorErrorReplyEvent:replyEvent
+                                      eventID:eventID
+                                  errorNumber:errAEEventNotHandled
+                                         code:@"validationUnavailable"
+                                      message:@"Slate could not defer this readiness reply."];
+        return;
+    }
+
+    NSUInteger generation = _validationGeneration;
+    void (^finishReply)(NSDictionary *) = ^(NSDictionary *payload) {
+        NSAppleEventDescriptor *suspendedReply = [manager replyAppleEventForSuspensionID:suspensionID];
+        if (payload != nil && generation == _validationGeneration) {
+            [self populateOperatorReplyEvent:suspendedReply eventID:eventID resultObject:payload];
+        } else {
+            [self populateOperatorErrorReplyEvent:suspendedReply
+                                          eventID:eventID
+                                      errorNumber:errAENoSuchObject
+                                             code:@"validationContextChanged"
+                                          message:@"The readiness context changed. Request readiness again for the current input."];
+        }
+        [manager resumeWithSuspensionID:suspensionID];
+    };
+
+    [self requestValidationReportWithCompletion:^(NSDictionary *report) {
+        if (report == nil) {
+            finishReply(nil);
+            return;
+        }
+        NSDictionary *context = [self automationReadinessContextPayload];
+        NSString *activePane = [self currentModeAutomationString];
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+            @autoreleasepool {
+                NSDictionary *payload = [self automationReadinessPayloadForReport:report
+                                                                          context:context
+                                                                       activePane:activePane
+                                                                       fullReport:eventID == kSlateAppleEventReadinessReport];
+                dispatch_async(dispatch_get_main_queue(), ^{ finishReply(payload); });
+            }
+        });
+    }];
+}
+
 - (void)handleAppleEventReadinessReportWithDescriptor:(NSAppleEventDescriptor *)directDescriptor
                                            replyEvent:(NSAppleEventDescriptor *)replyEvent
 {
     #pragma unused(directDescriptor)
-    NSDictionary *payload = [self automationReadinessReportPayload];
-    NSString *errorCode = [payload objectForKey:@"error"];
-    if ([errorCode length] > 0) {
-        [self populateOperatorErrorReplyEvent:replyEvent
-                                      eventID:kSlateAppleEventReadinessReport
-                                  errorNumber:errAENoSuchObject
-                                         code:errorCode
-                                      message:[payload objectForKey:@"message"]];
-        return;
-    }
-
-    [self populateOperatorReplyEvent:replyEvent
-                              eventID:kSlateAppleEventReadinessReport
-                          resultObject:payload];
+    [self replyToReadinessEvent:kSlateAppleEventReadinessReport replyEvent:replyEvent];
 }
 
 - (void)handleAppleEventReadinessSummaryWithDescriptor:(NSAppleEventDescriptor *)directDescriptor
                                             replyEvent:(NSAppleEventDescriptor *)replyEvent
 {
     #pragma unused(directDescriptor)
-    NSDictionary *payload = [self automationReadinessSummaryPayload];
-    NSString *errorCode = [payload objectForKey:@"error"];
-    if ([errorCode length] > 0) {
-        [self populateOperatorErrorReplyEvent:replyEvent
-                                      eventID:kSlateAppleEventReadinessSummary
-                                  errorNumber:errAENoSuchObject
-                                         code:errorCode
-                                      message:[payload objectForKey:@"message"]];
-        return;
-    }
-
-    [self populateOperatorReplyEvent:replyEvent
-                              eventID:kSlateAppleEventReadinessSummary
-                          resultObject:payload];
+    [self replyToReadinessEvent:kSlateAppleEventReadinessSummary replyEvent:replyEvent];
 }
 
 - (void)handleSlateAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent

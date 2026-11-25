@@ -291,7 +291,7 @@ static NSURL *SMPackageURLFromOpenPanel(AppController *self)
                                                                                         hasPackage:NO]];
     [_packageViewController clearPackagePresentation];
     [_packageViewController.view setNeedsDisplay:YES];
-    [self refreshValidationViewAdapters];
+    [self clearValidationViewAdapters];
     [self refreshBottomPaneStatusGuidance];
 }
 
@@ -337,6 +337,7 @@ static NSURL *SMPackageURLFromOpenPanel(AppController *self)
     [_packagePath release];
     _packagePath = [packagePath copy];
 
+    [self clearValidationViewAdapters];
     [self refreshPackageAdaptersFromCurrentContext];
     [self refreshValidationViewAdapters];
     [self refreshBottomPaneStatusGuidance];
@@ -373,23 +374,24 @@ static NSURL *SMPackageURLFromOpenPanel(AppController *self)
     }
 
     NSDictionary *summary = SlatePackageContextSummary(packageContext);
-    NSMutableString *details = [NSMutableString stringWithString:SMPackageStringValue([summary objectForKey:SlatePackageContextSummaryKeyDetails])];
-    NSDictionary *validationReport = [self currentValidationReport];
-    if (validationReport != nil) {
+    [self requestValidationReportWithCompletion:^(NSDictionary *validationReport) {
+        if (validationReport == nil) {
+            return;
+        }
+        NSMutableString *details = [NSMutableString stringWithString:SMPackageStringValue([summary objectForKey:SlatePackageContextSummaryKeyDetails])];
         [details appendString:@"\n\nReadiness Report:"];
         [details appendFormat:@"\n%@", SMPackageValidationAlertTitle(validationReport)];
         NSString *alertDetails = SMPackageValidationOperatorText(validationReport);
         if (SMPackageStringHasContent(alertDetails)) {
             [details appendFormat:@"\n%@", alertDetails];
         }
-    }
-
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:SMPackageStringValue([summary objectForKey:SlatePackageContextSummaryKeyTitle])];
-    [alert setAccessoryView:SMPackageReportDialogBodyView(details)];
-    [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert beginSheetModalForWindow:_window modalDelegate:self didEndSelector:nil contextInfo:nil];
+        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+        [alert addButtonWithTitle:@"OK"];
+        [alert setMessageText:SMPackageStringValue([summary objectForKey:SlatePackageContextSummaryKeyTitle])];
+        [alert setAccessoryView:SMPackageReportDialogBodyView(details)];
+        [alert setAlertStyle:NSInformationalAlertStyle];
+        [alert beginSheetModalForWindow:_window modalDelegate:self didEndSelector:nil contextInfo:nil];
+    }];
 }
 
 - (void)presentPackageOpenErrorWithTitle:(NSString *)title informativeText:(NSString *)informativeText

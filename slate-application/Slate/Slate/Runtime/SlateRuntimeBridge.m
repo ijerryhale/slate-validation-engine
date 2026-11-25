@@ -22,6 +22,7 @@
 
 #import <dispatch/dispatch.h>
 #import <math.h>
+#import <signal.h>
 
 #pragma mark - Package Snapshot Helpers
 
@@ -115,19 +116,7 @@ static NSString *SlateRuntimeProcessStderrText(NSDictionary *result)
     return SlateRuntimeStringFromData(SlateRuntimeProcessData(result, SlateRuntimeProcessResultStderrDataKey));
 }
 
-static void SlateRuntimeClosePipeWriter(NSPipe *pipe)
-{
-    if (pipe == nil) {
-        return;
-    }
-
-    @try {
-        [[pipe fileHandleForWriting] closeFile];
-    }
-    @catch (NSException *exception) {
-        #pragma unused(exception)
-    }
-}
+static NSString * const SlateRuntimeTimeoutMessage = @"The runtime did not finish within 10 seconds.";
 
 static NSDictionary *SlateRuntimeRunExecutable(NSString *launchPath, NSArray *arguments, NSData *stdinData)
 {
@@ -135,70 +124,78 @@ static NSDictionary *SlateRuntimeRunExecutable(NSString *launchPath, NSArray *ar
         return nil;
     }
 
-    NSTask *task = [[[NSTask alloc] init] autorelease];
-    NSPipe *stdinPipe = (stdinData != nil) ? [NSPipe pipe] : nil;
-    NSPipe *stdoutPipe = [NSPipe pipe];
-    NSPipe *stderrPipe = [NSPipe pipe];
-    [task setLaunchPath:launchPath];
-    [task setArguments:([arguments isKindOfClass:[NSArray class]] ? arguments : [NSArray array])];
-    if (stdinPipe != nil) {
-        [task setStandardInput:stdinPipe];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *directory = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES]
+        URLByAppendingPathComponent:[[NSUUID UUID] UUIDString] isDirectory:YES];
+    NSError *error = nil;
+    if (![fileManager createDirectoryAtURL:directory withIntermediateDirectories:NO
+                              attributes:@{NSFilePosixPermissions: @0700} error:&error]) {
+        return SlateRuntimeProcessResult(nil, nil, -1, [error localizedDescription]);
     }
-    [task setStandardOutput:stdoutPipe];
-    [task setStandardError:stderrPipe];
 
-    __block NSData *stdoutData = nil;
-    __block NSData *stderrData = nil;
-    dispatch_group_t drainGroup = dispatch_group_create();
-    BOOL launched = NO;
-
+    // File-backed streams let the task read and write independently of the caller.
+    // A stalled writer or an inherited pipe cannot delay timeout handling.
     @try {
-        [task launch];
-        launched = YES;
-
-        dispatch_group_async(drainGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            @autoreleasepool {
-                NSData *data = [[stdoutPipe fileHandleForReading] readDataToEndOfFile];
-                stdoutData = [data retain];
-            }
-        });
-        dispatch_group_async(drainGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            @autoreleasepool {
-                NSData *data = [[stderrPipe fileHandleForReading] readDataToEndOfFile];
-                stderrData = [data retain];
-            }
-        });
-
-        if (stdinData != nil) {
-            [[stdinPipe fileHandleForWriting] writeData:stdinData];
-            [[stdinPipe fileHandleForWriting] closeFile];
+        NSURL *inputURL = [directory URLByAppendingPathComponent:@"stdin"];
+        NSURL *outputURL = [directory URLByAppendingPathComponent:@"stdout"];
+        NSURL *errorURL = [directory URLByAppendingPathComponent:@"stderr"];
+        NSData *empty = [NSData data];
+        if (![(stdinData ?: empty) writeToURL:inputURL options:0 error:&error]
+            || ![empty writeToURL:outputURL options:0 error:&error]
+            || ![empty writeToURL:errorURL options:0 error:&error]) {
+            return SlateRuntimeProcessResult(nil, nil, -1, [error localizedDescription]);
         }
 
-        [task waitUntilExit];
-        dispatch_group_wait(drainGroup, DISPATCH_TIME_FOREVER);
+        NSFileHandle *input = [NSFileHandle fileHandleForReadingFromURL:inputURL error:&error];
+        NSFileHandle *output = [NSFileHandle fileHandleForWritingToURL:outputURL error:&error];
+        NSFileHandle *diagnostics = [NSFileHandle fileHandleForWritingToURL:errorURL error:&error];
+        if (input == nil || output == nil || diagnostics == nil) {
+            return SlateRuntimeProcessResult(nil, nil, -1, [error localizedDescription]);
+        }
+
+        NSCondition *condition = [[[NSCondition alloc] init] autorelease];
+        __block BOOL finished = NO;
+        NSTask *task = [[[NSTask alloc] init] autorelease];
+        [task setExecutableURL:[NSURL fileURLWithPath:launchPath]];
+        [task setArguments:arguments];
+        [task setStandardInput:input];
+        [task setStandardOutput:output];
+        [task setStandardError:diagnostics];
+        [task setTerminationHandler:^(NSTask *terminatedTask) {
+            #pragma unused(terminatedTask)
+            [condition lock];
+            finished = YES;
+            [condition signal];
+            [condition unlock];
+        }];
+        if (![task launchAndReturnError:&error]) {
+            return SlateRuntimeProcessResult(nil, nil, -1, [error localizedDescription]);
+        }
+
+        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:10.0];
+        [condition lock];
+        while (!finished && [condition waitUntilDate:deadline]) {
+        }
+        BOOL timedOut = !finished;
+        [condition unlock];
+        if (timedOut) {
+            if ([task isRunning]) {
+                kill([task processIdentifier], SIGKILL);
+            }
+            return SlateRuntimeProcessResult(nil, nil, -1, SlateRuntimeTimeoutMessage);
+        }
+
+        NSData *stdoutData = [NSData dataWithContentsOfURL:outputURL];
+        NSData *stderrData = [NSData dataWithContentsOfURL:errorURL];
+        int status = [task terminationReason] == NSTaskTerminationReasonExit ? [task terminationStatus] : -1;
+        return SlateRuntimeProcessResult(stdoutData, stderrData, status, nil);
     }
     @catch (NSException *exception) {
-        SlateRuntimeClosePipeWriter(stdinPipe);
-        if (launched) {
-            @try {
-                [task terminate];
-            }
-            @catch (NSException *terminateException) {
-                #pragma unused(terminateException)
-            }
-            dispatch_group_wait(drainGroup, DISPATCH_TIME_FOREVER);
-        }
-
-        NSDictionary *result = SlateRuntimeProcessResult(stdoutData, stderrData, -1, [exception reason]);
-        [stdoutData release];
-        [stderrData release];
-        return result;
+        return SlateRuntimeProcessResult(nil, nil, -1, [exception reason]);
     }
-
-    NSDictionary *result = SlateRuntimeProcessResult(stdoutData, stderrData, [task terminationStatus], nil);
-    [stdoutData release];
-    [stderrData release];
-    return result;
+    @finally {
+        [fileManager removeItemAtURL:directory error:NULL];
+    }
 }
 
 static NSDictionary *SlateRuntimeRectDictionary(NSRect rect)
@@ -639,7 +636,8 @@ static BOOL SlateRuntimeValidationReportIsUsable(NSDictionary *report)
     if (![[report objectForKey:SMValidationReportKeySchemaVersion] isEqualToString:SMValidationSchemaVersion1]) {
         return NO;
     }
-    return ([[report objectForKey:SMValidationReportKeySummary] isKindOfClass:[NSDictionary class]]
+    return ([[report objectForKey:SMValidationReportKeyStatus] isKindOfClass:[NSString class]]
+            && [[report objectForKey:SMValidationReportKeySummary] isKindOfClass:[NSDictionary class]]
             && [[report objectForKey:SMValidationReportKeyFindings] isKindOfClass:[NSArray class]]
             && [[report objectForKey:SMValidationReportKeyOperatorText] isKindOfClass:[NSString class]]);
 }
@@ -673,8 +671,16 @@ static NSDictionary *SlateRuntimeValidationReportFromExecutable(NSString *packag
     NSDictionary *processResult = SlateRuntimeRunExecutable(runtimePath, arguments, inputData);
     NSString *exceptionReason = SlateRuntimeProcessExceptionReason(processResult);
     if (processResult == nil || SlateRuntimeStringHasContent(exceptionReason)) {
-        return SlateRuntimeValidationUnavailableReport(@"runtime.validation_launch_failed",
-                                                   exceptionReason);
+        NSString *code = [exceptionReason isEqualToString:SlateRuntimeTimeoutMessage]
+            ? @"runtime.validation_timeout" : @"runtime.validation_launch_failed";
+        return SlateRuntimeValidationUnavailableReport(code, exceptionReason);
+    }
+
+    int exitStatus = SlateRuntimeProcessTerminationStatus(processResult);
+    if (exitStatus < 0 || exitStatus > 2) {
+        NSString *stderrText = SlateRuntimeProcessStderrText(processResult);
+        return SlateRuntimeValidationUnavailableReport(@"runtime.validation_process_failed",
+            SlateRuntimeStringHasContent(stderrText) ? stderrText : @"SlateValidationRuntime exited without completing validation.");
     }
 
     NSData *stdoutData = SlateRuntimeProcessData(processResult, SlateRuntimeProcessResultStdoutDataKey);
@@ -692,7 +698,9 @@ static NSDictionary *SlateRuntimeValidationReportFromExecutable(NSString *packag
     }
 
     NSDictionary *report = (NSDictionary *)jsonObject;
-    if (!SlateRuntimeValidationReportIsUsable(report)) {
+    NSString *expectedStatus = @[SMValidationStatusPass, SMValidationSeverityCodeWarning, SMValidationSeverityCodeBlocker][exitStatus];
+    if (!SlateRuntimeValidationReportIsUsable(report)
+        || ![[report objectForKey:SMValidationReportKeyStatus] isEqualToString:expectedStatus]) {
         return SlateRuntimeValidationUnavailableReport(@"runtime.validation_bad_contract",
                                                    @"SlateValidationRuntime report did not satisfy validation report contract.");
     }

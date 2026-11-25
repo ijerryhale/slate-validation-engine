@@ -42,6 +42,7 @@ static NSString * const SlateReadinessRailTitle = @"Readiness";
     [_pinButton release];
     [_findingsToolTipTitle release];
     [_pinDefaultsKey release];
+    [_projectionRequest release];
     [super dealloc];
 }
 
@@ -174,6 +175,33 @@ static NSString * const SlateReadinessRailTitle = @"Readiness";
     SlateInspectorRailApplyCopyHintToView(_textView, toolTip);
 }
 
+- (void)projectReadinessRail
+{
+    if (_projectionRunning) {
+        return;
+    }
+    _projectionRunning = YES;
+    NSDictionary *request = _projectionRequest;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        @autoreleasepool {
+            NSDictionary *snapshot = [SlateRuntimeBridge reviewPaneSnapshotWithPaneKey:request[@"pane"]
+                                                                                 title:SlateReadinessRailTitle
+                                                                              findings:request[@"findings"]
+                                                                           emptyStatus:request[@"emptyStatus"]
+                                                                          emptyMessage:request[@"emptyMessage"]
+                                                            jumpLinksByFindingIdentity:request[@"jumpLinks"]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                _projectionRunning = NO;
+                if ([_projectionRequest isEqualToDictionary:request]) {
+                    [self renderReviewPaneSnapshot:snapshot];
+                } else {
+                    [self projectReadinessRail];
+                }
+            });
+        }
+    });
+}
+
 - (void)presentFindings:(NSArray *)findings
                 paneKey:(NSString *)paneKey
             emptyStatus:(NSString *)emptyStatus
@@ -191,13 +219,20 @@ static NSString * const SlateReadinessRailTitle = @"Readiness";
         }
     }
 
-    NSDictionary *snapshot = [SlateRuntimeBridge reviewPaneSnapshotWithPaneKey:paneKey
-                                                                         title:SlateReadinessRailTitle
-                                                                      findings:findings
-                                                                   emptyStatus:emptyStatus
-                                                                  emptyMessage:emptyMessage
-                                                    jumpLinksByFindingIdentity:jumpLinks];
-    [self renderReviewPaneSnapshot:snapshot];
+    NSDictionary *request = @{
+        @"pane": paneKey,
+        @"findings": findings ?: @[],
+        @"emptyStatus": emptyStatus ?: @"",
+        @"emptyMessage": emptyMessage ?: @"",
+        @"jumpLinks": jumpLinks,
+    };
+    if ([_projectionRequest isEqualToDictionary:request]) {
+        return;
+    }
+    [_projectionRequest release];
+    _projectionRequest = [request retain];
+    [self renderReviewPaneSnapshot:@{SlateReviewPaneSnapshotKeyEmptyStatus: @"Checking readiness…"}];
+    [self projectReadinessRail];
 }
 
 - (void)hideRail

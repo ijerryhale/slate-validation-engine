@@ -3,19 +3,31 @@
 The standalone validation tool is `slate`.
 
 ```sh
-slate <analyze|readiness|report> --observed-state <path|-> [--package <path>]
+slate <analyze|readiness|report> [--package <path> | <package-path>] [--observed-state <path|->]
 ```
 
-`--package <path>` and a positional `package-path` are equivalent. Provide
-only one package path. The preview ignores package declarations.
+Provide a package, observed state, or both. Use `--package <path>`, its alias
+`-p <path>`, or a positional path to supply one package JSON or Apple manifest
+XML file. Use `--observed-state <path>` to read movie observations from a JSON
+file or `--observed-state -` to read them from stdin.
 
 ## Inputs
 
-Supply observed movie state as JSON from a file or stdin (`-`). For a working
-example with both tracks and chapters see `fixtures/observed/movie.json`.
-The preview checks the supplied observations. Package-only input returns a
-`preview.movie_observations_required` blocker. A pass applies to the observed
-checks identified in the report title.
+| Supplied input | Public preview checks | Report `validationScope` |
+| --- | --- | --- |
+| Package only | Package type, vendor ID, primary locale name, rating system and value, theatrical release date, and missing files referenced by declared chapter image paths. | `packageScalarMetadata` |
+| Movie observations only | The supplied movie tracks and chapter timing. | `movieTracksAndChapterTiming` |
+| Package and movie observations | Both sets of checks. | `packageScalarMetadataAndMovieTracksAndChapterTiming` |
+
+Use the report title and `validationScope` to interpret a pass within the
+preview checks above. Overall package readiness and comparisons between declared
+and observed media require the full build. For an example with both track and
+chapter observations, see `fixtures/observed/movie.json`.
+
+Invoking a command without either input is a usage error (exit `64`). If no
+package is supplied and the observed state contains neither movie track nor
+chapter observations, the preview returns `preview.movie_observations_required`
+as a blocker (exit `2`).
 
 ## Commands
 
@@ -51,6 +63,7 @@ checks identified in the report title.
 ## Examples
 
 ```sh
+./Runtime/slate report --package fixtures/media_json/valid/source-basic.json
 ./Runtime/slate report --observed-state fixtures/observed/movie.json
 ./Runtime/slate analyze --observed-state fixtures/observed/movie-issues.json
 ./Runtime/slate readiness --observed-state fixtures/observed/movie-issues.json

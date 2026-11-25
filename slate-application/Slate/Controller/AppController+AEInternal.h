@@ -96,8 +96,6 @@ typedef void (*SMAppleEventHandlerIMP)(id, SEL, NSAppleEventDescriptor *, NSAppl
 - (NSAppleEventDescriptor *)automationWindowBoundsDescriptor;
 - (NSDictionary *)automationTrackMovieDetailsPayload;
 - (NSDictionary *)automationChapterDetailsPayload;
-- (NSDictionary *)automationReadinessReportPayload;
-- (NSDictionary *)automationReadinessSummaryPayload;
 
 - (void)handleAppleEventPingWithDescriptor:(NSAppleEventDescriptor *)directDescriptor
                                 replyEvent:(NSAppleEventDescriptor *)replyEvent;

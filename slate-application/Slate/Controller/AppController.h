@@ -47,6 +47,10 @@ enum	// popup tag choices
     SMMovie                         *_autoloadedSidecarMovie;
     NSString                        *_packagePath;
     NSDictionary                    *_packageContext;
+    NSUInteger                      _validationGeneration;
+    BOOL                            _validationRunning;
+    BOOL                            _validationRefreshPending;
+    NSMutableArray                  *_validationCompletions;
 
     NSRect                          _frameForNonFullScreenMode;
     AVAssetExportSession            *_trailerExportSession;
@@ -143,6 +147,7 @@ enum	// popup tag choices
 - (IBAction)clearRecentOperatorInputs:(id)sender;
 
 -(BOOL)application:(NSApplication *)sender openFile:(NSString *)filename;
+- (BOOL)openInputAtPath:(NSString *)path presentErrors:(BOOL)presentErrors;
 
 @end
 
