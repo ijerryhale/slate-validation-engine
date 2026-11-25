@@ -75,8 +75,8 @@
         "installPath": "SlateTrackRuntime",
         "packagePath": "Runtime/SlateTrackRuntime",
         "committedToGit": true,
-        "sha256": "77203969110fd4c80800729c463d29a147388b04a540bfc81365c0dc4707bff0",
-        "sizeBytes": 629376
+        "sha256": "221a2adda0555efc3385d380f0fb0f73923c413cba30da026ac13bd0abf5d843",
+        "sizeBytes": 720880
       }
     },
     {
@@ -100,8 +100,8 @@
         "installPath": "SlateChapterRuntime",
         "packagePath": "Runtime/SlateChapterRuntime",
         "committedToGit": true,
-        "sha256": "ca0004a3bfaaec92c97a44e99ea391ffdbd9fe29894b999d7bfaa2717d6268d1",
-        "sizeBytes": 797824
+        "sha256": "f2e5a85149097d564e6c83534cf100451e543e43776d1c3e365b25d45410b98c",
+        "sizeBytes": 856560
       }
     },
     {
