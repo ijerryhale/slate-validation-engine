@@ -17,7 +17,7 @@ The set proves:
   normal-to-dense package layouts
 - a public chapter/crop movie triplet for UI inspection smoke tests
 - valid and invalid SRT, SCC, ITT, and TTML subtitle/caption cases
-- valid subtitle timing through the full reference movie duration
+- full-duration subtitle timing and a short DFXP nested-timing case
 
 Most package fixtures deliberately omit movie or sound media. The single
 public movie is the timing reference for the [subtitle corpus](media_sub/README.md).

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="en">
+  <body begin="00:00:01.000">
+    <div begin="00:00:02.000">
+      <p begin="00:00:00.000" dur="00:00:04.000">Nested <span>DFXP</span> cue resolves with offsets.</p>
+      <p begin="00:00:06.000" end="00:00:10.000">Second cue keeps the parser on the sidecar display path.</p>
+    </div>
+  </body>
+</tt>

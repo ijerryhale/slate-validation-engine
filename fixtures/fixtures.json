@@ -5,7 +5,7 @@
   "root": "fixtures",
   "sizeBudget": {
     "maxBytes": 31457280,
-    "currentBytes": 22468656,
+    "currentBytes": 22469613,
     "policy": "Keep the public fixture set below 30 MB. The only movie fixture is the chapter/crop triplet used for app adapter smoke tests and subtitle timing coverage."
   },
   "exampleManifest": "examples/examples.json",
@@ -226,7 +226,7 @@
         "chapters.localized_chapter_titles_are_missing",
         "package.declared_chapter_image_is_missing_on_disk"
       ],
-      "purpose": "Full Debug readiness rail probe for declared chapter time, image, and localized-title findings. Release preview intentionally omits declared-package chapter comparisons."
+      "purpose": "Full Debug readiness rail probe for declared chapter time, image, and localized-title findings. Release preview also checks chapter timing and image paths."
     },
     {
       "id": "app-asset-role-mixed",
@@ -338,7 +338,7 @@
       "clockTimeCueEnd": "00:01:45.005",
       "sccFinalCueStart": "00:01:44:00",
       "sccDropFrameCueStart": "00:01:44;00",
-      "description": "Every valid timed fixture reaches the end of the reference movie; invalid fixtures remain malformed or outside its timeline."
+      "description": "Full-duration fixtures reach the end of the reference movie. The DFXP nested-timing case ends at 13 seconds. Invalid fixtures remain malformed or outside the timeline."
     },
     "fixtures": [
       {
@@ -627,6 +627,14 @@
         "format": "ttml",
         "classification": "valid",
         "scenario": "style-cascade-nested-runs",
+        "expected": "parseableWithinReferenceMovie"
+      },
+      {
+        "id": "valid-dfxp-subtitle-nested",
+        "path": "media_sub/valid/ttml/subtitle-nested.dfxp",
+        "format": "dfxp",
+        "classification": "valid",
+        "scenario": "nested-timing-offsets",
         "expected": "parseableWithinReferenceMovie"
       },
       {

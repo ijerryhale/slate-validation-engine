@@ -119,6 +119,7 @@ fixtures/media_sub/valid/ttml/regions-playback.ttml
 fixtures/media_sub/valid/ttml/regions-sparse.payload.json
 fixtures/media_sub/valid/ttml/regions-sparse.ttml
 fixtures/media_sub/valid/ttml/style-cascade-nested-runs.ttml
+fixtures/media_sub/valid/ttml/subtitle-nested.dfxp
 fixtures/media_sub/valid/ttml/timed-spans-playback.ttml
 fixtures/media_sub/valid/ttml/writing-modes-overflow.ttml
 fixtures/media_sub/valid/ttml/writing-modes-playback.ttml
@@ -567,6 +568,7 @@ find . -type f ! -path './.git/*' ! -path './Runtime/slate' ! -path './slate-app
     -name '*.itt' -o \
     -name '*.scc' -o \
     -name '*.srt' -o \
+    -name '*.dfxp' -o \
     -name '*.ttml' -o \
     -name '*.h' -o \
     -name '*.m' -o \
@@ -594,6 +596,7 @@ find . -type f ! -path './.git/*' ! -path './slate-application/*' ! -path './Run
     -name '*.itt' -o \
     -name '*.scc' -o \
     -name '*.srt' -o \
+    -name '*.dfxp' -o \
     -name '*.ttml' -o \
     -name '.gitattributes' -o \
     -name '.gitignore' \
