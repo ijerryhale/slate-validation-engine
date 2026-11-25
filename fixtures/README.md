@@ -47,8 +47,8 @@ The machine-readable package and subtitle fixture inventory is `fixtures.json`.
   cast, crew, platform, and poster sections.
 - `chapter-readiness-errors.itmsp` uses the public reference movie to exercise
   chapter timing, missing-image, and localized-title findings in the full
-  Debug app. The Release preview intentionally omits declared-package chapter
-  comparisons.
+  Debug app. The Release preview checks chapter timing and image paths as
+  described in the [CLI contract](../docs/cli-contract.md#inputs).
 
 These inputs are not CLI golden-output cases. Their supplied subtitle and
 image dependencies are listed in `supportFiles`; private movie and sound

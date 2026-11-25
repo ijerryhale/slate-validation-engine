@@ -15,14 +15,13 @@ file or `--observed-state -` to read them from stdin.
 
 | Supplied input | Public preview checks | Report `validationScope` |
 | --- | --- | --- |
-| Package only | Package type, vendor ID, primary locale name, rating system and value, theatrical release date, and missing files referenced by declared chapter image paths. | `packageScalarMetadata` |
+| Package only | Package type, vendor ID, primary locale name, rating system and value, theatrical release date, declared chapter timing, and missing chapter image paths or files. | `packageScalarMetadata` |
 | Movie observations only | The supplied movie tracks and chapter timing. | `movieTracksAndChapterTiming` |
-| Package and movie observations | Both sets of checks. | `packageScalarMetadataAndMovieTracksAndChapterTiming` |
+| Package and movie observations | Both sets of checks, plus comparisons of declared and observed chapter timing when chapter counts match and the observations supply chapter and image times with a positive movie time scale. | `packageScalarMetadataAndMovieTracksAndChapterTiming` |
 
 Use the report title and `validationScope` to interpret a pass within the
-preview checks above. Overall package readiness and comparisons between declared
-and observed media require the full build. For an example with both track and
-chapter observations, see `fixtures/observed/movie.json`.
+preview checks above. Overall package readiness requires the full build. For an
+example with both track and chapter observations, see `fixtures/observed/movie.json`.
 
 Invoking a command without either input is a usage error (exit `64`). If no
 package is supplied and the observed state contains neither movie track nor

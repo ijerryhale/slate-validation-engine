@@ -14,4 +14,5 @@ Runtime deliverables expose the documented CLI and report contracts.
 They do not expose private validation engine internals or validation engine
 implementation source.
 
-The public preview checks package type, vendor ID, primary locale name, primary locale rating system and value, and theatrical release date. It also checks observed movie tracks and chapter timing plus declared chapter image paths that point to missing files. It does not perform package declaration comparisons or overall package readiness checks.
+The [CLI contract](../docs/cli-contract.md#inputs) lists the package metadata,
+chapter, and observed track checks available for each preview input mode.

@@ -58,10 +58,13 @@ target.
 | `CDET` | none | Chapter and image inspector details for the loaded package |
 | `SNAP` | `status` or `health` for `Slate.app`; optional for `paneharness.app` | Health/status snapshot |
 
-In `Slate.app`, `FPTH` returns success after the movie or package is loaded.
-It returns `openFailed` for an existing file Slate cannot load and
-`unsavedMovieChanges` if the current movie has unsaved changes. The current
-session stays active in both cases.
+In `Slate.app`, `FPTH` returns success after the app accepts the movie or
+package into the session. Movie playback may still be preparing. A missing
+argument returns `expectedPath`, and a path that does not exist returns
+`pathNotFound`. An existing input the app cannot open returns `openFailed`.
+If the current movie has unsaved changes, the app returns
+`unsavedMovieChanges` before trying to open an existing path. Rejected opens
+preserve the current session.
 
 ## Slate.app Events
 
@@ -80,6 +83,17 @@ session stays active in both cases.
 | `TPLY` | none | Playback rate after toggling play/pause |
 | `RRPT` | none | Full readiness report for the loaded movie/package context |
 | `RSUM` | none | Readiness summary for the loaded movie/package context |
+
+`RRPT` and `RSUM` defer their replies while validation is pending. A report
+for the current context returns `readinessReport.v1` or `readinessSummary.v1`
+inside `result`. If the context changes before the reply, the event returns
+`validationContextChanged`. With no loaded movie or package, it returns
+`noValidationContext`. If Slate cannot defer the reply, it returns
+`validationUnavailable`.
+
+A missing or timed-out validation runtime produces a readiness result with
+`status: "blocker"`. `RRPT` includes the runtime finding in `findings`, and
+`RSUM` includes it as `nextFinding`.
 
 ## Examples
 
