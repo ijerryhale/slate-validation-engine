@@ -21,6 +21,8 @@
 // optional paragraphStyle, and optional textRuns. A run contains text and may
 // carry runStyle. Paragraph and run dictionaries contain effective content
 // properties keyed by TTML local name, including applicable initial values.
+// TTML cue slices from the same paragraph share its one-based paragraphOrdinal
+// in document order. It determines stacking order independently of cue timing.
 // The importer resolves named references and content inheritance before
 // emission. Relative lengths retain their units for playback measurement.
 // Paragraph and span styles with enclosing backgrounds carry the ordered
@@ -55,5 +57,6 @@ static NSString * const SMSubtitleTTMLRegionKeyTextAlign = @"textAlign";
 static NSString * const SMSubtitleTTMLCueKeyRegionID = @"regionID";
 static NSString * const SMSubtitleTTMLCueKeyRegionResolved = @"regionResolved";
 static NSString * const SMSubtitleTTMLCueKeyRegionDefinition = @"regionDefinition";
+static NSString * const SMSubtitleTTMLCueKeyParagraphOrdinal = @"paragraphOrdinal";
 
 #endif

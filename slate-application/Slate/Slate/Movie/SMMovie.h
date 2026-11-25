@@ -143,6 +143,8 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 - (void)insertSegmentOfTrack:(SMTrack *)srcTrack fromRange:(SMTimeRange)srcRange scaledToRange:(SMTimeRange)dstRange;
 - (void)removeFromMovie;
 - (long)trackID;
+// Stable within the owning movie's session. Returns zero for other tracks.
+- (NSUInteger)subtitleSidecarID;
 - (BOOL)isEnabled;
 - (void)setEnabled:(BOOL)enabled;
 - (BOOL)isMutedForPlayback;
@@ -150,6 +152,8 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
 - (float)audioGain;
 - (void)setAudioGain:(float)audioGain;
 - (NSTimeInterval)displayDurationSeconds;
+// The track's TTML/iTT region and document layout, if available.
+- (NSDictionary *)subtitleLayoutInventory;
 // Returns active subtitle sidecar cue copies for the requested time. Cues use
 // the shared line/begin/end contract and may retain richer text-run or TTML
 // region metadata from their source payload.
@@ -164,6 +168,7 @@ BOOL SMGetTimeInterval(SMTime time, NSTimeInterval *timeInterval);
     AVPlayer *_player;
     NSMutableDictionary *_movieAttributes;
     NSMutableDictionary *_trackAttributes;
+    NSUInteger _lastSubtitleSidecarID;
 }
 
 + (SMMovie *)movie;

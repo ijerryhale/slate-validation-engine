@@ -37,7 +37,7 @@
 // Reached indirectly from controller import wrappers and subtitle-row reloads through SMMovie.
 NSDictionary *SMSyntheticSidecarDisplayTrackRepresentationFromDescriptor(NSDictionary *descriptor, SMTime fallbackDuration);
 
-// Returns cues active on [begin, end) in source order. Each returned cue is a
+// Returns cues active on [begin, end) in displayItems order. Each returned cue is a
 // copy with line endings normalized and may include `regionDefinition` when
 // its TTML region reference resolves against the supplied inventory. The
 // cue keys and optional text-run/layout metadata are defined by
@@ -70,10 +70,6 @@ BOOL SMSubtitleTTMLResolveDisplayItem(NSDictionary *displayItem, NSRect video, B
 - (void)drawInContext:(CGContextRef)context;
 @end
 
-// Ordered region paint for one enabled track, including regions with no cue.
-NSArray<SMSubtitleBackgroundFill *> *SMSubtitleTTMLRegionBackgrounds(NSDictionary *inventory, NSArray *activeItems,
-                                                                     NSRect video, BOOL flipped);
-
 // Returns nil for display items outside the TTML text contract.
 NSAttributedString *SMSubtitleTTMLText(NSDictionary *item, NSSize videoSize, SMSubtitleTTMLGeometry geometry);
 
@@ -83,4 +79,44 @@ NSAttributedString *SMSubtitleTTMLText(NSDictionary *item, NSSize videoSize, SMS
 @property (nonatomic, readonly) CGFloat blockExtent;
 - (NSRect)blockInFlippedRect:(NSRect)content alignment:(SMSubtitleBlockAlignment)alignment;
 - (void)drawInFlippedContext:(CGContextRef)context;
+@end
+
+typedef NS_ENUM(NSUInteger, SMSubtitleRenderMode) {
+    SMSubtitleRenderModeTextField,
+    SMSubtitleRenderModeMeasured,
+    SMSubtitleRenderModeCEA608,
+};
+
+@interface SMSubtitleRenderEntry : NSObject
+@property (nonatomic, readonly) NSString *key;
+@property (nonatomic, readonly) NSAttributedString *text;
+@property (nonatomic, readonly) NSRect contentRect;
+@property (nonatomic, readonly) NSRect clipRect;
+@property (nonatomic, readonly) SMSubtitleRenderMode mode;
+@property (nonatomic, readonly) SMSubtitleBlockAlignment blockAlignment;
+@property (nonatomic, readonly) CGFloat captionFontSize;
+@end
+
+// Applies the same AppKit cell settings for measurement and drawing.
+void SMConfigureSubtitleTextFieldCell(NSTextFieldCell *cell, SMSubtitleRenderEntry *entry);
+
+// All rectangles and background fills use the supplied video's coordinates.
+@interface SMSubtitleOverlayComposition : NSObject
+- (instancetype)initWithVideoRect:(NSRect)videoRect flipped:(BOOL)flipped;
+- (void)addActiveItems:(NSArray<NSDictionary *> *)items forSidecarID:(NSUInteger)sidecarID layoutInventory:(NSDictionary *)inventory;
+@property (nonatomic, readonly) NSArray<SMSubtitleRenderEntry *> *entries;
+@property (nonatomic, readonly) NSArray<SMSubtitleBackgroundFill *> *backgroundFills;
+@end
+
+SMSubtitleOverlayComposition *SMComposeSubtitleOverlay(NSArray<SMTrack *> *sidecars, SMTime time,
+                                                       NSRect videoRect, BOOL flipped,
+                                                       BOOL showSubtitles, BOOL showClosedCaptions);
+
+// Use one cache for the current movie. Returns YES when the overlay needs to
+// apply a new composition.
+@interface SMSubtitleOverlayCache : NSObject
+@property (nonatomic, readonly) SMSubtitleOverlayComposition *composition;
+- (BOOL)updateWithSidecars:(NSArray<SMTrack *> *)sidecars time:(SMTime)time
+                videoRect:(NSRect)videoRect flipped:(BOOL)flipped
+            showSubtitles:(BOOL)showSubtitles showClosedCaptions:(BOOL)showClosedCaptions;
 @end

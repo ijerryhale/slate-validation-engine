@@ -67,8 +67,10 @@ NSXMLDocument *SMSubtitleTTMLDocumentFromData(NSData *data, BOOL validate, NSErr
 // ITT parsing path, reached from TrackViewController -importITTSubtitleFromURL:.
 // XML element names are matched by local name, independent of namespace
 // prefixes. ITT paragraphs require explicit begin/end times; the first body
-// div begin supplies the common timeline offset. The document frame rate
-// defaults to 25 and may be adjusted by ttp:frameRateMultiplier.
+// div begin supplies the common timeline offset. The frame rate defaults to
+// 25 for media timing and 30 for declared SMPTE. SMPTE applies its drop mode
+// and the effective frame rate to the elapsed frame count.
+// SMMillisecondsForITTTimestamp parses the legacy/media clock expressions.
 BOOL SMMillisecondsForITTTimestamp(NSString *timestamp,
                                    double frameDurationInMilliseconds,
                                    SMSubtitleMilliseconds *outMilliseconds);
